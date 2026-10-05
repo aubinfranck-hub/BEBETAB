@@ -10,30 +10,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
+private data class StrokeData(val color: Color, val points: List<Offset>, val width: Float)
+
 @Composable
 fun DrawGame(){
-    var strokes by remember{mutableStateOf(listOf<Pair<Color,List<Offset>>>())}
-    var currentColor by remember{mutableStateOf(Color.Black)}
-    val colors=listOf(Color.Black,Color.Red,Color.Blue,Color.Green,Color.Yellow,Color.Magenta,Color.Cyan)
+    var strokes by remember { mutableStateOf(emptyList<StrokeData>()) }
+    var currentColor by remember { mutableStateOf(Color.Black) }
+    var brushWidth by remember { mutableFloatStateOf(10f) }
+    var eraser by remember { mutableStateOf(false) }
+    val colors = listOf(Color.Black, Color.Red, Color.Blue, Color.Green, Color(0xFFFFC107), Color.Magenta, Color.Cyan)
+
     Column(Modifier.fillMaxSize().padding(12.dp)){
-        Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
-            colors.forEach{c->Button(onClick={currentColor=c}){Text("●",color=c)}}
-            OutlinedButton(onClick={strokes::clear}){Text("Effacer tout")}
+        Row(horizontalArrangement=Arrangement.spacedBy(6.dp), verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){
+            colors.forEach { c ->
+                Button(onClick={ currentColor=c; eraser=false }, contentPadding=PaddingValues(horizontal=8.dp), modifier=Modifier.height(44.dp)){ Text("●", color=c) }
+            }
+            OutlinedButton(onClick={ eraser=true }, modifier=Modifier.height(44.dp)){ Text("Gomme") }
+            OutlinedButton(onClick={ brushWidth = 5f }, modifier=Modifier.height(44.dp)){ Text("Fin") }
+            OutlinedButton(onClick={ brushWidth = 10f }, modifier=Modifier.height(44.dp)){ Text("Moyen") }
+            OutlinedButton(onClick={ brushWidth = 18f }, modifier=Modifier.height(44.dp)){ Text("Épais") }
+            OutlinedButton(onClick={ strokes = emptyList() }, modifier=Modifier.height(44.dp)){ Text("Effacer tout") }
         }
         Spacer(Modifier.height(8.dp))
-        Canvas(Modifier.fillMaxSize().background(Color.White).pointerInput(currentColor){
+        Canvas(Modifier.fillMaxSize().background(Color.White).pointerInput(currentColor, brushWidth, eraser){
             detectDragGestures(
-                onDragStart={offset->strokes=strokes+(currentColor to listOf(offset))},
-                onDrag={change,_->change.consume();val last=strokes.last();strokes=strokes.dropLast(1)+(last.first to last.second+change.position)}
+                onDragStart={ offset ->
+                    val color = if (eraser) Color.White else currentColor
+                    strokes = strokes + StrokeData(color, listOf(offset), brushWidth)
+                },
+                onDrag={ change, _ ->
+                    change.consume()
+                    val last = strokes.lastOrNull() ?: return@detectDragGestures
+                    strokes = strokes.dropLast(1) + last.copy(points = last.points + change.position)
+                }
             )
         }){
-            strokes.forEach{(color,points)->
-                if(points.size>1){
-                    val path=Path().apply{moveTo(points.first().x,points.first().y);points.drop(1).forEach{lineTo(it.x,it.y)}}
-                    drawPath(path,color=color,style=androidx.compose.ui.graphics.drawscope.Stroke(width=10f))
+            strokes.forEach { s ->
+                if (s.points.size > 1) {
+                    val path=Path().apply{ moveTo(s.points.first().x,s.points.first().y); s.points.drop(1).forEach{lineTo(it.x,it.y)} }
+                    drawPath(path,color=s.color,style=Stroke(width=s.width))
                 }
             }
         }
