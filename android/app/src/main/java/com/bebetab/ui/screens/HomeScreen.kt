@@ -13,11 +13,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bebetab.ui.theme.*
+import com.bebetab.data.ProgressStore
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 data class HomeTile(val route:String,val fr:String,val en:String,val color:Color,val emoji:String)
 
 @Composable
 fun HomeScreen(onNavigate:(String)->Unit){
+    val context=LocalContext.current
+    val progressStore=androidx.compose.runtime.remember { ProgressStore(context) }
+    val stars by progressStore.stars.collectAsState(initial=0)
+    val level=stars/50+1
+    val remainder=stars%50
     val tiles=listOf(
         HomeTile("world","Monde","World",WorldGreen,"🌍"),
         HomeTile("learn","Apprendre","Learn",LearnOrange,"📖"),
@@ -33,6 +42,8 @@ fun HomeScreen(onNavigate:(String)->Unit){
             Column(Modifier.weight(.31f).fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally){
                 Text("BÉBÉ TAB",color=Yellow,fontSize=42.sp,fontWeight=FontWeight.Black)
                 Text("Jouer · Apprendre · Découvrir · Explorer",color=OutlineBlue,fontSize=12.sp,fontWeight=FontWeight.Bold)
+                Text("⭐ $stars  •  Niveau $level",fontWeight=FontWeight.Black,color=OutlineBlue)
+                LinearProgressIndicator(progress={remainder/50f},modifier=Modifier.fillMaxWidth().padding(horizontal=18.dp))
                 Spacer(Modifier.height(10.dp))
                 Text("🐘",fontSize=115.sp)
                 Card(shape=RoundedCornerShape(22.dp),colors=CardDefaults.cardColors(containerColor=Color.White),elevation=CardDefaults.cardElevation(7.dp)){
