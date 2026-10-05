@@ -3,6 +3,7 @@ import { UserProfile, KidsVideo } from "../../types";
 import { soundFx, speakText } from "../../utils/audio";
 import confetti from "canvas-confetti";
 import { MascotFanti } from "../MascotFanti";
+import { VideoComprehensionQuizModal } from "./VideoComprehensionQuizModal";
 import {
   ArrowLeft,
   Tv,
@@ -20,7 +21,10 @@ import {
   Volume2,
   CheckCircle2,
   Smile,
-  Palette
+  Palette,
+  HelpCircle,
+  Award,
+  Zap
 } from "lucide-react";
 
 interface VideosModuleProps {
@@ -43,6 +47,12 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
   const [newVideoTitle, setNewVideoTitle] = useState<string>("");
   const [newVideoCat, setNewVideoCat] = useState<string>("comptines");
   const [watchedVideos, setWatchedVideos] = useState<string[]>([]);
+  
+  // Interactive Quiz States
+  const [showQuizModal, setShowQuizModal] = useState<boolean>(false);
+  const [quizVideo, setQuizVideo] = useState<(KidsVideo & { views: string; rating: number; tag: string; fantiIntro: string }) | null>(null);
+  const [completedQuizzes, setCompletedQuizzes] = useState<Record<string, { score: number; total: number }>>({});
+  const [autoTriggerEnabled, setAutoTriggerEnabled] = useState<boolean>(true);
 
   const initialVideos: (KidsVideo & { views: string; rating: number; tag: string; fantiIntro: string })[] = [
     {
@@ -239,10 +249,33 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
 
     speakText(
       user.language === "fr"
-        ? "Bravo ! Tu as gagné 15 points d'expérience et 3 étoiles en regardant cette vidéo !"
-        : "Awesome! You earned 15 XP and 3 stars by watching this video!",
+        ? "Bravo champion ! Tu as gagné 15 XP et 3 étoiles ! Maintenant, place au super quiz de compréhension de Fanti !"
+        : "Awesome! You earned 15 XP and 3 stars! Now let's test what you learned with Fanti's quiz!",
       user.language === "fr" ? "fr-FR" : "en-US"
     );
+
+    // Automatically trigger the interactive comprehension quiz!
+    if (autoTriggerEnabled) {
+      setTimeout(() => {
+        setQuizVideo(vid);
+        setShowQuizModal(true);
+      }, 1000);
+    }
+  };
+
+  const handleOpenQuiz = (vid: typeof selectedVideo, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!vid) return;
+    soundFx.playPop();
+    setQuizVideo(vid);
+    setShowQuizModal(true);
+  };
+
+  const handleQuizCompleted = (videoId: string, score: number, total: number) => {
+    setCompletedQuizzes((prev) => ({
+      ...prev,
+      [videoId]: { score, total },
+    }));
   };
 
   const handleAddVideoSubmit = (e: React.FormEvent) => {
@@ -423,19 +456,77 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
             />
           </div>
 
+          {/* Interactive Quiz Automatic Prompt & Status */}
+          <div className="bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-purple-500/20 rounded-2xl p-3 border border-amber-400/40 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 bg-amber-400 text-slate-900 rounded-xl text-lg font-black shrink-0">
+                🧠
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black text-amber-300">
+                    Quiz de Compréhension Éducatif
+                  </span>
+                  {autoTriggerEnabled && (
+                    <span className="px-2 py-0.5 bg-emerald-500/90 text-white text-[10px] font-black rounded-full flex items-center gap-1 shadow-sm">
+                      <Zap className="w-3 h-3 fill-current" /> Auto-déclenchement activé
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-300 font-semibold">
+                  {completedQuizzes[selectedVideo.id]
+                    ? `🏆 Quiz déjà réussi avec ${completedQuizzes[selectedVideo.id].score}/${completedQuizzes[selectedVideo.id].total} ⭐ ! Tu peux rejouer pour réviser.`
+                    : "Termine la vidéo ou clique ci-dessous pour vérifier ce que tu as appris et gagner +25 XP et des étoiles !"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setAutoTriggerEnabled(!autoTriggerEnabled)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                  autoTriggerEnabled
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                    : "bg-slate-800 text-slate-400 border-slate-700"
+                }`}
+                title="Activer ou désactiver le déclenchement automatique du quiz"
+              >
+                Auto-Quiz : {autoTriggerEnabled ? "OUI ✅" : "NON"}
+              </button>
+
+              <button
+                onClick={() => handleOpenQuiz(selectedVideo)}
+                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg border border-amber-300 flex items-center gap-1.5 active:scale-95 transition-all"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span>Lancer le Quiz direct 🧠</span>
+              </button>
+            </div>
+          </div>
+
           {/* Reward Button After Watching */}
           <div className="pt-2 flex flex-wrap items-center justify-between gap-4">
             <span className="text-xs text-slate-400 font-bold flex items-center gap-1">
               👁️ {selectedVideo.views} vues • Durée : {selectedVideo.duration}
             </span>
 
-            <button
-              onClick={() => handleFinishVideo(selectedVideo)}
-              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-sm rounded-2xl shadow-xl border border-emerald-300 flex items-center gap-2 active:scale-95 transition-all animate-bounce"
-            >
-              <CheckCircle2 className="w-5 h-5" />
-              <span>J'ai terminé de regarder ! (+15 XP & 3 ⭐)</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => handleOpenQuiz(selectedVideo)}
+                className="px-4 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-xl border border-amber-300 flex items-center gap-2 active:scale-95 transition-all"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span>Tester ma Compréhension 🧠</span>
+              </button>
+
+              <button
+                onClick={() => handleFinishVideo(selectedVideo)}
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-sm rounded-2xl shadow-xl border border-emerald-300 flex items-center gap-2 active:scale-95 transition-all animate-bounce"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                <span>J'ai terminé ! 🎓 (+15 XP & Déclencher Quiz)</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -540,6 +631,28 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
                   <h4 className="font-black text-slate-900 text-base line-clamp-2 leading-snug">
                     {vid.title}
                   </h4>
+
+                  {/* Quiz Info & Direct Launch Button */}
+                  <div className="pt-1 flex items-center justify-between gap-2 border-t border-slate-100">
+                    {completedQuizzes[vid.id] ? (
+                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[11px] font-black rounded-lg flex items-center gap-1">
+                        🏆 Réussi : {completedQuizzes[vid.id].score}/{completedQuizzes[vid.id].total} ⭐
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-black rounded-lg flex items-center gap-1 border border-amber-200/60">
+                        🧠 Quiz Compréhension
+                      </span>
+                    )}
+
+                    <button
+                      onClick={(e) => handleOpenQuiz(vid, e)}
+                      className="px-2.5 py-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs rounded-xl flex items-center gap-1 shadow-sm active:scale-95 transition-all ml-auto"
+                      title="Lancer le quiz de compréhension"
+                    >
+                      <Sparkles className="w-3 h-3 text-slate-950" />
+                      <span>Quiz</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -628,6 +741,27 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
             </form>
           </div>
         </div>
+      )}
+
+      {/* INTERACTIVE VIDEO COMPREHENSION QUIZ MODAL */}
+      {quizVideo && (
+        <VideoComprehensionQuizModal
+          video={quizVideo}
+          user={user}
+          isOpen={showQuizModal}
+          onClose={() => {
+            setShowQuizModal(false);
+            setQuizVideo(null);
+          }}
+          onAwardXP={(xp, stars) => {
+            if (onAwardXP) onAwardXP(xp, stars);
+            handleQuizCompleted(quizVideo.id, 3, 3);
+          }}
+          onReplayVideo={() => {
+            setSelectedVideo(quizVideo);
+            setShowQuizModal(false);
+          }}
+        />
       )}
     </div>
   );
