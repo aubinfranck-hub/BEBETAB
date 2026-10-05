@@ -22,6 +22,7 @@ import { AdminAdDashboard } from "./components/ads/AdminAdDashboard";
 import { GeckoMascot } from "./components/GeckoMascot";
 import { soundFx } from "./utils/audio";
 import { PremiumModal } from "./components/PremiumModal";
+import { BebeTabFrame } from "./components/BebeTabFrame";
 
 export default function App() {
   // User Profile State with local persistence
@@ -272,7 +273,7 @@ export default function App() {
         </motion.div>
       ) : (
         /* Main Application Router */
-        <main className="flex-1 w-full">
+        <main className={`flex-1 w-full ${activeScreen !== "home" ? "bebetab-screen-frame" : ""}`}>
           {activeScreen === "home" && (
             <HomeLauncher
               user={user}
