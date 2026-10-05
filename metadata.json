@@ -1,0 +1,6 @@
+{
+  "name": "BéBé-TAB Kids World",
+  "description": "Application éducative et ludique pour enfants de 2 à 10 ans avec la mascotte IA Fanti, jeux, musique, dessin, histoires interactives et contrôle parental.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
