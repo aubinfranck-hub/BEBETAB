@@ -22,6 +22,7 @@ import { GeckoMascot } from "./components/GeckoMascot";
 import { soundFx } from "./utils/audio";
 import { PremiumModal } from "./components/PremiumModal";
 import { BebeTabFrame } from "./components/BebeTabFrame";
+import { ReferenceScreens } from "./components/ReferenceScreens";
 import { CountryModule } from "./components/CountryModule";
 
 export default function App() {
@@ -266,73 +267,15 @@ export default function App() {
               onOpenPremium={() => setIsPremiumOpen(true)}
             />
           ) : (
-            <BebeTabFrame
+            <ReferenceScreens
               screen={activeScreen}
               user={user}
               onBack={() => setActiveScreen("home")}
-              onOpenParents={() => setIsParentsOpen(true)}
-            >
-              {activeScreen === "apprendre" && (
-                <LearningModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
-              )}
-              {activeScreen === "jouer" && (
-                <GamesModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
-              )}
-              {activeScreen === "dessiner" && (
-                <DrawingModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
-              )}
-              {activeScreen === "musique" && (
-                <MusicModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
-              )}
-              {activeScreen === "histoires" && (
-                <StoriesModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
-              )}
-              {activeScreen === "quiz" && (
-                <QuizModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
-              )}
-              {activeScreen === "recompenses" && (
-                <RewardsModule
-                  user={user}
-                  onEquipOutfit={(outfit) => setUser((prev) => ({ ...prev, currentOutfit: outfit }))}
-                  onUnlockOutfit={(outfit, cost) => setUser((prev) => ({ ...prev, unlockedOutfits: [...prev.unlockedOutfits, outfit], currentOutfit: outfit, stars: prev.stars - cost }))}
-                  onBack={() => setActiveScreen("home")}
-                />
-              )}
-              {activeScreen === "world" && (
-                <WorldExplorerModule
-                  user={user}
-                  onBack={() => setActiveScreen("home")}
-                  onOpenLive={() => setActiveScreen("live")}
-                  onOpenCountry={() => setActiveScreen("country")}
-                  onAwardXP={handleAwardXP}
-                />
-              )}
-              {activeScreen === "country" && (
-                <CountryModule user={user} onBack={() => setActiveScreen("world")} onAwardXP={handleAwardXP} />
-              )}
-              {activeScreen === "live" && (
-                <LiveWorldModule user={user} onBack={() => setActiveScreen("home")} onOpenWorld={() => setActiveScreen("world")} />
-              )}
-              {activeScreen === "mondes" && (
-                <WorldsModule
-                  user={user}
-                  onChangeWorld={(world) => setUser((prev) => ({ ...prev, currentWorld: world }))}
-                  onAwardXP={handleAwardXP}
-                  onBack={() => setActiveScreen("home")}
-                />
-              )}
-              {activeScreen === "videos" && (
-                <VideosModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
-              )}
-              {activeScreen === "defis" && (
-                <DailyChallengesModule
-                  user={user}
-                  onAwardXP={handleAwardXP}
-                  onNavigate={(screen) => setActiveScreen(screen)}
-                  onBack={() => setActiveScreen("home")}
-                />
-              )}
-            </BebeTabFrame>
+              onParents={() => setIsParentsOpen(true)}
+              onPremium={() => setIsPremiumOpen(true)}
+              onNavigate={(screen) => setActiveScreen(screen)}
+              onAwardXP={handleAwardXP}
+            />
           )}
         </main>
 
