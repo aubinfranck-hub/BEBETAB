@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.bebetab.data.ParentSettingsStore
 import com.bebetab.ui.screens.*
@@ -64,7 +65,7 @@ private fun BebeTabNavigation() {
         if (locked) {
             ScreenTimeLock(
                 minutes = dailyMinutes,
-                onParentUnlock = { locked = false },
+                onParentUnlock = { scope.launch { settings.resetUsage(); locked = false } },
                 onClose = { finishApp(navController) }
             )
         }
