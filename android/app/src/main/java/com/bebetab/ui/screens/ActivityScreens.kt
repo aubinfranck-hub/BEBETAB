@@ -18,12 +18,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun LearnActivityScreen(onBack:()->Unit){
+fun LearnActivityScreen(onBack:()->Unit,onSettings:()->Unit={}){
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
     val store=remember { ProgressStore(context) }
     val award:(Int)->Unit={ n -> scope.launch { store.addStars(n) } }
-    BebeTabFrame("APPRENDRE",onBack){
+    BebeTabFrame("APPRENDRE",onBack,onSettings){
         Row(Modifier.fillMaxSize(),horizontalArrangement=Arrangement.spacedBy(12.dp)){
             Card(Modifier.weight(1f).fillMaxHeight()){ QuizLettres(award) }
             Card(Modifier.weight(1f).fillMaxHeight()){ QuizNombres(award) }
@@ -32,25 +32,25 @@ fun LearnActivityScreen(onBack:()->Unit){
 }
 
 @Composable
-fun PlayActivityScreen(onBack:()->Unit){
+fun PlayActivityScreen(onBack:()->Unit,onSettings:()->Unit={}){
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
     val store=remember { ProgressStore(context) }
     val award:(Int)->Unit={ n -> scope.launch { store.addStars(n) } }
-    BebeTabFrame("JOUER",onBack){ MemoryGame(award) }
+    BebeTabFrame("JOUER",onBack,onSettings){ MemoryGame(award) }
 }
 
 @Composable
-fun StoryActivityScreen(onBack:()->Unit){
-    BebeTabFrame("HISTOIRES",onBack){ StoryReader() }
+fun StoryActivityScreen(onBack:()->Unit,onSettings:()->Unit={}){
+    BebeTabFrame("HISTOIRES",onBack,onSettings){ StoryReader() }
 }
 
 @Composable
-fun MusicActivityScreen(onBack:()->Unit){
-    BebeTabFrame("MUSIQUE",onBack){ MusicKeyboard() }
+fun MusicActivityScreen(onBack:()->Unit,onSettings:()->Unit={}){
+    BebeTabFrame("MUSIQUE",onBack,onSettings){ MusicKeyboard() }
 }
 
 @Composable
-fun DrawActivityScreen(onBack:()->Unit){
-    BebeTabFrame("DESSINER",onBack){ DrawGame() }
+fun DrawActivityScreen(onBack:()->Unit,onSettings:()->Unit={}){
+    BebeTabFrame("DESSINER",onBack,onSettings){ DrawGame() }
 }
