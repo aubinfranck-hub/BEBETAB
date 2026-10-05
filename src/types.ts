@@ -1,4 +1,5 @@
 export type AgeGroup = "2-4" | "5-7" | "8-10";
+export type SubscriptionPlan = "free" | "premium" | "family";
 
 export type WorldTheme = 
   | "Jungle" 
@@ -63,6 +64,7 @@ export interface UserProfile {
   screenTimeLimitMinutes: number; // 0 = unlimited
   isLockedByTime: boolean;
   language: "fr" | "en";
+  plan: SubscriptionPlan;
 }
 
 export interface Badge {
