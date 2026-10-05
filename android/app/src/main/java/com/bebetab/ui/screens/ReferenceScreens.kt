@@ -213,7 +213,7 @@ private fun CountryScreen(country: CountryContent, lang: String, onBack: () -> U
 @Composable
 private fun CountryCard(text: String, emoji: String) {
     Surface(
-        Modifier.fillMaxWidth().weight(1f).shadow(2.dp, RoundedCornerShape(15.dp)),
+        Modifier.fillMaxWidth().height(92.dp).shadow(2.dp, RoundedCornerShape(15.dp)),
         shape = RoundedCornerShape(15.dp),
         color = Color.White
     ) {
