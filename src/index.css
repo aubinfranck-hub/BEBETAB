@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+:root{
+  font-family: "Trebuchet MS", "Arial Rounded MT Bold", system-ui, sans-serif;
+  color-scheme: light;
+}
+html,body,#root{min-height:100%;margin:0}
+body{background:#08a8e5;overflow-x:hidden}
+button,input,textarea{font-family:inherit}
+button{touch-action:manipulation}
+*{box-sizing:border-box}
+
+/* BEBETAB WORLD visual language — common to every screen */
+.bebetab-screen-frame{
+  background:linear-gradient(180deg,#08a8e5 0%,#61d8ef 56%,#efbc68 100%) !important;
+}
+.bebetab-screen-frame h1,
+.bebetab-screen-frame h2,
+.bebetab-screen-frame h3{letter-spacing:-.025em}
+.bebetab-screen-frame .rounded-3xl,
+.bebetab-screen-frame .rounded-\[32px\],
+.bebetab-screen-frame .rounded-\[34px\]{box-shadow:0 10px 28px rgba(0,67,108,.18)}
+@media (max-width:900px){
+  body{font-size:15px}
+}
