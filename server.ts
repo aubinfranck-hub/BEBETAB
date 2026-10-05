@@ -137,7 +137,7 @@ interface AdBroadcast {
   url: string;
   duration: number; // in seconds
   sponsor?: string;
-  locked: boolean; // if true, user cannot exit app or close ad until finished
+  locked: boolean; // kept false for child-safe freemium ads
   createdAt: number;
 }
 
@@ -198,7 +198,7 @@ app.get("/api/ads/current", (_req, res) => {
 
 // POST launch new broadcast ad to all connected users
 app.post("/api/ads/broadcast", (req, res) => {
-  const { title, type, url, duration, sponsor, locked = true } = req.body;
+  const { title, type, url, duration, sponsor, locked = false } = req.body;
 
   if (!url || !title) {
     return res.status(400).json({ error: "URL et Titre de l'annonce requis" });
