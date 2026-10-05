@@ -3,9 +3,9 @@ import { motion } from "motion/react";
 import { ActiveScreen, UserProfile } from "../types";
 import { HeroFanti, GlobeIllustration } from "./BebeTabArt";
 import { soundFx } from "../utils/audio";
-import { Play, Settings, Star, Gift, Gamepad2, BookOpen, Music2, Palette, Globe2, Camera, Trophy } from "lucide-react";
+import { Play, Settings, Star, Gift, Crown } from "lucide-react";
 
-interface Props { user:UserProfile; onNavigate:(screen:ActiveScreen)=>void; onOpenFantiChat:()=>void; onOpenParents:()=>void; }
+interface Props { user:UserProfile; onNavigate:(screen:ActiveScreen)=>void; onOpenFantiChat:()=>void; onOpenParents:()=>void; onOpenPremium?:()=>void; }
 
 const navCards=[
   ["world","🌍","MONDE","World","from-emerald-500 to-green-500"],
@@ -18,7 +18,7 @@ const navCards=[
   ["recompenses","⭐","MES RÉCOMPENSES","My Rewards","from-lime-500 to-emerald-600"],
 ] as const;
 
-export const HomeLauncher:React.FC<Props>=({user,onNavigate,onOpenFantiChat,onOpenParents})=>(
+export const HomeLauncher:React.FC<Props>=({user,onNavigate,onOpenFantiChat,onOpenParents,onOpenPremium})=>(
   <div className="min-h-[calc(100vh-0px)] overflow-hidden bg-[linear-gradient(180deg,#11b9ef_0%,#54d3ed_57%,#f3bb62_100%)]">
     <div className="max-w-[1536px] mx-auto px-5 sm:px-8 pt-5 pb-6">
       <section className="relative min-h-[520px] rounded-[34px] overflow-hidden">
@@ -31,7 +31,7 @@ export const HomeLauncher:React.FC<Props>=({user,onNavigate,onOpenFantiChat,onOp
           <div className="w-28 h-3 rounded-full bg-slate-200 overflow-hidden"><div className="h-full bg-gradient-to-r from-lime-400 via-yellow-400 to-orange-500" style={{width:`${Math.min(100,user.xp%100)}%`}}/></div>
           <button className="px-3 py-2 rounded-full bg-white border-2 border-sky-100 font-black text-xs">FR</button>
           <button className="px-3 py-2 rounded-full bg-blue-600 text-white font-black text-xs">EN</button>
-          <button onClick={onOpenParents} className="w-9 h-9 rounded-full bg-white border-2 border-sky-100 flex items-center justify-center"><Settings className="w-5 h-5 text-blue-700"/></button>
+          <button onClick={onOpenPremium} className="w-9 h-9 rounded-full bg-white border-2 border-sky-100 flex items-center justify-center"><Crown className="w-5 h-5 text-amber-500"/></button><button onClick={onOpenParents} className="w-9 h-9 rounded-full bg-white border-2 border-sky-100 flex items-center justify-center"><Settings className="w-5 h-5 text-blue-700"/></button>
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_25%,rgba(255,255,255,.75)_0,transparent_18%),radial-gradient(circle_at_85%_18%,rgba(255,255,255,.7)_0,transparent_15%)]"/>
         <div className="absolute left-0 right-0 bottom-0 h-40 bg-gradient-to-t from-[#e8a54e] to-transparent"/>
