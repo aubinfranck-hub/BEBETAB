@@ -31,7 +31,9 @@ export type ActiveScreen =
   | "videos" 
   | "parents" 
   | "fanti-chat"
-  | "defis";
+  | "defis"
+  | "world"
+  | "live";
 
 export interface DailyChallenge {
   id: string;
