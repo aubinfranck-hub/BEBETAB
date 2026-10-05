@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -240,14 +241,14 @@ fun DrawActivityScreen(onBack: () -> Unit, onSettings: () -> Unit = {}) {
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    DrawMode("🖌️", if (language=="en") "Free drawing" else "Dessin libre", DrawYellow)
-                    DrawMode("🦋", if (language=="en") "Coloring" else "Coloriage", Color(0xFFFFB22E))
-                    DrawMode("A", if (language=="en") "Trace letters" else "Tracer lettres", Color(0xFF3DA6EF))
+                    DrawMode(Modifier.weight(1f), "🖌️", if (language=="en") "Free drawing" else "Dessin libre", DrawYellow)
+                    DrawMode(Modifier.weight(1f), "🦋", if (language=="en") "Coloring" else "Coloriage", Color(0xFFFFB22E))
+                    DrawMode(Modifier.weight(1f), "A", if (language=="en") "Trace letters" else "Tracer lettres", Color(0xFF3DA6EF))
                 }
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    DrawMode("1 2 3", if (language=="en") "Trace numbers" else "Tracer chiffres", Color(0xFFAA6CF2))
-                    DrawMode("🔵", if (language=="en") "Shapes" else "Formes", Color(0xFF7CCB38))
-                    DrawMode("🎵", if (language=="en") "Create music" else "Créer musique", MusicPink)
+                    DrawMode(Modifier.weight(1f), "1 2 3", if (language=="en") "Trace numbers" else "Tracer chiffres", Color(0xFFAA6CF2))
+                    DrawMode(Modifier.weight(1f), "🔵", if (language=="en") "Shapes" else "Formes", Color(0xFF7CCB38))
+                    DrawMode(Modifier.weight(1f), "🎵", if (language=="en") "Create music" else "Créer musique", MusicPink)
                 }
             }
         }
@@ -255,10 +256,10 @@ fun DrawActivityScreen(onBack: () -> Unit, onSettings: () -> Unit = {}) {
 }
 
 @Composable
-private fun DrawMode(icon: String, label: String, color: Color) {
+private fun DrawMode(modifier: Modifier, icon: String, label: String, color: Color) {
     Button(
         onClick = {},
-        modifier = Modifier.weight(1f).fillMaxHeight().shadow(3.dp, RoundedCornerShape(20.dp)),
+        modifier = modifier.fillMaxHeight().shadow(3.dp, RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(containerColor = color)
     ) {
