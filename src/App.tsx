@@ -11,6 +11,8 @@ import { StoriesModule } from "./components/stories/StoriesModule";
 import { QuizModule } from "./components/quiz/QuizModule";
 import { RewardsModule } from "./components/rewards/RewardsModule";
 import { WorldsModule } from "./components/worlds/WorldsModule";
+import { WorldExplorerModule } from "./components/worlds/WorldExplorerModule";
+import { LiveWorldModule } from "./components/worlds/LiveWorldModule";
 import { VideosModule } from "./components/videos/VideosModule";
 import { DailyChallengesModule } from "./components/defis/DailyChallengesModule";
 import { ParentsPortal } from "./components/parents/ParentsPortal";
@@ -340,6 +342,14 @@ export default function App() {
               }
               onBack={() => setActiveScreen("home")}
             />
+          )}
+
+          {activeScreen === "world" && (
+            <WorldExplorerModule user={user} onBack={() => setActiveScreen("home")} onOpenLive={() => setActiveScreen("live")} onAwardXP={handleAwardXP} />
+          )}
+
+          {activeScreen === "live" && (
+            <LiveWorldModule user={user} onBack={() => setActiveScreen("home")} onOpenWorld={() => setActiveScreen("world")} />
           )}
 
           {activeScreen === "mondes" && (
