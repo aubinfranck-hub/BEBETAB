@@ -1,0 +1,15 @@
+package com.bebetab.ui.theme
+import androidx.compose.ui.graphics.Color
+val SkyBlue=Color(0xFF7FD3FF)
+val SkyLight=Color(0xFFD9F3FF)
+val Yellow=Color(0xFFFFD54F)
+val OutlineBlue=Color(0xFF1E88E5)
+val WorldGreen=Color(0xFF43A047)
+val LearnOrange=Color(0xFFFB8C00)
+val PlayRed=Color(0xFFE53935)
+val StoriesPurple=Color(0xFF8E24AA)
+val LiveBlue=Color(0xFF039BE5)
+val MusicPink=Color(0xFFD81B60)
+val DrawYellow=Color(0xFFFDD835)
+val RewardsGreen=Color(0xFF2E7D32)
+val GroundGold=Color(0xFFE7AA55)
