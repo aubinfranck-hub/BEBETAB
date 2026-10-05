@@ -24,7 +24,13 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         setContent { BebeTabTheme { BebeTabNavigation() } }
     }
 }
@@ -98,21 +104,15 @@ private fun ScreenTimeLock(
                     "La limite quotidienne de $minutes minutes est atteinte.",
                     style = MaterialTheme.typography.bodyLarge
                 )
-                Text(
-                    "Un parent peut déverrouiller la tablette pour continuer."
-                )
+                Text("Un parent peut déverrouiller la tablette pour continuer.")
                 OutlinedTextField(
                     value = code,
                     onValueChange = { code = it.filter(Char::isDigit).take(4) },
                     label = { Text("Code parent") }
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = { if (code == "2580") onUnlock() }) {
-                        Text("Continuer")
-                    }
-                    OutlinedButton(onClick = onClose) {
-                        Text("Fermer")
-                    }
+                    Button(onClick = { if (code == "2580") onUnlock() }) { Text("Continuer") }
+                    OutlinedButton(onClick = onClose) { Text("Fermer") }
                 }
             }
         }
