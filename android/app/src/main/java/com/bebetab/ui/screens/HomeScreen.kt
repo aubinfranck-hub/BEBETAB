@@ -61,6 +61,7 @@ fun HomeScreen(onNavigate:(String)->Unit){
                             Text("🦒",fontSize=75.sp)
                             Text("LIVE WORLD",fontWeight=FontWeight.Black,color=OutlineBlue)
                             Button(onClick={onNavigate("live")}){Text("▶ Regarder")}
+                            Button(onClick={onNavigate("world")},shape=RoundedCornerShape(18.dp),colors=ButtonDefaults.buttonColors(containerColor=Color(0xFFFF8F00))){Text("🌍 EXPLORER LE MONDE",fontWeight=FontWeight.Black,color=Color.White)}
                         }
                     }
                 }
