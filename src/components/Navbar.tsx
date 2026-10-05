@@ -1,22 +1,40 @@
 import React from "react";
 import { UserProfile, ActiveScreen } from "../types";
 import { soundFx } from "../utils/audio";
-import { Home, Star, Globe2, Sparkles, Lock, Crown } from "lucide-react";
+import { Home, Star, Settings, Crown, Globe2 } from "lucide-react";
 
-interface Props { user:UserProfile; activeScreen:ActiveScreen; onNavigate:(screen:ActiveScreen)=>void; onOpenParentalGate:()=>void; onToggleLanguage:()=>void; onOpenFantiChat:()=>void; onOpenAdminAdDashboard?:()=>void; onOpenPremium?:()=>void; }
+interface Props {
+  user: UserProfile;
+  activeScreen: ActiveScreen;
+  onNavigate: (screen: ActiveScreen) => void;
+  onOpenParentalGate: () => void;
+  onToggleLanguage: () => void;
+  onOpenFantiChat: () => void;
+  onOpenAdminAdDashboard?: () => void;
+  onOpenPremium?: () => void;
+}
 
-export const Navbar: React.FC<Props> = ({user,activeScreen,onNavigate,onOpenParentalGate,onToggleLanguage,onOpenFantiChat,onOpenPremium}) => (
- <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b-4 border-sky-300 px-3 sm:px-6 py-2.5 shadow-lg flex items-center justify-between gap-3">
-   <button onClick={()=>{soundFx.playTap();onNavigate("home")}} className="flex items-center gap-2">
-     <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl shadow-md">🐘</div>
-     <div className="hidden sm:block text-left"><div className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500">BEBETAB</div><div className="text-[9px] font-black text-slate-500 tracking-[.2em] -mt-1">WORLD • KIDS</div></div>
-   </button>
-   <div className="flex items-center gap-2">
-     <button onClick={()=>onNavigate("world")} className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-sky-100 text-sky-800 font-black text-xs"><Globe2 className="w-4 h-4"/><span>Monde</span></button>
-     <div className="px-3 py-2 rounded-xl bg-amber-100 text-amber-900 font-black text-xs flex items-center gap-1"><Star className="w-4 h-4 fill-amber-400 text-amber-500"/>{user.stars}</div>
-     <button onClick={onOpenFantiChat} className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 text-white font-black text-xs flex items-center gap-1.5 shadow"><Sparkles className="w-4 h-4 text-yellow-300"/> <span className="hidden lg:inline">Fanti</span></button>
-     {onOpenPremium && <button onClick={onOpenPremium} className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-white font-black text-xs flex items-center gap-1 shadow"><Crown className="w-4 h-4"/> <span className="hidden sm:inline">Premium</span></button>}\n     <button onClick={onToggleLanguage} className="px-3 py-2 rounded-xl bg-slate-100 text-slate-800 font-black text-xs border-2 border-slate-200">{user.language==="fr"?"FR":"EN"}</button>
-     <button onClick={onOpenParentalGate} className="p-2 rounded-xl bg-rose-500 text-white shadow" title="Parents"><Lock className="w-4 h-4"/></button>
-   </div>
- </header>
-);
+export const Navbar: React.FC<Props> = ({user, activeScreen, onNavigate, onOpenParentalGate, onToggleLanguage, onOpenPremium}) => {
+  const home = activeScreen === "home";
+  return (
+    <header className={`z-40 px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 ${home ? "absolute top-0 left-0 right-0 bg-transparent" : "sticky top-0 bg-white/95 backdrop-blur-xl border-b-4 border-sky-300 shadow-lg"}`}>
+      <button onClick={()=>{soundFx.playTap();onNavigate("home")}} className={`flex items-center gap-2 ${home ? "opacity-0 pointer-events-none" : ""}`}>
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-2xl shadow">🐘</div>
+        <div className="text-left"><div className="text-xl font-black text-blue-700">BEBETAB</div><div className="text-[8px] font-black text-slate-500 tracking-[.18em]">WORLD • KIDS</div></div>
+      </button>
+      <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
+        <div className="hidden sm:flex items-center gap-2 bg-white/95 rounded-full px-3 py-1.5 shadow-lg border-2 border-sky-100">
+          <div className="w-8 h-8 rounded-full bg-amber-300 flex items-center justify-center">👦🏾</div>
+          <span className="font-black text-slate-800">{user.name}</span>
+          <Star className="w-5 h-5 fill-amber-400 text-amber-500"/><b>{user.stars.toLocaleString("fr-FR")}</b>
+          <span className="text-[10px] font-black text-slate-500">NIVEAU {user.level}</span>
+          <div className="w-24 h-3 rounded-full bg-slate-200 overflow-hidden"><div className="h-full bg-gradient-to-r from-lime-400 via-yellow-400 to-orange-500" style={{width:`${Math.min(100,(user.xp%100))}%`}}/></div>
+        </div>
+        {onOpenPremium && <button onClick={onOpenPremium} className="px-3 py-2 rounded-full bg-white/95 shadow font-black text-xs text-slate-800"><Crown className="inline w-4 h-4 text-amber-500"/> Premium</button>}
+        <button onClick={onToggleLanguage} className="px-3 py-2 rounded-full bg-white/95 shadow font-black text-xs">{user.language==="fr"?"FR":"EN"}</button>
+        <button onClick={onToggleLanguage} className="hidden sm:block px-3 py-2 rounded-full bg-blue-600 text-white shadow font-black text-xs">{user.language==="fr"?"EN":"FR"}</button>
+        <button onClick={onOpenParentalGate} className="p-2.5 rounded-full bg-white/95 text-blue-700 shadow"><Settings className="w-5 h-5"/></button>
+      </div>
+    </header>
+  );
+};
