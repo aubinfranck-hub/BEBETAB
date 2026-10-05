@@ -11,7 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bebetab.ui.screens.HomeScreen
-import com.bebetab.ui.screens.SimpleScreen
+import com.bebetab.ui.screens.ReferenceScreen
 import com.bebetab.ui.theme.BebeTabTheme
 
 class MainActivity : ComponentActivity() {
@@ -28,7 +28,7 @@ private fun BebeTabNavigation() {
     NavHost(navController = navController, startDestination = "home", modifier = Modifier.fillMaxSize()) {
         composable("home") { HomeScreen { navController.navigate(it) } }
         listOf("world","learn","play","stories","live","music","draw","rewards").forEach { route ->
-            composable(route) { SimpleScreen(route) { navController.popBackStack() } }
+            composable(route) { ReferenceScreen(route) { navController.popBackStack() } }
         }
     }
 }
