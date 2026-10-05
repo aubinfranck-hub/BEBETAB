@@ -412,7 +412,7 @@ export default function App() {
       )}
 
       {/* Mandatory Broadcast Ad Overlay for connected clients */}
-      <AdBroadcastOverlay
+      {user.plan === "free" && <AdBroadcastOverlay
         onRewardUser={(_stars) => {
           setUser((prev) => ({
             ...prev,
@@ -420,7 +420,7 @@ export default function App() {
             xp: prev.xp + 50,
           }));
         }}
-      />
+      />}
 
       {/* Animated Gecko Mascot */}
       <GeckoMascot />
