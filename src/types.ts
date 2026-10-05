@@ -34,7 +34,8 @@ export type ActiveScreen =
   | "fanti-chat"
   | "defis"
   | "world"
-  | "live";
+  | "live"
+  | "country";
 
 export interface DailyChallenge {
   id: string;
