@@ -18,20 +18,20 @@ import com.bebetab.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun ReferenceScreen(route:String,onBack:()->Unit){
+fun ReferenceScreen(route:String,onBack:()->Unit,onSettings:()->Unit={}){
     when(route){
-        "world" -> WorldScreen(onBack)
-        "live" -> LiveScreen(onBack)
-        "rewards" -> RewardsScreen(onBack)
+        "world" -> WorldScreen(onBack,onSettings)
+        "live" -> LiveScreen(onBack,onSettings)
+        "rewards" -> RewardsScreen(onBack,onSettings)
         else -> SimpleScreen(route,onBack)
     }
 }
 
 @Composable
-private fun WorldScreen(onBack:()->Unit){
+private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit){
     var france by remember{mutableStateOf(false)}
     if(france){ CountryFranceScreen{france=false}; return }
-    BebeTabFrame("EXPLORER LE MONDE",onBack){
+    BebeTabFrame("EXPLORER LE MONDE",onBack,onSettings){
         Row(Modifier.fillMaxSize(),horizontalArrangement=Arrangement.spacedBy(14.dp)){
             Card(Modifier.weight(1.35f).fillMaxHeight(),shape=RoundedCornerShape(28.dp)){
                 Column(Modifier.fillMaxSize().padding(18.dp),horizontalAlignment=Alignment.CenterHorizontally){
@@ -82,8 +82,8 @@ private fun CountryFranceScreen(onBack:()->Unit){
 }
 
 @Composable
-private fun LiveScreen(onBack:()->Unit){
-    BebeTabFrame("LIVE WORLD",onBack){
+private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
+    BebeTabFrame("LIVE WORLD",onBack,onSettings){
         Column(Modifier.fillMaxSize(),verticalArrangement=Arrangement.spacedBy(12.dp)){
             Text("🔴 EN DIRECT  •  Découvre le monde",fontSize=22.sp,fontWeight=FontWeight.Black,color=Color.Red)
             val places=listOf("🇫🇷 Paris","🇺🇸 New York","🇯🇵 Tokyo","🇰🇪 Nairobi","🦁 Savane","🐠 Récif corallien")
@@ -97,13 +97,13 @@ private fun LiveScreen(onBack:()->Unit){
 }
 
 @Composable
-private fun RewardsScreen(onBack:()->Unit){
+private fun RewardsScreen(onBack:()->Unit,onSettings:()->Unit){
     val context=LocalContext.current
     val store=remember{ProgressStore(context)}
     val stars by store.stars.collectAsState(initial=0)
     val level=stars/50+1
     val progress=(stars%50)/50f
-    BebeTabFrame("MES RÉCOMPENSES",onBack){
+    BebeTabFrame("MES RÉCOMPENSES",onBack,onSettings){
         Row(Modifier.fillMaxSize(),horizontalArrangement=Arrangement.spacedBy(18.dp),verticalAlignment=Alignment.CenterVertically){
             Card(Modifier.weight(1f).fillMaxHeight(),shape=RoundedCornerShape(28.dp)){
                 Column(Modifier.fillMaxSize().padding(18.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){
