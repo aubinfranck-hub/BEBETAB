@@ -16,7 +16,8 @@ fun StoryReader(){
     val context=androidx.compose.ui.platform.LocalContext.current
     var tts by remember{mutableStateOf<TextToSpeech?>(null)}
     DisposableEffect(Unit){
-        val engine=TextToSpeech(context){ if(it==TextToSpeech.SUCCESS) engine.language=Locale.FRANCE }
+        lateinit var engine: TextToSpeech
+        engine=TextToSpeech(context){ if(it==TextToSpeech.SUCCESS) engine.language=Locale.FRANCE }
         tts=engine
         onDispose{engine.stop();engine.shutdown()}
     }
