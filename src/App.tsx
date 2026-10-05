@@ -166,23 +166,6 @@ export default function App() {
     <div
       className={`min-h-screen bg-gradient-to-br ${worldGradients[user.currentWorld]} font-sans transition-colors duration-700 flex flex-col justify-between select-none pb-12`}
     >
-      {/* Top Navbar */}
-      <Navbar
-        user={user}
-        activeScreen={activeScreen}
-        onNavigate={(screen) => setActiveScreen(screen)}
-        onOpenParentalGate={() => setIsParentsOpen(true)}
-        onToggleLanguage={() =>
-          setUser((prev) => ({
-            ...prev,
-            language: prev.language === "fr" ? "en" : "fr",
-          }))
-        }
-        onOpenFantiChat={() => setIsFantiChatOpen(true)}
-        onOpenPremium={() => setIsPremiumOpen(true)}
-        onOpenAdminAdDashboard={() => setIsAdminAdDashboardOpen(true)}
-      />
-
       {/* Screen Time Rest Screen with Fade-to-Black Night Animation */}
       {user.isLockedByTime ? (
         <motion.div
@@ -281,6 +264,7 @@ export default function App() {
               onNavigate={(screen) => setActiveScreen(screen)}
               onOpenFantiChat={() => setIsFantiChatOpen(true)}
               onOpenParents={() => setIsParentsOpen(true)}
+              onOpenPremium={() => setIsPremiumOpen(true)}
             />
           ) : (
             <BebeTabFrame
