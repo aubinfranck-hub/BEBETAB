@@ -1,5 +1,7 @@
 package com.bebetab.ui.games
 
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -42,10 +44,18 @@ fun StoryReader(){
 @Composable
 fun MusicKeyboard(){
     val keys=listOf("Do","Ré","Mi","Fa","Sol","La","Si","Do")
+    val toneGenerator=remember{ToneGenerator(AudioManager.STREAM_MUSIC,85)}
+    DisposableEffect(Unit){ onDispose{toneGenerator.release()} }
     Column(Modifier.fillMaxSize().padding(20.dp),horizontalAlignment=Alignment.CenterHorizontally){
         Text("Mon clavier musical",fontSize=28.sp,fontWeight=FontWeight.Black)
-        Row(Modifier.fillMaxWidth().height(180.dp)){
-            keys.forEach{key->Button(onClick={},Modifier.weight(1f).fillMaxHeight()){Text(key,fontSize=17.sp,fontWeight=FontWeight.Black)}}
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth().height(180.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)){
+            keys.forEachIndexed{index,key->
+                Button(onClick={ toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP,180) },modifier=Modifier.weight(1f).fillMaxHeight()){
+                    Text(key,fontSize=17.sp,fontWeight=FontWeight.Black)
+                }
+            }
         }
+        Text("Do • Ré • Mi • Fa • Sol • La • Si • Do",modifier=Modifier.padding(top=12.dp))
     }
 }
