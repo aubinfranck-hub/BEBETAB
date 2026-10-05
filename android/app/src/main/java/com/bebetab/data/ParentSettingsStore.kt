@@ -3,7 +3,7 @@ package com.bebetab.data
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
@@ -25,5 +25,5 @@ class ParentSettingsStore(private val context: Context) {
     suspend fun setLanguage(value: String) = context.parentDataStore.edit { it[languageKey] = value }
     suspend fun setDailyMinutes(value: Int) = context.parentDataStore.edit { it[dailyMinutesKey] = value.coerceIn(5, 240) }
     suspend fun setTimerEnabled(value: Boolean) = context.parentDataStore.edit { it[timerEnabledKey] = value }
-    suspend fun setChildName(value: String) = context.parentDataStore.edit { it[childNameKey] = value.take(24) }
+    suspend fun setChildName(value: String) = context.parentDataStore.edit { it[childNameKey] = value.trim().take(24) }
 }
