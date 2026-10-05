@@ -3,13 +3,13 @@ import { UserProfile } from "../../types";
 import { ArrowLeft, Search, ChevronRight, Camera } from "lucide-react";
 import { WorldMapIllustration, HeroFanti } from "../BebeTabArt";
 
-interface Props{user:UserProfile;onBack:()=>void;onOpenLive:()=>void;onAwardXP?:(xp:number,stars:number)=>void}
+interface Props{user:UserProfile;onBack:()=>void;onOpenLive:()=>void;onOpenCountry?:()=>void;onAwardXP?:(xp:number,stars:number)=>void}
 
 const places=[["🗼","Paris","France"],["🗽","New York","États-Unis"],["🦒","Nairobi","Kenya"],["🗻","Tokyo","Japon"],["🏜️","Le Caire","Égypte"]];
 const cats=[["🏙️","Villes"],["🦁","Animaux"],["🎭","Cultures"],["🏛️","Monuments"],["🌳","Nature"],["🐠","Oceans"],["🪐","Espace"],["🧑‍🚀","Métiers"],["🍲","Cuisine"],["🗣️","Langues"],["⌛","Histoire"]];
 const continents=[["AMÉRIQUE","left-[15%] top-[35%]","bg-cyan-600"],["EUROPE","left-[46%] top-[22%]","bg-emerald-600"],["ASIE","left-[68%] top-[32%]","bg-orange-500"],["AFRIQUE","left-[47%] top-[54%]","bg-red-500"],["OCÉANIE","left-[76%] top-[69%]","bg-cyan-600"],["ANTARCTIQUE","left-[20%] top-[82%]","bg-blue-600"]];
 
-export const WorldExplorerModule:React.FC<Props>=({user,onBack,onOpenLive,onAwardXP})=>{
+export const WorldExplorerModule:React.FC<Props>=({user,onBack,onOpenLive,onOpenCountry,onAwardXP})=>{
  const [selected,setSelected]=useState("AFRIQUE");
  return <div className="min-h-screen bg-[#08a8e5]">
   <div className="max-w-[1536px] mx-auto px-4 sm:px-7 pt-4 pb-6">
@@ -27,7 +27,7 @@ export const WorldExplorerModule:React.FC<Props>=({user,onBack,onOpenLive,onAwar
     </section>
     <aside className="bg-white rounded-[30px] p-3 shadow-2xl border-2 border-white">
       <div className="flex items-center justify-between px-2 py-2 text-slate-900 font-black text-xl">LIEUX POPULAIRES <span>⌕</span></div>
-      {places.map(([e,city,country])=><button key={city} onClick={()=>onAwardXP?.(5,1)} className="w-full flex items-center gap-3 p-2 rounded-2xl hover:bg-sky-50 text-left"><div className="w-16 h-14 rounded-xl bg-sky-100 flex items-center justify-center text-3xl">{e}</div><div><div className="font-black text-slate-900">{city}</div><div className="text-xs font-bold text-slate-500">{country}</div></div><ChevronRight className="ml-auto text-slate-400"/></button>)}
+      {places.map(([e,city,country])=><button key={city} onClick={()=>{onAwardXP?.(5,1); if(city==="Paris") onOpenCountry?.();}} className="w-full flex items-center gap-3 p-2 rounded-2xl hover:bg-sky-50 text-left"><div className="w-16 h-14 rounded-xl bg-sky-100 flex items-center justify-center text-3xl">{e}</div><div><div className="font-black text-slate-900">{city}</div><div className="text-xs font-bold text-slate-500">{country}</div></div><ChevronRight className="ml-auto text-slate-400"/></button>)}
     </aside>
    </div>
    <div className="mt-3 grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-11 gap-2 bg-white rounded-[28px] p-3 shadow-xl">
