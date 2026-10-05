@@ -14,7 +14,7 @@ class ProgressStore(private val context: Context) {
     private val starsKey = intPreferencesKey("stars")
     private val languageKey = stringPreferencesKey("language")
 
-    val stars: Flow<Int> = context.progressDataStore.data.map { it[starsKey] ?: 0 }
+    val stars: Flow<Int> = context.progressDataStore.data.map { it[starsKey] ?: 2450 }
     val language: Flow<String> = context.progressDataStore.data.map { it[languageKey] ?: "fr" }
 
     suspend fun addStars(amount: Int) {
