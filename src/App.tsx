@@ -21,6 +21,7 @@ import { AdBroadcastOverlay } from "./components/ads/AdBroadcastOverlay";
 import { AdminAdDashboard } from "./components/ads/AdminAdDashboard";
 import { GeckoMascot } from "./components/GeckoMascot";
 import { soundFx } from "./utils/audio";
+import { PremiumModal } from "./components/PremiumModal";
 
 export default function App() {
   // User Profile State with local persistence
@@ -55,6 +56,7 @@ export default function App() {
       screenTimeLimitMinutes: 0, // Unlimited default
       isLockedByTime: false,
       language: "fr",
+      plan: "free",
       badges: [
         {
           id: "b1",
@@ -106,6 +108,7 @@ export default function App() {
   const [isParentsOpen, setIsParentsOpen] = useState(false);
   const [isFantiChatOpen, setIsFantiChatOpen] = useState(false);
   const [isAdminAdDashboardOpen, setIsAdminAdDashboardOpen] = useState(false);
+  const [isPremiumOpen, setIsPremiumOpen] = useState(false);
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -174,6 +177,7 @@ export default function App() {
           }))
         }
         onOpenFantiChat={() => setIsFantiChatOpen(true)}
+        onOpenPremium={() => setIsPremiumOpen(true)}
         onOpenAdminAdDashboard={() => setIsAdminAdDashboardOpen(true)}
       />
 
@@ -389,6 +393,8 @@ export default function App() {
         ageGroup={user.ageGroup}
         currentWorld={user.currentWorld}
       />
+
+      <PremiumModal isOpen={isPremiumOpen} plan={user.plan} onClose={() => setIsPremiumOpen(false)} onChoosePlan={(plan) => setUser((prev) => ({ ...prev, plan }))} />
 
       {/* Parents Control Portal Modal */}
       {isParentsOpen && (
