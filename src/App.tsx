@@ -23,6 +23,7 @@ import { GeckoMascot } from "./components/GeckoMascot";
 import { soundFx } from "./utils/audio";
 import { PremiumModal } from "./components/PremiumModal";
 import { BebeTabFrame } from "./components/BebeTabFrame";
+import { CountryModule } from "./components/CountryModule";
 
 export default function App() {
   // User Profile State with local persistence
@@ -353,6 +354,10 @@ export default function App() {
 
           {activeScreen === "world" && (
             <WorldExplorerModule user={user} onBack={() => setActiveScreen("home")} onOpenLive={() => setActiveScreen("live")} onAwardXP={handleAwardXP} />
+          )}
+
+          {activeScreen === "country" && (
+            <CountryModule user={user} onBack={() => setActiveScreen("world")} onAwardXP={handleAwardXP} />
           )}
 
           {activeScreen === "live" && (
