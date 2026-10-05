@@ -59,7 +59,7 @@ private fun BebeTabNavigation() {
             composable("draw") { DrawActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
             composable("settings") { SettingsScreen { navController.popBackStack() } }
             listOf("world","live","rewards").forEach { route ->
-                composable(route) { ReferenceScreen(route) { navController.popBackStack() } }
+                composable(route) { ReferenceScreen(route, { navController.popBackStack() }, { navController.navigate("settings") }) }
             }
         }
         if (locked) {
