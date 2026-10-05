@@ -3,21 +3,12 @@ package com.bebetab.ui.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.LibraryBooks
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -28,9 +19,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,211 +37,226 @@ data class HomeTile(
 
 @Composable
 fun HomeScreen(onNavigate: (String) -> Unit) {
-    val context = LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val progressStore = remember { ProgressStore(context) }
-    val stars by progressStore.stars.collectAsState(initial = 0)
+    val stars by progressStore.stars.collectAsState(initial = 2450)
     val level = stars / 50 + 1
-    val remainder = stars % 50
+    val progress = (stars % 50) / 50f
 
     val tiles = listOf(
-        HomeTile("world", "Monde", "World", WorldGreen, Icons.Default.Public),
-        HomeTile("learn", "Apprendre", "Learn", LearnOrange, Icons.Default.MenuBook),
-        HomeTile("play", "Jouer", "Play", PlayRed, Icons.Default.SportsEsports),
-        HomeTile("stories", "Histoires", "Stories", StoriesPurple, Icons.Default.LibraryBooks),
-        HomeTile("live", "Live World", "Live", LiveBlue, Icons.Default.CameraAlt),
-        HomeTile("music", "Musique", "Music", MusicPink, Icons.Default.MusicNote),
-        HomeTile("draw", "Dessiner", "Draw", DrawYellow, Icons.Default.Palette),
-        HomeTile("rewards", "Mes récompenses", "Rewards", RewardsGreen, Icons.Default.Star)
+        HomeTile("world", "MONDE", "World", WorldGreen, Icons.Default.Public),
+        HomeTile("learn", "APPRENDRE", "Learn", LearnOrange, Icons.Default.MenuBook),
+        HomeTile("play", "JOUER", "Play", PlayRed, Icons.Default.SportsEsports),
+        HomeTile("stories", "HISTOIRES", "Stories", StoriesPurple, Icons.Default.MenuBook),
+        HomeTile("live", "LIVE WORLD", "En direct", LiveBlue, Icons.Default.Videocam),
+        HomeTile("music", "MUSIQUE", "Music", MusicPink, Icons.Default.MusicNote),
+        HomeTile("draw", "DESSINER", "Create", DrawYellow, Icons.Default.Palette),
+        HomeTile("rewards", "MES RÉCOMPENSES", "My Rewards", RewardsGreen, Icons.Default.Star)
     )
 
-    Column(
+    Box(
         Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    listOf(
-                        SkyBlue,
-                        Color(0xFFC9EEFF),
-                        Color(0xFFF8E5B7)
-                    )
+                    listOf(SkyBlue, Color(0xFFBDEBFF), Color(0xFFFFE7AF))
                 )
             )
-            .padding(horizontal = 22.dp, vertical = 16.dp)
+            .padding(horizontal = 26.dp, vertical = 18.dp)
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(bottom = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            HomeLeftColumn(
-                stars = stars,
-                level = level,
-                remainder = remainder
-            )
+        FloatingDecor(Modifier.fillMaxSize())
+        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
 
-            Column(
-                Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1.2f),
-                    horizontalArrangement = Arrangement.spacedBy(18.dp)
+                // LEFT / FANTI
+                Column(
+                    Modifier.weight(.85f).fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    WhitePanel(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    ) {
-                        WorldGlobe(
-                            Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .padding(34.dp)
-                        )
-                    }
-
-                    LiveWorldCard(
-                        Modifier
-                            .width(250.dp)
-                            .fillMaxHeight(),
-                        onNavigate = onNavigate
+                    Text(
+                        "BÉBÉ TAB",
+                        color = Yellow,
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
                     )
+                    Text(
+                        "LE MONDE DANS TES MAINS",
+                        color = OutlineBlue,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                    Text(
+                        "Jouer • Apprendre • Découvrir • Explorer",
+                        color = OutlineBlue,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("⭐", fontSize = 30.sp)
+                        Spacer(Modifier.width(6.dp))
+                        Text("$stars", color = OutlineBlue, fontSize = 24.sp, fontWeight = FontWeight.Black)
+                        Text("  •  Niveau $level", color = OutlineBlue, fontSize = 20.sp, fontWeight = FontWeight.Black)
+                    }
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth(.82f).height(7.dp),
+                        color = OutlineBlue,
+                        trackColor = Color.White.copy(alpha = .6f)
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Box(Modifier.weight(1f).fillMaxWidth()) {
+                        FantiHero(Modifier.fillMaxSize())
+                    }
+                    SpeechBubble(
+                        text = "Bonjour ! Hello !\nPrêt pour une nouvelle aventure ?",
+                        modifier = Modifier.fillMaxWidth(.96f)
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Button(
+                        onClick = { onNavigate("world") },
+                        modifier = Modifier.fillMaxWidth(.84f).height(58.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8F00)),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp)
+                    ) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        Spacer(Modifier.width(6.dp))
+                        Text("EXPLORER LE MONDE", fontSize = 18.sp, fontWeight = FontWeight.Black)
+                    }
                 }
 
-                TodayWithFanti(
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(.78f)
-                )
+                // CENTER
+                Column(Modifier.weight(1.45f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Surface(
+                        Modifier.fillMaxWidth().weight(1.04f).shadow(3.dp, RoundedCornerShape(30.dp)),
+                        shape = RoundedCornerShape(30.dp),
+                        color = Color.White
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            WorldGlobe(Modifier.fillMaxSize().padding(38.dp))
+                            MonumentBadge("🗼", Alignment.TopCenter)
+                            MonumentBadge("🏜️", Alignment.BottomStart)
+                            MonumentBadge("🗽", Alignment.CenterStart)
+                            MonumentBadge("🕌", Alignment.BottomEnd)
+                        }
+                    }
+                    Surface(
+                        Modifier.fillMaxWidth().weight(.74f).shadow(3.dp, RoundedCornerShape(28.dp)),
+                        shape = RoundedCornerShape(28.dp),
+                        color = Color.White
+                    ) {
+                        Column(Modifier.fillMaxSize().padding(16.dp)) {
+                            Text("Aujourd’hui avec Fanti", color = OutlineBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
+                            Spacer(Modifier.height(10.dp))
+                            Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                TodayCard("🦁", "1 vidéo", Modifier.weight(1f))
+                                TodayCard("🎮", "2 jeux", Modifier.weight(1f))
+                                TodayCard("📖", "1 histoire", Modifier.weight(1f))
+                                TodayCard("🎵", "1 chanson", Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+
+                // RIGHT / LIVE
+                Surface(
+                    Modifier.width(275.dp).fillMaxHeight().shadow(3.dp, RoundedCornerShape(30.dp)),
+                    shape = RoundedCornerShape(30.dp),
+                    color = Color.White
+                ) {
+                    Column(
+                        Modifier.fillMaxSize().padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(7.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(20.dp).background(Color.Red, CircleShape))
+                            Spacer(Modifier.width(8.dp))
+                            Text("EN DIRECT", color = Color.Red, fontSize = 20.sp, fontWeight = FontWeight.Black)
+                        }
+                        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Text("🦒", fontSize = 74.sp)
+                        }
+                        Text("LIVE WORLD", color = OutlineBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
+                        Text(
+                            "Regarde le monde\nen direct !",
+                            color = Color(0xFF29415C),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Button(
+                            onClick = { onNavigate("live") },
+                            modifier = Modifier.fillMaxWidth().height(54.dp),
+                            shape = RoundedCornerShape(28.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = LiveBlue)
+                        ) {
+                            Icon(Icons.Default.PlayArrow, contentDescription = null)
+                            Spacer(Modifier.width(4.dp))
+                            Text("Regarder", fontSize = 17.sp, fontWeight = FontWeight.Black)
+                        }
+                        Box(Modifier.fillMaxWidth().height(5.dp).background(LearnOrange, RoundedCornerShape(50)))
+                    }
+                }
             }
-        }
 
-        Row(
-            Modifier.fillMaxWidth().height(104.dp),
-            horizontalArrangement = Arrangement.spacedBy(9.dp)
-        ) {
-            tiles.forEach { tile ->
-                HomeTileButton(
-                    tile = tile,
-                    modifier = Modifier.weight(1f),
-                    onClick = { onNavigate(tile.route) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun HomeLeftColumn(
-    stars: Int,
-    level: Int,
-    remainder: Int
-) {
-    Column(
-        Modifier
-            .width(330.dp)
-            .fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "BÉBÉ TAB",
-            color = Yellow,
-            fontSize = 46.sp,
-            fontWeight = FontWeight.ExtraBold,
-            letterSpacing = 1.sp
-        )
-        Text(
-            text = "Jouer · Apprendre · Découvrir · Explorer",
-            color = OutlineBlue,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(Icons.Default.Star, contentDescription = null, tint = Yellow, modifier = Modifier.size(32.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = "$stars  •  Niveau $level",
-                color = OutlineBlue,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-        }
-
-        LinearProgressIndicator(
-            progress = { remainder / 50f },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 34.dp, vertical = 7.dp)
-                .height(6.dp),
-            color = OutlineBlue,
-            trackColor = Color.White.copy(alpha = .55f)
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        FantiElephant(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-        )
-
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(126.dp)
-                .shadow(7.dp, RoundedCornerShape(22.dp)),
-            shape = RoundedCornerShape(22.dp),
-            color = Color.White
-        ) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
-                horizontalAlignment = Alignment.Start
+            Row(
+                Modifier.fillMaxWidth().height(126.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(
-                    "Bonjour ! Hello !",
-                    color = Color(0xFF17324D),
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-                Spacer(Modifier.height(7.dp))
-                Text(
-                    "Prêt pour une nouvelle aventure ?",
-                    color = Color(0xFF17324D),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                tiles.forEach { tile ->
+                    Button(
+                        onClick = { onNavigate(tile.route) },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = tile.color),
+                        contentPadding = PaddingValues(8.dp),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 1.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(tile.icon, null, Modifier.size(34.dp), tint = Color.White)
+                            Spacer(Modifier.height(4.dp))
+                            Text(tile.fr, fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White, textAlign = TextAlign.Center)
+                            Text(tile.en, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha=.95f), textAlign = TextAlign.Center)
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun WhitePanel(
-    modifier: Modifier,
-    content: @Composable () -> Unit
-) {
+private fun SpeechBubble(text: String, modifier: Modifier) {
     Surface(
-        modifier = modifier.shadow(2.dp, RoundedCornerShape(30.dp)),
-        shape = RoundedCornerShape(30.dp),
+        modifier.shadow(4.dp, RoundedCornerShape(22.dp)),
+        shape = RoundedCornerShape(22.dp),
         color = Color.White
     ) {
-        content()
+        Text(text, modifier.padding(horizontal = 18.dp, vertical = 12.dp), color = Color(0xFF17324D), fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+private fun MonumentBadge(icon: String, alignment: Alignment) {
+    Box(Modifier.fillMaxSize(), contentAlignment = alignment) {
+        Text(icon, fontSize = 48.sp)
+    }
+}
+
+@Composable
+private fun TodayCard(icon: String, label: String, modifier: Modifier) {
+    Surface(modifier, shape = RoundedCornerShape(18.dp), color = Color(0xFFF1EEF6)) {
+        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Text(icon, fontSize = 31.sp)
+            Spacer(Modifier.height(3.dp))
+            Text(label, fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color(0xFF30435A))
+        }
     }
 }
 
@@ -260,386 +264,50 @@ private fun WhitePanel(
 private fun WorldGlobe(modifier: Modifier) {
     Canvas(modifier) {
         val side = minOf(size.width, size.height)
-        val center = Offset(size.width / 2f, size.height / 2f)
-        val radius = side * .38f
-
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(Color(0xFF2EB8FF), Color(0xFF0E67E8)),
-                center = Offset(center.x - radius * .25f, center.y - radius * .25f),
-                radius = radius * 1.35f
-            ),
-            radius = radius,
-            center = center
-        )
-
-        val africa = Path().apply {
-            moveTo(center.x + radius * .02f, center.y - radius * .08f)
-            cubicTo(
-                center.x + radius * .20f, center.y - radius * .02f,
-                center.x + radius * .18f, center.y + radius * .16f,
-                center.x + radius * .08f, center.y + radius * .28f
-            )
-            cubicTo(
-                center.x + radius * .03f, center.y + radius * .43f,
-                center.x - radius * .13f, center.y + radius * .54f,
-                center.x - radius * .20f, center.y + radius * .39f
-            )
-            cubicTo(
-                center.x - radius * .23f, center.y + radius * .24f,
-                center.x - radius * .13f, center.y + radius * .17f,
-                center.x - radius * .14f, center.y + radius * .02f
-            )
-            cubicTo(
-                center.x - radius * .15f, center.y - radius * .10f,
-                center.x - radius * .10f, center.y - radius * .17f,
-                center.x + radius * .02f, center.y - radius * .08f
-            )
+        val c = Offset(size.width/2f, size.height/2f)
+        val r = side*.31f
+        drawCircle(Brush.radialGradient(listOf(Color(0xFF32B7FF), Color(0xFF176EEB))), r, c)
+        val green = Color(0xFF75DF8B)
+        val p = Path().apply {
+            moveTo(c.x-r*.05f,c.y-r*.52f); cubicTo(c.x+r*.23f,c.y-r*.36f,c.x+r*.20f,c.y-r*.05f,c.x+r*.10f,c.y+r*.18f)
+            cubicTo(c.x+r*.05f,c.y+r*.46f,c.x-r*.11f,c.y+r*.60f,c.x-r*.22f,c.y+r*.34f)
+            cubicTo(c.x-r*.32f,c.y+r*.12f,c.x-r*.18f,c.y-r*.06f,c.x-r*.18f,c.y-r*.27f)
+            cubicTo(c.x-r*.18f,c.y-r*.43f,c.x-r*.10f,c.y-r*.52f,c.x-r*.05f,c.y-r*.52f)
             close()
         }
-        drawPath(africa, Color(0xFF7EE081))
-
-        drawOval(
-            color = Color(0xFF7EE081),
-            topLeft = Offset(center.x - radius * .66f, center.y - radius * .42f),
-            size = Size(radius * .55f, radius * .34f)
-        )
-        drawOval(
-            color = Color(0xFF7EE081),
-            topLeft = Offset(center.x - radius * .25f, center.y - radius * .58f),
-            size = Size(radius * .56f, radius * .24f)
-        )
-        drawOval(
-            color = Color(0xFF7EE081),
-            topLeft = Offset(center.x - radius * .52f, center.y - radius * .04f),
-            size = Size(radius * .30f, radius * .19f)
-        )
-        drawOval(
-            color = Color(0xFF7EE081),
-            topLeft = Offset(center.x + radius * .18f, center.y + radius * .25f),
-            size = Size(radius * .11f, radius * .25f)
-        )
+        drawPath(p, green)
+        drawOval(green, Offset(c.x-r*.62f,c.y-r*.32f), Size(r*.42f,r*.24f))
+        drawOval(green, Offset(c.x+r*.22f,c.y-r*.32f), Size(r*.30f,r*.17f))
+        drawOval(green, Offset(c.x+r*.30f,c.y+r*.20f), Size(r*.11f,r*.28f))
     }
 }
 
 @Composable
-private fun LiveWorldCard(
-    modifier: Modifier,
-    onNavigate: (String) -> Unit
-) {
-    Surface(
-        modifier = modifier.shadow(2.dp, RoundedCornerShape(30.dp)),
-        shape = RoundedCornerShape(30.dp),
-        color = Color.White
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 22.dp, vertical = 18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    Modifier
-                        .size(22.dp)
-                        .background(Color(0xFFE53935), RoundedCornerShape(50))
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    "EN DIRECT",
-                    color = Color(0xFFE01818),
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            }
-
-            GiraffeIllustration(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 18.dp, vertical = 4.dp)
-            )
-
-            Text(
-                "LIVE WORLD",
-                color = OutlineBlue,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-
-            Button(
-                onClick = { onNavigate("live") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(58.dp),
-                shape = RoundedCornerShape(30.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A90E5)),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Text("▶  Regarder", fontSize = 17.sp, fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(Modifier.height(2.dp))
-
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(LearnOrange, RoundedCornerShape(50))
-            )
-        }
-    }
-}
-
-@Composable
-private fun TodayWithFanti(modifier: Modifier) {
-    Surface(
-        modifier = modifier.shadow(2.dp, RoundedCornerShape(28.dp)),
-        shape = RoundedCornerShape(28.dp),
-        color = Color.White
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-        ) {
-            Text(
-                "Aujourd'hui avec Fanti",
-                color = OutlineBlue,
-                fontSize = 23.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Spacer(Modifier.height(12.dp))
-            Row(
-                Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                TodayCard("1 vidéo", "▶", modifier = Modifier.weight(1f))
-                TodayCard("2 jeux", "🎮", modifier = Modifier.weight(1f))
-                TodayCard("1 histoire", "📖", modifier = Modifier.weight(1f))
-                TodayCard("1 chanson", "♫", modifier = Modifier.weight(1f))
-            }
-        }
-    }
-}
-
-@Composable
-private fun TodayCard(
-    label: String,
-    symbol: String,
-    modifier: Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
-        color = Color(0xFFF1EEF6)
-    ) {
-        Column(
-            Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(symbol, fontSize = 30.sp)
-            Spacer(Modifier.height(4.dp))
-            Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF30435A))
-        }
-    }
-}
-
-@Composable
-private fun HomeTileButton(
-    tile: HomeTile,
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.fillMaxHeight(),
-        shape = RoundedCornerShape(22.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = tile.color),
-        contentPadding = PaddingValues(horizontal = 7.dp, vertical = 8.dp),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 0.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                tile.icon,
-                contentDescription = null,
-                modifier = Modifier.size(34.dp),
-                tint = Color.White
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(tile.fr, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = Color.White)
-            Text(tile.en, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White.copy(alpha = .95f))
-        }
-    }
-}
-
-@Composable
-private fun FantiElephant(modifier: Modifier) {
+private fun FantiHero(modifier: Modifier) {
     Canvas(modifier) {
-        val gray = Color(0xFFB7B7B7)
-        val darkGray = Color(0xFFA7A7A7)
-        val innerEar = Color(0xFFD2D2D2)
-
-        val cx = size.width * .49f
-        val cy = size.height * .47f
-        val bodyW = size.width * .53f
-        val bodyH = size.height * .35f
-
-        drawOval(
-            color = darkGray,
-            topLeft = Offset(cx - bodyW * .46f, cy - bodyH * .05f),
-            size = Size(bodyW, bodyH)
-        )
-
-        drawOval(
-            color = gray,
-            topLeft = Offset(cx - bodyW * .36f, cy - bodyH * .40f),
-            size = Size(bodyW * .53f, bodyH * .82f)
-        )
-
-        drawOval(
-            color = gray,
-            topLeft = Offset(cx - bodyW * .68f, cy - bodyH * .43f),
-            size = Size(bodyW * .37f, bodyH * .72f)
-        )
-        drawOval(
-            color = innerEar,
-            topLeft = Offset(cx - bodyW * .62f, cy - bodyH * .34f),
-            size = Size(bodyW * .25f, bodyH * .57f)
-        )
-
-        drawCircle(
-            Color.Black,
-            radius = bodyW * .035f,
-            center = Offset(cx - bodyW * .20f, cy - bodyH * .08f)
-        )
-
-        drawLine(
-            Color(0xFF9E9E9E),
-            start = Offset(cx - bodyW * .24f, cy + bodyH * .16f),
-            end = Offset(cx - bodyW * .20f, cy + bodyH * .58f),
-            strokeWidth = bodyW * .09f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            Color(0xFF9E9E9E),
-            start = Offset(cx + bodyW * .06f, cy + bodyH * .17f),
-            end = Offset(cx + bodyW * .09f, cy + bodyH * .56f),
-            strokeWidth = bodyW * .09f,
-            cap = StrokeCap.Round
-        )
-
-        drawLine(
-            gray,
-            start = Offset(cx - bodyW * .43f, cy + bodyH * .02f),
-            end = Offset(cx - bodyW * .55f, cy + bodyH * .30f),
-            strokeWidth = bodyW * .11f,
-            cap = StrokeCap.Round
-        )
-
-        drawLine(
-            darkGray,
-            start = Offset(cx + bodyW * .43f, cy + bodyH * .18f),
-            end = Offset(cx + bodyW * .62f, cy + bodyH * .36f),
-            strokeWidth = bodyW * .06f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            Color(0xFF9D9D9D),
-            start = Offset(cx + bodyW * .56f, cy + bodyH * .30f),
-            end = Offset(cx + bodyW * .62f, cy + bodyH * .37f),
-            strokeWidth = bodyW * .045f,
-            cap = StrokeCap.Round
-        )
-
-        drawLine(
-            gray,
-            start = Offset(cx - bodyW * .64f, cy + bodyH * .05f),
-            end = Offset(cx - bodyW * .67f, cy + bodyH * .35f),
-            strokeWidth = bodyW * .10f,
-            cap = StrokeCap.Round
-        )
-
-        drawOval(
-            color = Color(0xFFFFD86B),
-            topLeft = Offset(cx - bodyW * .71f, cy - bodyH * .02f),
-            size = Size(bodyW * .17f, bodyH * .07f)
-        )
-
-        drawRoundRect(
-            color = Color(0xFF2E7BCF),
-            topLeft = Offset(cx + bodyW * .30f, cy - bodyH * .05f),
-            size = Size(bodyW * .20f, bodyH * .42f),
-            cornerRadius = CornerRadius(20f, 20f)
-        )
-
-        drawArc(
-            color = Color(0xFFFFD54F),
-            startAngle = 200f,
-            sweepAngle = 140f,
-            useCenter = false,
-            topLeft = Offset(cx - bodyW * .75f, cy - bodyH * .62f),
-            size = Size(bodyW * .34f, bodyH * .24f),
-            style = Stroke(width = bodyW * .025f)
-        )
+        val gray=Color(0xFFB9C0C8); val dark=Color(0xFF97A3AE); val shirt=Color(0xFFFFD54F); val blue=Color(0xFF277ED5)
+        val cx=size.width*.5f; val cy=size.height*.47f; val bodyW=size.width*.46f; val bodyH=size.height*.25f
+        drawOval(gray, Offset(cx-bodyW*.44f,cy-bodyH*.05f), Size(bodyW,bodyH))
+        drawOval(gray, Offset(cx-bodyW*.36f,cy-bodyH*.42f), Size(bodyW*.48f,bodyH*.95f))
+        drawOval(dark, Offset(cx-bodyW*.78f,cy-bodyH*.42f), Size(bodyW*.34f,bodyH*.76f))
+        drawCircle(Color.Black, bodyW*.045f, Offset(cx-bodyW*.23f,cy-bodyH*.16f))
+        drawLine(dark,Offset(cx-bodyW*.23f,cy+bodyH*.10f),Offset(cx-bodyW*.30f,cy+bodyH*.60f),bodyW*.10f,StrokeCap.Round)
+        drawLine(dark,Offset(cx+bodyW*.06f,cy+bodyH*.10f),Offset(cx+bodyW*.02f,cy+bodyH*.60f),bodyW*.10f,StrokeCap.Round)
+        drawLine(gray,Offset(cx-bodyW*.43f,cy+bodyH*.00f),Offset(cx-bodyW*.62f,cy+bodyH*.23f),bodyW*.09f,StrokeCap.Round)
+        drawOval(shirt,Offset(cx-bodyW*.16f,cy+bodyH*.08f),Size(bodyW*.33f,bodyH*.30f))
+        drawRoundRect(blue,Offset(cx+bodyW*.26f,cy+bodyH*.02f),Size(bodyW*.18f,bodyH*.45f),CornerRadius(16f,16f))
+        drawArc(shirt,200f,140f,false,Offset(cx-bodyW*.55f,cy-bodyH*.48f),Size(bodyW*.32f,bodyH*.24f),style=androidx.compose.ui.graphics.drawscope.Stroke(width=bodyW*.03f))
     }
 }
 
 @Composable
-private fun GiraffeIllustration(modifier: Modifier) {
+private fun FloatingDecor(modifier: Modifier) {
     Canvas(modifier) {
-        val c = Color(0xFFFFB52E)
-        val spot = Color(0xFFB96A16)
-        val brown = Color(0xFF7E4A17)
-        val x = size.width * .50f
-
-        drawRoundRect(
-            color = c,
-            topLeft = Offset(x - size.width * .08f, size.height * .30f),
-            size = Size(size.width * .16f, size.height * .45f),
-            cornerRadius = CornerRadius(40f, 40f)
-        )
-        drawCircle(c, radius = size.width * .10f, center = Offset(x, size.height * .24f))
-        drawOval(
-            color = c,
-            topLeft = Offset(x + size.width * .04f, size.height * .15f),
-            size = Size(size.width * .23f, size.height * .10f)
-        )
-
-        repeat(7) { i ->
-            val px = x - size.width * .07f + (i % 3) * size.width * .06f
-            val py = size.height * (.34f + (i / 3) * .11f)
-            drawCircle(spot, radius = size.width * .018f, center = Offset(px, py))
-        }
-
-        drawLine(
-            brown,
-            start = Offset(x - size.width * .06f, size.height * .72f),
-            end = Offset(x - size.width * .11f, size.height * .95f),
-            strokeWidth = size.width * .035f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            brown,
-            start = Offset(x + size.width * .06f, size.height * .72f),
-            end = Offset(x + size.width * .11f, size.height * .95f),
-            strokeWidth = size.width * .035f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            brown,
-            start = Offset(x - size.width * .02f, size.height * .72f),
-            end = Offset(x, size.height * .94f),
-            strokeWidth = size.width * .03f,
-            cap = StrokeCap.Round
-        )
+        val cloud=Color.White.copy(alpha=.6f)
+        drawCircle(cloud,42f,Offset(size.width*.10f,size.height*.11f))
+        drawCircle(cloud,58f,Offset(size.width*.14f,size.height*.09f))
+        drawCircle(cloud,38f,Offset(size.width*.18f,size.height*.11f))
+        drawCircle(cloud,40f,Offset(size.width*.87f,size.height*.13f))
+        drawCircle(cloud,58f,Offset(size.width*.91f,size.height*.11f))
     }
 }
