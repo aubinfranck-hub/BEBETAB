@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.delay
 
 @Composable
 fun MemoryGame(onStars:(Int)->Unit){
@@ -16,6 +17,14 @@ fun MemoryGame(onStars:(Int)->Unit){
     var opened by remember{mutableStateOf(emptyList<Int>())}
     var matched by remember{mutableStateOf(emptySet<Int>())}
     var pairs by remember{mutableIntStateOf(0)}
+    var completionAwarded by remember{mutableStateOf(false)}
+
+    LaunchedEffect(opened){
+        if(opened.size==2 && cards[opened[0]]!=cards[opened[1]]){
+            delay(650)
+            opened=emptyList()
+        }
+    }
     Column(Modifier.fillMaxSize().padding(18.dp),horizontalAlignment=Alignment.CenterHorizontally){
         Text("Mémoire des animaux",fontSize=28.sp,fontWeight=FontWeight.Black)
         Spacer(Modifier.height(10.dp))
@@ -25,29 +34,25 @@ fun MemoryGame(onStars:(Int)->Unit){
                     row.forEachIndexed{col,value->
                         val index=rowIndex*4+col
                         val visible=index in opened || index in matched
-                        Button(
-                            onClick={
-                                if(index !in matched && index !in opened && opened.size<2){
-                                    val next=opened+index
-                                    if(next.size==2 && cards[next[0]]==cards[next[1]]){
-                                        matched=matched+next
-                                        pairs++
-                                        onStars(1)
-                                        opened=emptyList()
-                                    } else {
-                                        opened=next
-                                    }
-                                }
-                            },
-                            modifier=Modifier.size(105.dp),
-                            enabled=index !in matched
-                        ){Text(if(visible) value else "?",fontSize=30.sp)}
+                        Button(onClick={
+                            if(index !in matched && index !in opened && opened.size<2){
+                                val next=opened+index
+                                if(next.size==2 && cards[next[0]]==cards[next[1]]){
+                                    matched=matched+next; pairs++; onStars(1); opened=emptyList()
+                                } else opened=next
+                            }
+                        },modifier=Modifier.size(105.dp),enabled=index !in matched && opened.size<2){
+                            Text(if(visible)value else "?",fontSize=30.sp)
+                        }
                     }
                 }
             }
         }
         Spacer(Modifier.height(8.dp))
         Text("Paires : $pairs / 6",fontWeight=FontWeight.Bold)
+        if(matched.size==12 && !completionAwarded){
+            LaunchedEffect(Unit){ completionAwarded=true; onStars(5) }
+        }
         if(matched.size==12) Text("Bravo ! ⭐ +5 étoiles",fontSize=20.sp,fontWeight=FontWeight.Black)
     }
 }
