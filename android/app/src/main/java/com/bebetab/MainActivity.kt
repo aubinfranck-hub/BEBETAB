@@ -17,6 +17,7 @@ import com.bebetab.ui.screens.PlayActivityScreen
 import com.bebetab.ui.screens.StoryActivityScreen
 import com.bebetab.ui.screens.MusicActivityScreen
 import com.bebetab.ui.screens.DrawActivityScreen
+import com.bebetab.ui.screens.SettingsScreen
 import com.bebetab.ui.theme.BebeTabTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +40,7 @@ private fun BebeTabNavigation() {
                 "stories" -> StoryActivityScreen { navController.popBackStack() }
                 "music" -> MusicActivityScreen { navController.popBackStack() }
                 "draw" -> DrawActivityScreen { navController.popBackStack() }
+                "settings" -> SettingsScreen { navController.popBackStack() }
                 else -> ReferenceScreen(route) { navController.popBackStack() }
             } }
         }
