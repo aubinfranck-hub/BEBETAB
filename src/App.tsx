@@ -276,240 +276,82 @@ export default function App() {
         /* Main Application Router */
         <main className="flex-1 w-full">
           {activeScreen === "home" ? (
-            
-          {activeScreen === "home" && (
             <HomeLauncher
               user={user}
               onNavigate={(screen) => setActiveScreen(screen)}
               onOpenFantiChat={() => setIsFantiChatOpen(true)}
               onOpenParents={() => setIsParentsOpen(true)}
             />
-          )}
-
-          {activeScreen === "apprendre" && (
-            <LearningModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "jouer" && (
-            <GamesModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "dessiner" && (
-            <DrawingModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "musique" && (
-            <MusicModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "histoires" && (
-            <StoriesModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "quiz" && (
-            <QuizModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "recompenses" && (
-            <RewardsModule
-              user={user}
-              onEquipOutfit={(outfit) =>
-                setUser((prev) => ({ ...prev, currentOutfit: outfit }))
-              }
-              onUnlockOutfit={(outfit, cost) =>
-                setUser((prev) => ({
-                  ...prev,
-                  unlockedOutfits: [...prev.unlockedOutfits, outfit],
-                  currentOutfit: outfit,
-                  stars: prev.stars - cost,
-                }))
-              }
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "world" && (
-            <WorldExplorerModule user={user} onBack={() => setActiveScreen("home")} onOpenLive={() => setActiveScreen("live")} onOpenCountry={() => setActiveScreen("country")} onAwardXP={handleAwardXP} />
-          )}
-
-          {activeScreen === "country" && (
-            <CountryModule user={user} onBack={() => setActiveScreen("world")} onAwardXP={handleAwardXP} />
-          )}
-
-          {activeScreen === "live" && (
-            <LiveWorldModule user={user} onBack={() => setActiveScreen("home")} onOpenWorld={() => setActiveScreen("world")} />
-          )}
-
-          {activeScreen === "mondes" && (
-            <WorldsModule
-              user={user}
-              onChangeWorld={(world) =>
-                setUser((prev) => ({ ...prev, currentWorld: world }))
-              }
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "videos" && (
-            <VideosModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "defis" && (
-            <DailyChallengesModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onNavigate={(screen) => setActiveScreen(screen)}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
           ) : (
-            <BebeTabFrame screen={activeScreen} user={user} onBack={() => setActiveScreen("home")} onOpenParents={() => setIsParentsOpen(true)}>
-              
-          {activeScreen === "home" && (
-            <HomeLauncher
+            <BebeTabFrame
+              screen={activeScreen}
               user={user}
-              onNavigate={(screen) => setActiveScreen(screen)}
-              onOpenFantiChat={() => setIsFantiChatOpen(true)}
+              onBack={() => setActiveScreen("home")}
               onOpenParents={() => setIsParentsOpen(true)}
-            />
-          )}
-
-          {activeScreen === "apprendre" && (
-            <LearningModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "jouer" && (
-            <GamesModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "dessiner" && (
-            <DrawingModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "musique" && (
-            <MusicModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "histoires" && (
-            <StoriesModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "quiz" && (
-            <QuizModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "recompenses" && (
-            <RewardsModule
-              user={user}
-              onEquipOutfit={(outfit) =>
-                setUser((prev) => ({ ...prev, currentOutfit: outfit }))
-              }
-              onUnlockOutfit={(outfit, cost) =>
-                setUser((prev) => ({
-                  ...prev,
-                  unlockedOutfits: [...prev.unlockedOutfits, outfit],
-                  currentOutfit: outfit,
-                  stars: prev.stars - cost,
-                }))
-              }
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "world" && (
-            <WorldExplorerModule user={user} onBack={() => setActiveScreen("home")} onOpenLive={() => setActiveScreen("live")} onAwardXP={handleAwardXP} />
-          )}
-
-          {activeScreen === "live" && (
-            <LiveWorldModule user={user} onBack={() => setActiveScreen("home")} onOpenWorld={() => setActiveScreen("world")} />
-          )}
-
-          {activeScreen === "mondes" && (
-            <WorldsModule
-              user={user}
-              onChangeWorld={(world) =>
-                setUser((prev) => ({ ...prev, currentWorld: world }))
-              }
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "videos" && (
-            <VideosModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
-          {activeScreen === "defis" && (
-            <DailyChallengesModule
-              user={user}
-              onAwardXP={handleAwardXP}
-              onNavigate={(screen) => setActiveScreen(screen)}
-              onBack={() => setActiveScreen("home")}
-            />
-          )}
-
+            >
+              {activeScreen === "apprendre" && (
+                <LearningModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
+              )}
+              {activeScreen === "jouer" && (
+                <GamesModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
+              )}
+              {activeScreen === "dessiner" && (
+                <DrawingModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
+              )}
+              {activeScreen === "musique" && (
+                <MusicModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
+              )}
+              {activeScreen === "histoires" && (
+                <StoriesModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
+              )}
+              {activeScreen === "quiz" && (
+                <QuizModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
+              )}
+              {activeScreen === "recompenses" && (
+                <RewardsModule
+                  user={user}
+                  onEquipOutfit={(outfit) => setUser((prev) => ({ ...prev, currentOutfit: outfit }))}
+                  onUnlockOutfit={(outfit, cost) => setUser((prev) => ({ ...prev, unlockedOutfits: [...prev.unlockedOutfits, outfit], currentOutfit: outfit, stars: prev.stars - cost }))}
+                  onBack={() => setActiveScreen("home")}
+                />
+              )}
+              {activeScreen === "world" && (
+                <WorldExplorerModule
+                  user={user}
+                  onBack={() => setActiveScreen("home")}
+                  onOpenLive={() => setActiveScreen("live")}
+                  onOpenCountry={() => setActiveScreen("country")}
+                  onAwardXP={handleAwardXP}
+                />
+              )}
+              {activeScreen === "country" && (
+                <CountryModule user={user} onBack={() => setActiveScreen("world")} onAwardXP={handleAwardXP} />
+              )}
+              {activeScreen === "live" && (
+                <LiveWorldModule user={user} onBack={() => setActiveScreen("home")} onOpenWorld={() => setActiveScreen("world")} />
+              )}
+              {activeScreen === "mondes" && (
+                <WorldsModule
+                  user={user}
+                  onChangeWorld={(world) => setUser((prev) => ({ ...prev, currentWorld: world }))}
+                  onAwardXP={handleAwardXP}
+                  onBack={() => setActiveScreen("home")}
+                />
+              )}
+              {activeScreen === "videos" && (
+                <VideosModule user={user} onAwardXP={handleAwardXP} onBack={() => setActiveScreen("home")} />
+              )}
+              {activeScreen === "defis" && (
+                <DailyChallengesModule
+                  user={user}
+                  onAwardXP={handleAwardXP}
+                  onNavigate={(screen) => setActiveScreen(screen)}
+                  onBack={() => setActiveScreen("home")}
+                />
+              )}
             </BebeTabFrame>
           )}
         </main>
-      )}
 
       {/* Fanti AI Chat Voice Dialog Modal */}
       <FantiChatModal
