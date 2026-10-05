@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { UserProfile, ActiveScreen, WorldTheme, MascotOutfit } from "./types";
-import { Navbar } from "./components/Navbar";
 import { HomeLauncher } from "./components/HomeLauncher";
 import { LearningModule } from "./components/learning/LearningModule";
 import { GamesModule } from "./components/games/GamesModule";
