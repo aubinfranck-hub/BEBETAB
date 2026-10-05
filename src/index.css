@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root{
-  font-family: "Trebuchet MS", "Arial Rounded MT Bold", system-ui, sans-serif;
-  color-scheme: light;
+  font-family:"Trebuchet MS","Arial Rounded MT Bold",system-ui,sans-serif;
+  color-scheme:light;
 }
 html,body,#root{min-height:100%;margin:0}
 body{background:#08a8e5;overflow-x:hidden}
@@ -10,16 +10,103 @@ button,input,textarea{font-family:inherit}
 button{touch-action:manipulation}
 *{box-sizing:border-box}
 
-/* BEBETAB WORLD visual language — common to every screen */
+/* =========================================================
+   BEBETAB WORLD — MASTER VISUAL THEME
+   The reference board is the source of truth for all screens:
+   sky-blue world, white cards, thick rounded borders,
+   bright educational colors, Fanti, tactile controls.
+   ========================================================= */
+
 .bebetab-screen-frame{
-  background:linear-gradient(180deg,#08a8e5 0%,#61d8ef 56%,#efbc68 100%) !important;
+  background:
+    radial-gradient(circle at 7% 17%,rgba(255,255,255,.55) 0 5%,transparent 15%),
+    radial-gradient(circle at 90% 12%,rgba(255,255,255,.48) 0 4%,transparent 13%),
+    linear-gradient(180deg,#08a8e5 0%,#5bd6ef 55%,#efbd68 100%) !important;
+  position:relative;
 }
-.bebetab-screen-frame h1,
-.bebetab-screen-frame h2,
-.bebetab-screen-frame h3{letter-spacing:-.025em}
-.bebetab-screen-frame .rounded-3xl,
-.bebetab-screen-frame .rounded-\[32px\],
-.bebetab-screen-frame .rounded-\[34px\]{box-shadow:0 10px 28px rgba(0,67,108,.18)}
+.bebetab-screen-frame::before{
+  content:"";
+  position:absolute;
+  left:-10%;right:-10%;bottom:-30px;height:170px;
+  background:linear-gradient(180deg,transparent,#df9c4b);
+  pointer-events:none;
+}
+.bebetab-screen-frame main,
+.bebetab-screen-frame > main{position:relative;z-index:1}
+
+/* Every existing module inherits the same spacious tablet canvas. */
+.bebetab-screen-frame main > div{
+  color:#172033;
+}
+.bebetab-screen-frame main > div.w-full.max-w-7xl,
+.bebetab-screen-frame main > div.w-full.max-w-\[1500px\]{
+  max-width:1536px !important;
+  padding-left:18px !important;
+  padding-right:18px !important;
+  padding-top:10px !important;
+  padding-bottom:22px !important;
+}
+
+/* Existing module headers become BEBETAB white-glass cards. */
+.bebetab-screen-frame main > div > div:first-child.bg-white\/90,
+.bebetab-screen-frame main > div > div:first-child.bg-white\/95{
+  background:rgba(255,255,255,.97) !important;
+  border:4px solid #fff !important;
+  border-radius:28px !important;
+  box-shadow:0 10px 28px rgba(0,67,108,.22) !important;
+}
+.bebetab-screen-frame main > div h2{
+  font-weight:1000 !important;
+  letter-spacing:-.035em;
+}
+.bebetab-screen-frame main > div h3,
+.bebetab-screen-frame main > div h4{
+  font-weight:900 !important;
+}
+
+/* Tactile controls — the same visual language as the reference. */
+.bebetab-screen-frame main button{
+  border-radius:18px;
+}
+.bebetab-screen-frame main button:not([disabled]):active{
+  transform:scale(.97);
+}
+.bebetab-screen-frame main .shadow-xl,
+.bebetab-screen-frame main .shadow-2xl,
+.bebetab-screen-frame main .shadow-lg{
+  filter:drop-shadow(0 5px 7px rgba(0,65,105,.10));
+}
+
+/* Main content cards: white, thick, playful, clean. */
+.bebetab-screen-frame main .bg-white,
+.bebetab-screen-frame main .bg-white\/90,
+.bebetab-screen-frame main .bg-white\/95{
+  border-radius:26px;
+}
+.bebetab-screen-frame main .bg-slate-50{
+  background:#f8fcff !important;
+}
+
+/* Colored module headings use BEBETAB blue instead of generic app chrome. */
+.bebetab-screen-frame main .text-slate-900{
+  color:#142033;
+}
+.bebetab-screen-frame main .text-slate-800{
+  color:#1b2940;
+}
+
+/* Back buttons */
+.bebetab-screen-frame main button:first-child svg{
+  stroke-width:3;
+}
+
+/* Tablet layout */
+@media (min-width:1200px){
+  .bebetab-screen-frame main > div.w-full.max-w-7xl,
+  .bebetab-screen-frame main > div.w-full.max-w-\[1500px\]{
+    min-height:calc(100vh - 110px);
+  }
+}
 @media (max-width:900px){
   body{font-size:15px}
 }
