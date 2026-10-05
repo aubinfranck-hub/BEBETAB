@@ -16,7 +16,7 @@ fun StoryReader(){
     val context=androidx.compose.ui.platform.LocalContext.current
     var tts by remember{mutableStateOf<TextToSpeech?>(null)}
     DisposableEffect(Unit){
-        val engine=TextToSpeech(context){ if(it==TextToSpeech.SUCCESS) tts?.language=Locale.FRANCE }
+        val engine=TextToSpeech(context){ if(it==TextToSpeech.SUCCESS) engine.language=Locale.FRANCE }
         tts=engine
         onDispose{engine.stop();engine.shutdown()}
     }
@@ -32,7 +32,7 @@ fun StoryReader(){
         Text(pages[page],fontSize=23.sp)
         Row(horizontalArrangement=Arrangement.spacedBy(12.dp)){
             Button(enabled=page>0,onClick={page--}){Text("◀")}
-            Button(onClick={tts?.let{{t-> {t.speak(pages[page],TextToSpeech.QUEUE_FLUSH,null,"page",null)}}} ?: {}}){Text("🔊 Lire")}
+            Button(onClick={tts?.speak(pages[page],TextToSpeech.QUEUE_FLUSH,null,"page",null) ?: Unit}){Text("🔊 Lire")}
             Button(enabled=page<pages.lastIndex,onClick={page++}){Text("▶")}
         }
     }
