@@ -353,7 +353,7 @@ export default function App() {
           )}
 
           {activeScreen === "world" && (
-            <WorldExplorerModule user={user} onBack={() => setActiveScreen("home")} onOpenLive={() => setActiveScreen("live")} onAwardXP={handleAwardXP} />
+            <WorldExplorerModule user={user} onBack={() => setActiveScreen("home")} onOpenLive={() => setActiveScreen("live")} onOpenCountry={() => setActiveScreen("country")} onAwardXP={handleAwardXP} />
           )}
 
           {activeScreen === "country" && (
