@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -33,16 +33,14 @@ private fun BebeTabNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "home", modifier = Modifier.fillMaxSize()) {
         composable("home") { HomeScreen { navController.navigate(it) } }
-        listOf("world","learn","play","stories","live","music","draw","rewards").forEach { route ->
-            composable(route) { when(route) {
-                "learn" -> LearnActivityScreen { navController.popBackStack() }
-                "play" -> PlayActivityScreen { navController.popBackStack() }
-                "stories" -> StoryActivityScreen { navController.popBackStack() }
-                "music" -> MusicActivityScreen { navController.popBackStack() }
-                "draw" -> DrawActivityScreen { navController.popBackStack() }
-                "settings" -> SettingsScreen { navController.popBackStack() }
-                else -> ReferenceScreen(route) { navController.popBackStack() }
-            } }
+        composable("learn") { LearnActivityScreen { navController.popBackStack() } }
+        composable("play") { PlayActivityScreen { navController.popBackStack() } }
+        composable("stories") { StoryActivityScreen { navController.popBackStack() } }
+        composable("music") { MusicActivityScreen { navController.popBackStack() } }
+        composable("draw") { DrawActivityScreen { navController.popBackStack() } }
+        composable("settings") { SettingsScreen { navController.popBackStack() } }
+        listOf("world","live","rewards").forEach { route ->
+            composable(route) { ReferenceScreen(route) { navController.popBackStack() } }
         }
     }
 }
