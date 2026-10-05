@@ -52,11 +52,11 @@ private fun BebeTabNavigation() {
     Box(Modifier.fillMaxSize()) {
         NavHost(navController = navController, startDestination = "home", modifier = Modifier.fillMaxSize()) {
             composable("home") { HomeScreen { navController.navigate(it) } }
-            composable("learn") { LearnActivityScreen { navController.popBackStack() } }
-            composable("play") { PlayActivityScreen { navController.popBackStack() } }
-            composable("stories") { StoryActivityScreen { navController.popBackStack() } }
-            composable("music") { MusicActivityScreen { navController.popBackStack() } }
-            composable("draw") { DrawActivityScreen { navController.popBackStack() } }
+            composable("learn") { LearnActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
+            composable("play") { PlayActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
+            composable("stories") { StoryActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
+            composable("music") { MusicActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
+            composable("draw") { DrawActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
             composable("settings") { SettingsScreen { navController.popBackStack() } }
             listOf("world","live","rewards").forEach { route ->
                 composable(route) { ReferenceScreen(route) { navController.popBackStack() } }
