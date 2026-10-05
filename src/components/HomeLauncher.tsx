@@ -22,6 +22,17 @@ export const HomeLauncher:React.FC<Props>=({user,onNavigate,onOpenFantiChat,onOp
   <div className="min-h-[calc(100vh-0px)] overflow-hidden bg-[linear-gradient(180deg,#11b9ef_0%,#54d3ed_57%,#f3bb62_100%)]">
     <div className="max-w-[1536px] mx-auto px-5 sm:px-8 pt-5 pb-6">
       <section className="relative min-h-[520px] rounded-[34px] overflow-hidden">
+        <div className="absolute top-1 right-1 z-30 hidden md:flex items-center gap-2 bg-white/95 rounded-full px-3 py-2 shadow-2xl border-2 border-sky-100">
+          <div className="w-9 h-9 rounded-full bg-amber-300 flex items-center justify-center text-xl">👦🏾</div>
+          <span className="font-black text-slate-800">{user.name}</span>
+          <span className="flex items-center gap-1 font-black"><Star className="w-5 h-5 fill-amber-400 text-amber-500"/>{user.stars.toLocaleString("fr-FR")}</span>
+          <Gift className="w-5 h-5 text-rose-500"/>
+          <span className="font-black text-xs">Niveau {user.level}<br/><span className="text-[9px] text-slate-500">Explorateur</span></span>
+          <div className="w-28 h-3 rounded-full bg-slate-200 overflow-hidden"><div className="h-full bg-gradient-to-r from-lime-400 via-yellow-400 to-orange-500" style={{width:`${Math.min(100,user.xp%100)}%`}}/></div>
+          <button className="px-3 py-2 rounded-full bg-white border-2 border-sky-100 font-black text-xs">FR</button>
+          <button className="px-3 py-2 rounded-full bg-blue-600 text-white font-black text-xs">EN</button>
+          <button onClick={onOpenParents} className="w-9 h-9 rounded-full bg-white border-2 border-sky-100 flex items-center justify-center"><Settings className="w-5 h-5 text-blue-700"/></button>
+        </div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_25%,rgba(255,255,255,.75)_0,transparent_18%),radial-gradient(circle_at_85%_18%,rgba(255,255,255,.7)_0,transparent_15%)]"/>
         <div className="absolute left-0 right-0 bottom-0 h-40 bg-gradient-to-t from-[#e8a54e] to-transparent"/>
         <div className="relative grid lg:grid-cols-[30%_40%_30%] items-center min-h-[520px]">
