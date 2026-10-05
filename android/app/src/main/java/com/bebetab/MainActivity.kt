@@ -1,5 +1,4 @@
 package com.bebetab
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
@@ -20,78 +20,21 @@ import com.bebetab.ui.theme.BebeTabTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent { BebeTabTheme { BebeTabNavigation() } }
-    }
+class MainActivity:ComponentActivity(){override fun onCreate(b:Bundle?){super.onCreate(b);enableEdgeToEdge();setContent{BebeTabTheme{BebeTabNavigation()}}}}
+@Composable private fun BebeTabNavigation(){
+ val nav=rememberNavController();val c=LocalContext.current;val settings=remember{ParentSettingsStore(c)}
+ val enabled by settings.timerEnabled.collectAsState(true);val minutes by settings.dailyMinutes.collectAsState(60);val used by settings.usedSeconds.collectAsState(0);val scope=rememberCoroutineScope();var locked by remember{mutableStateOf(false)}
+ LaunchedEffect(enabled,minutes,locked){while(enabled&&!locked){delay(15000);settings.addUsageSeconds(15)}}
+ LaunchedEffect(used,enabled,minutes){if(enabled&&used>=minutes*60)locked=true}
+ Box(Modifier.fillMaxSize()){
+  NavHost(nav,startDestination="home",modifier=Modifier.fillMaxSize()){
+   composable("home"){HomeScreen{nav.navigate(it)}};composable("learn"){LearnActivityScreen({nav.popBackStack()},{nav.navigate("settings")})};composable("play"){PlayActivityScreen({nav.popBackStack()},{nav.navigate("settings")})};composable("stories"){StoryActivityScreen({nav.popBackStack()},{nav.navigate("settings")})};composable("music"){MusicActivityScreen({nav.popBackStack()},{nav.navigate("settings")})};composable("draw"){DrawActivityScreen({nav.popBackStack()},{nav.navigate("settings")})};composable("settings"){SettingsScreen{nav.popBackStack()}};composable("world"){ReferenceScreen("world",{nav.popBackStack()},{nav.navigate("settings")})};composable("live"){ReferenceScreen("live",{nav.popBackStack()},{nav.navigate("settings")})};composable("rewards"){ReferenceScreen("rewards",{nav.popBackStack()},{nav.navigate("settings")})}
+  }
+  if(locked)ScreenTimeLock(minutes,{scope.launch{settings.resetUsage();locked=false}},{finishApp(nav)})
+ }
 }
-
-@Composable
-private fun BebeTabNavigation() {
-    val navController = rememberNavController()
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val settings = remember { ParentSettingsStore(context) }
-    val timerEnabled by settings.timerEnabled.collectAsState(initial = true)
-    val dailyMinutes by settings.dailyMinutes.collectAsState(initial = 60)
-    val usedSeconds by settings.usedSeconds.collectAsState(initial = 0)
-    val scope = rememberCoroutineScope()
-    var locked by remember { mutableStateOf(false) }
-
-    LaunchedEffect(timerEnabled, dailyMinutes) {
-        while (timerEnabled && !locked) {
-            delay(15000)
-            scope.launch { settings.addUsageSeconds(15) }
-        }
-    }
-    LaunchedEffect(usedSeconds, timerEnabled, dailyMinutes) {
-        if (timerEnabled && usedSeconds >= dailyMinutes * 60) locked = true
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        NavHost(navController = navController, startDestination = "home", modifier = Modifier.fillMaxSize()) {
-            composable("home") { HomeScreen { navController.navigate(it) } }
-            composable("learn") { LearnActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
-            composable("play") { PlayActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
-            composable("stories") { StoryActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
-            composable("music") { MusicActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
-            composable("draw") { DrawActivityScreen({ navController.popBackStack() }, { navController.navigate("settings") }) }
-            composable("settings") { SettingsScreen { navController.popBackStack() } }
-            listOf("world","live","rewards").forEach { route ->
-                composable(route) { ReferenceScreen(route, { navController.popBackStack() }, { navController.navigate("settings") }) }
-            }
-        }
-        if (locked) {
-            ScreenTimeLock(
-                minutes = dailyMinutes,
-                onParentUnlock = { scope.launch { settings.resetUsage(); locked = false } },
-                onClose = { finishApp(navController) }
-            )
-        }
-    }
+@Composable private fun ScreenTimeLock(minutes:Int,onUnlock:()->Unit,onClose:()->Unit){
+ var code by remember{mutableStateOf("")}
+ Box(Modifier.fillMaxSize().background(Color.White),contentAlignment=Alignment.Center){Card(Modifier.fillMaxWidth(.7f).padding(24.dp)){Column(Modifier.padding(30.dp),Alignment.CenterHorizontally,Arrangement.spacedBy(14.dp)){Text("⏰",style=MaterialTheme.typography.displaySmall);Text("Temps terminé",style=MaterialTheme.typography.headlineMedium);Text("La limite quotidienne de $minutes minutes est atteinte.",style=MaterialTheme.typography.bodyLarge);Text("Un parent peut déverrouiller la tablette pour continuer.");OutlinedTextField(code,{code=it.filter(Char::isDigit).take(4)},label={Text("Code parent")});Row(horizontalArrangement=Arrangement.spacedBy(12.dp)){Button({if(code=="2580")onUnlock()}){Text("Continuer")};OutlinedButton(onClose){Text("Fermer")}}}}}
 }
-
-@Composable
-private fun ScreenTimeLock(minutes: Int, onParentUnlock: () -> Unit, onClose: () -> Unit) {
-    var code by remember { mutableStateOf("") }
-    Box(Modifier.fillMaxSize().background(Color.White),contentAlignment=Alignment.Center) {
-        Card(Modifier.fillMaxWidth(.7f).padding(24.dp)) {
-            Column(Modifier.padding(30.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(14.dp)) {
-                Text("⏰",style=MaterialTheme.typography.displaySmall)
-                Text("Temps terminé",style=MaterialTheme.typography.headlineMedium)
-                Text("La limite quotidienne de $minutes minutes est atteinte.",style=MaterialTheme.typography.bodyLarge)
-                Text("Un parent peut déverrouiller la tablette pour continuer.")
-                OutlinedTextField(value=code,onValueChange={code=it.filter(Char::isDigit).take(4)},label={Text("Code parent")})
-                Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                    Button(onClick={if(code=="2580") onParentUnlock()}) { Text("Continuer") }
-                    OutlinedButton(onClick=onClose) { Text("Fermer") }
-                }
-            }
-        }
-    }
-}
-
-private fun finishApp(navController: NavHostController) {
-    navController.navigate("home") { popUpTo("home") { inclusive = true } }
-}
+private fun finishApp(nav:NavHostController){nav.navigate("home"){popUpTo("home"){inclusive=true}}}
