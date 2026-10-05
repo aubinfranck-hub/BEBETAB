@@ -300,7 +300,7 @@ private fun RewardsScreen(onBack: () -> Unit, onSettings: () -> Unit) {
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                listOf(10 to "🥉", 50 to "🥈", 100 to "🥇", 250 to "🏆").forEach { (threshold, icon) ->
+                for ((threshold, icon) in listOf(10 to "🥉", 50 to "🥈", 100 to "🥇", 250 to "🏆")) {
                     Surface(
                         Modifier.fillMaxWidth().weight(1f).shadow(2.dp, RoundedCornerShape(18.dp)),
                         shape = RoundedCornerShape(18.dp),
