@@ -3,277 +3,68 @@ import { motion } from "motion/react";
 import { ActiveScreen, UserProfile } from "../types";
 import { MascotFanti } from "./MascotFanti";
 import { soundFx, speakText } from "../utils/audio";
-import {
-  BookOpen,
-  Gamepad2,
-  Palette,
-  Music,
-  BookMarked,
-  HelpCircle,
-  Trophy,
-  Globe2,
-  Tv,
-  Lock,
-  Sparkles,
-  Volume2,
-  Target,
-  Flame,
-} from "lucide-react";
+import { Globe2, BookOpen, Gamepad2, BookMarked, Music, Palette, Tv, Trophy, Sparkles, Volume2, Lock, Play } from "lucide-react";
 
-interface HomeLauncherProps {
-  user: UserProfile;
-  onNavigate: (screen: ActiveScreen) => void;
-  onOpenFantiChat: () => void;
-  onOpenParents: () => void;
-}
+interface Props { user: UserProfile; onNavigate:(screen:ActiveScreen)=>void; onOpenFantiChat:()=>void; onOpenParents:()=>void; }
 
-export const HomeLauncher: React.FC<HomeLauncherProps> = ({
-  user,
-  onNavigate,
-  onOpenFantiChat,
-  onOpenParents,
-}) => {
-  const launchButtons = [
-    {
-      id: "defis" as ActiveScreen,
-      title: "Défis Quotidiens",
-      subtitle: "3 Missions du jour • Étoiles Bonus",
-      icon: Target,
-      gradient: "from-amber-400 via-orange-500 to-rose-600",
-      borderColor: "border-amber-300",
-      emoji: "🎯",
-    },
-    {
-      id: "apprendre" as ActiveScreen,
-      title: "Encarta des Petits",
-      subtitle: "Encyclopédie • Espace, Dinosaures, Océans...",
-      icon: BookOpen,
-      gradient: "from-blue-500 via-sky-400 to-indigo-600",
-      borderColor: "border-sky-300",
-      emoji: "🌍",
-    },
-    {
-      id: "jouer" as ActiveScreen,
-      title: "Jouer",
-      subtitle: "Puzzles, Ballons, Mémoire...",
-      icon: Gamepad2,
-      gradient: "from-emerald-500 via-teal-400 to-green-600",
-      borderColor: "border-green-300",
-      emoji: "🎮",
-    },
-    {
-      id: "dessiner" as ActiveScreen,
-      title: "Dessiner",
-      subtitle: "Pinceaux, Paillettes, Tampons",
-      icon: Palette,
-      gradient: "from-pink-500 via-rose-400 to-red-500",
-      borderColor: "border-pink-300",
-      emoji: "🎨",
-    },
-    {
-      id: "musique" as ActiveScreen,
-      title: "Musique",
-      subtitle: "Piano, Xylophone, Comptines",
-      icon: Music,
-      gradient: "from-purple-500 via-fuchsia-400 to-indigo-600",
-      borderColor: "border-fuchsia-300",
-      emoji: "🎵",
-    },
-    {
-      id: "histoires" as ActiveScreen,
-      title: "Histoires",
-      subtitle: "Contes interactifs & Fanti IA",
-      icon: BookMarked,
-      gradient: "from-amber-500 via-orange-400 to-yellow-500",
-      borderColor: "border-amber-300",
-      emoji: "📖",
-    },
-    {
-      id: "quiz" as ActiveScreen,
-      title: "Quiz",
-      subtitle: "Questions & Défis rigolos",
-      icon: HelpCircle,
-      gradient: "from-violet-600 via-purple-500 to-indigo-700",
-      borderColor: "border-purple-300",
-      emoji: "🧩",
-    },
-    {
-      id: "recompenses" as ActiveScreen,
-      title: "Récompenses",
-      subtitle: "Badges, Costumes de Fanti",
-      icon: Trophy,
-      gradient: "from-yellow-400 via-amber-500 to-orange-600",
-      borderColor: "border-yellow-200",
-      emoji: "🏆",
-    },
-    {
-      id: "mondes" as ActiveScreen,
-      title: "Mondes",
-      subtitle: "Jungle, Océan, Espace...",
-      icon: Globe2,
-      gradient: "from-teal-500 via-cyan-400 to-blue-600",
-      borderColor: "border-cyan-300",
-      emoji: "🌍",
-    },
-    {
-      id: "videos" as ActiveScreen,
-      title: "Vidéos",
-      subtitle: "Comptines & Cartoons sécurisés",
-      icon: Tv,
-      gradient: "from-rose-600 via-red-500 to-orange-500",
-      borderColor: "border-rose-300",
-      emoji: "📺",
-    },
-  ];
+const cards = [
+ {id:"world", title:"MONDE", sub:"Explore les pays et les cultures", emoji:"🌍", color:"from-emerald-500 to-cyan-500"},
+ {id:"apprendre", title:"APPRENDRE", sub:"Sciences, maths, langues...", emoji:"📚", color:"from-blue-500 to-indigo-600"},
+ {id:"jouer", title:"JOUER", sub:"Puzzles, mémoire, logique", emoji:"🎮", color:"from-green-500 to-teal-600"},
+ {id:"histoires", title:"HISTOIRES", sub:"Contes interactifs avec Fanti", emoji:"📖", color:"from-orange-400 to-pink-500"},
+ {id:"live", title:"LIVE WORLD", sub:"Villes, nature et lieux du monde", emoji:"📺", color:"from-cyan-500 to-blue-700"},
+ {id:"musique", title:"MUSIQUE", sub:"Chante, joue et découvre", emoji:"🎵", color:"from-purple-500 to-fuchsia-600"},
+ {id:"dessiner", title:"DESSINER", sub:"Crée ton propre monde", emoji:"🎨", color:"from-pink-500 to-rose-600"},
+ {id:"recompenses", title:"MES RÉCOMPENSES", sub:"Badges et aventures", emoji:"⭐", color:"from-yellow-400 to-orange-500"},
+] as const;
 
-  return (
-    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col items-center gap-6">
-      {/* Welcome Banner with Mascot Fanti */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full bg-gradient-to-r from-yellow-300 via-orange-300 to-pink-300 rounded-3xl p-6 shadow-xl border-4 border-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
-      >
-        <div className="flex-1 text-center md:text-left space-y-2 z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/80 backdrop-blur rounded-full text-slate-800 font-extrabold text-xs sm:text-sm shadow-sm border border-orange-200">
-            <Sparkles className="w-4 h-4 text-amber-500 animate-spin" />
-            <span>Bienvenue dans l'univers de Fanti !</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight drop-shadow-sm">
-            Prêt à apprendre en t'amusant ?
-          </h2>
-          <p className="text-slate-800 font-bold text-sm sm:text-base max-w-lg">
-            Aventure-toi dans le monde <span className="text-purple-700 font-extrabold">{user.currentWorld}</span> avec Fanti, résous des énigmes et débloque de superbes récompenses !
-          </p>
+export const HomeLauncher: React.FC<Props> = ({user,onNavigate,onOpenFantiChat,onOpenParents}) => (
+ <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 py-5 space-y-5">
+   <section className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 p-5 sm:p-7 shadow-2xl border-4 border-white min-h-[390px]">
+     <div className="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_10%_20%,white_0,transparent_25%),radial-gradient(circle_at_90%_20%,white_0,transparent_22%)]"/>
+     <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-5">
+       <div className="w-full lg:w-[30%]">
+         <div className="inline-flex px-4 py-2 rounded-full bg-white/90 text-slate-800 font-black text-xs shadow mb-3">🌍 LE NOUVEL ENCARTA POUR ENFANTS</div>
+         <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight drop-shadow-lg">Le monde<br/>est ton terrain<br/>de jeu.</h2>
+         <p className="mt-3 text-slate-800 font-bold max-w-sm">Découvre, joue, écoute, observe et apprends avec Fanti.</p>
+         <div className="flex gap-2 mt-4">
+           <button onClick={()=>{soundFx.playTap();onNavigate("world")}} className="px-5 py-3 bg-orange-500 text-white rounded-2xl font-black shadow-xl border-2 border-white flex items-center gap-2"><Globe2 className="w-5 h-5"/> Explorer</button>
+           <button onClick={onOpenFantiChat} className="px-4 py-3 bg-white/90 text-slate-900 rounded-2xl font-black shadow-xl flex items-center gap-2"><Sparkles className="w-5 h-5 text-amber-500"/> Fanti</button>
+         </div>
+       </div>
+       <div className="relative flex-1 min-h-[300px] w-full flex items-center justify-center">
+         <motion.div animate={{rotate:[0,2,-2,0]}} transition={{repeat:Infinity,duration:12}} className="w-[260px] h-[260px] sm:w-[340px] sm:h-[340px] rounded-full bg-gradient-to-br from-emerald-300 via-blue-400 to-indigo-700 border-[10px] border-white/80 shadow-[0_25px_70px_rgba(15,23,42,.3)] flex items-center justify-center">
+           <span className="text-[110px] sm:text-[145px]">🌍</span>
+           <span className="absolute -top-3 left-12 text-5xl">🎈</span><span className="absolute top-10 -right-4 text-5xl">🗼</span><span className="absolute bottom-8 -left-7 text-5xl">🐘</span><span className="absolute -bottom-2 right-10 text-5xl">🦁</span>
+         </motion.div>
+       </div>
+       <div className="w-full lg:w-[27%] space-y-3">
+         <div className="bg-white/95 rounded-3xl p-4 shadow-xl">
+           <div className="flex items-center justify-between"><span className="font-black text-slate-900">🔴 LIVE WORLD</span><button onClick={()=>onNavigate("live")} className="text-xs font-black text-blue-600">Voir tout ›</button></div>
+           <div className="mt-3 h-28 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-700 flex items-center justify-center text-6xl">🦒</div>
+           <div className="mt-2 text-sm font-black text-slate-900">Observe la nature en direct !</div>
+         </div>
+         <div className="bg-white/95 rounded-3xl p-4 shadow-xl">
+           <div className="font-black text-slate-900">Aujourd'hui avec Fanti</div>
+           <div className="grid grid-cols-4 gap-2 mt-3">{["🦁","🎮","📖","🎵"].map((e,i)=><button key={i} className="rounded-xl bg-slate-100 p-3 text-2xl">{e}</button>)}</div>
+         </div>
+       </div>
+     </div>
+   </section>
 
-          <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
-            <button
-              onClick={() => {
-                soundFx.playVictory();
-                speakText("Bonjour ! Je suis Fanti l'éléphant, prêt pour la grande aventure ?");
-              }}
-              className="px-5 py-2.5 bg-white hover:bg-yellow-100 text-slate-900 font-black rounded-2xl shadow-md border-2 border-amber-300 flex items-center gap-2 active:scale-95 transition-all text-sm"
-            >
-              <Volume2 className="w-5 h-5 text-amber-500" />
-              <span>Écouter Fanti</span>
-            </button>
+   <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+     {cards.map((c,i)=><motion.button key={c.id} whileHover={{y:-4,scale:1.02}} whileTap={{scale:.97}} onClick={()=>{soundFx.playTap();onNavigate(c.id as ActiveScreen)}} className={`text-left rounded-3xl p-4 sm:p-5 text-white shadow-xl border-4 border-white/80 bg-gradient-to-br ${c.color}`}>
+       <div className="flex items-start justify-between gap-2"><span className="text-4xl sm:text-5xl">{c.emoji}</span><span className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center"><Play className="w-4 h-4 fill-current"/></span></div>
+       <div className="mt-3 font-black text-lg sm:text-xl">{c.title}</div><div className="text-xs font-bold text-white/90 mt-1">{c.sub}</div>
+     </motion.button>)}
+   </section>
 
-            <button
-              onClick={onOpenFantiChat}
-              className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:scale-105 text-white font-black rounded-2xl shadow-lg border-2 border-white flex items-center gap-2 active:scale-95 transition-all text-sm"
-            >
-              <Sparkles className="w-5 h-5 text-yellow-300 animate-spin" />
-              <span>Gemini Live 🎙️ Vocal Lia</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Mascot Mascot Visual */}
-        <div className="shrink-0 flex justify-center z-10">
-          <MascotFanti
-            size="lg"
-            outfit={user.currentOutfit}
-            world={user.currentWorld}
-            onOpenChat={onOpenFantiChat}
-          />
-        </div>
-      </motion.div>
-
-      {/* Featured Daily Challenges Banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        onClick={() => {
-          soundFx.playTap();
-          onNavigate("defis");
-        }}
-        className="w-full bg-gradient-to-r from-amber-400 via-orange-400 to-rose-500 rounded-3xl p-4 sm:p-5 shadow-xl border-4 border-amber-200 cursor-pointer hover:scale-[1.01] transition-all flex items-center justify-between gap-4 text-white relative overflow-hidden group"
-      >
-        <div className="flex items-center gap-4 z-10">
-          <div className="p-3 sm:p-4 bg-white/20 backdrop-blur rounded-2xl border-2 border-white/40 shadow-inner group-hover:rotate-12 transition-transform">
-            <Target className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-200" />
-          </div>
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 bg-yellow-300 text-slate-900 font-black text-xs rounded-full shadow mb-1">
-              <Flame className="w-3.5 h-3.5 text-rose-600 fill-rose-600" />
-              <span>Nouveau • Missions du Jour</span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow">
-              3 Défis Quotidiens à relever ! 🎯
-            </h3>
-            <p className="text-xs sm:text-sm font-extrabold text-amber-100">
-              Gagne jusqu'à +45 Étoiles bonus et un Coffre aux Trésors aujourd'hui !
-            </p>
-          </div>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-2 bg-white text-slate-900 font-black px-5 py-3 rounded-2xl shadow-lg border-2 border-amber-200 text-xs sm:text-sm shrink-0 group-hover:bg-yellow-100 transition-colors">
-          <span>Relever les Défis ▶</span>
-        </div>
-      </motion.div>
-
-      {/* Grid of Launcher Activities */}
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {launchButtons.map((btn, index) => {
-          const Icon = btn.icon;
-          return (
-            <motion.div
-              key={btn.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-              whileHover={{ scale: 1.03, y: -4 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                soundFx.playTap();
-                onNavigate(btn.id);
-              }}
-              className={`cursor-pointer rounded-3xl p-5 bg-gradient-to-br ${btn.gradient} text-white shadow-xl border-4 ${btn.borderColor} flex items-center justify-between gap-4 relative overflow-hidden group`}
-            >
-              {/* Background ambient pattern glow */}
-              <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
-
-              <div className="space-y-1 z-10">
-                <span className="text-3xl block">{btn.emoji}</span>
-                <h3 className="text-2xl font-black tracking-tight text-yellow-200 drop-shadow">
-                  {btn.title}
-                </h3>
-                <p className="text-xs sm:text-sm font-semibold text-white/90">
-                  {btn.subtitle}
-                </p>
-              </div>
-
-              <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center border-2 border-white/40 shadow-inner shrink-0 group-hover:rotate-12 transition-transform">
-                <Icon className="w-8 h-8 text-white" />
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Quick Parents Access Footer Card */}
-      <div className="w-full mt-2 bg-white/80 backdrop-blur rounded-2xl p-4 border-2 border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-rose-100 text-rose-600 rounded-xl">
-            <Lock className="w-6 h-6" />
-          </div>
-          <div>
-            <h4 className="font-extrabold text-slate-800 text-sm">
-              Espace Contrôle Parental & Statistiques
-            </h4>
-            <p className="text-xs text-slate-500">
-              Gérer le temps d'écran, le niveau d'âge ({user.ageGroup} ans) et voir la progression.
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={onOpenParents}
-          className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs rounded-xl shadow transition-colors active:scale-95"
-        >
-          Ouvrir l'espace Parents
-        </button>
-      </div>
-    </div>
-  );
-};
+   <section className="rounded-3xl bg-white/90 p-4 shadow-xl border-2 border-white flex flex-wrap items-center justify-between gap-4">
+     <div className="flex items-center gap-3"><MascotFanti size="sm" mood="happy" interactive={true}/><div><div className="font-black text-slate-900">Bonjour {user.name} ! 🐘</div><div className="text-xs font-bold text-slate-500">Niveau {user.level} • ⭐ {user.stars} • {user.language.toUpperCase()}</div></div></div>
+     <div className="flex gap-2">
+       <button onClick={()=>speakText("Bonjour ! Je suis Fanti. Prêt pour une nouvelle aventure ?")} className="px-4 py-2.5 rounded-xl bg-amber-100 text-amber-900 font-black text-xs flex items-center gap-2"><Volume2 className="w-4 h-4"/> Écouter Fanti</button>
+       <button onClick={onOpenParents} className="px-4 py-2.5 rounded-xl bg-rose-500 text-white font-black text-xs flex items-center gap-2"><Lock className="w-4 h-4"/> Parents</button>
+     </div>
+   </section>
+ </div>
+);
