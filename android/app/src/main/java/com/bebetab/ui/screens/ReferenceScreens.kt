@@ -248,7 +248,7 @@ private fun LiveScreen(onBack: () -> Unit, onSettings: () -> Unit) {
 
 @Composable
 private fun LiveAnimalCard(cam: AnimalLiveCam, lang: String, modifier: Modifier, onClick: () -> Unit) {
-    Surface(modifier.fillMaxHeight(), shape = RoundedCornerShape(18.dp), color = Color.White, shadowElevation = 4.dp, onClick = onClick) {
+    Surface(onClick = onClick, modifier = modifier.fillMaxHeight(), shape = RoundedCornerShape(18.dp), color = Color.White, shadowElevation = 4.dp) {
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.fillMaxWidth().weight(1f).background(Brush.verticalGradient(listOf(Color(0xFF8BD8FF), Color(0xFFE8F9FF)))), contentAlignment = Alignment.Center) {
                 Text(cam.emoji, fontSize = 56.sp)
