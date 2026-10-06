@@ -65,15 +65,15 @@ private fun BebeTabNavigation() {
 
     Box(Modifier.fillMaxSize()) {
         NavHost(nav, startDestination = "home", modifier = Modifier.fillMaxSize()) {
-            composable("home") { ReferenceBoardScreen("home", { nav.navigate(it) }, null) }
-            composable("world") { ReferenceBoardScreen("world", { nav.navigate(it) }, { nav.popBackStack() }) }
-            composable("france") { ReferenceBoardScreen("france", { nav.navigate(it) }, { nav.popBackStack() }) }
+            composable("home") { HomeScreen { nav.navigate(it) } }
+            composable("world") { ReferenceScreen("world", { nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("france") { ReferenceScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("live") { ReferenceScreen("live", { nav.popBackStack() }, { nav.navigate("settings") }) }
-            composable("learn") { ReferenceBoardScreen("learn", { nav.navigate(it) }, { nav.popBackStack() }) }
-            composable("play") { ReferenceBoardScreen("play", { nav.navigate(it) }, { nav.popBackStack() }) }
-            composable("stories") { ReferenceBoardScreen("stories", { nav.navigate(it) }, { nav.popBackStack() }) }
-            composable("draw") { ReferenceBoardScreen("draw", { nav.navigate(it) }, { nav.popBackStack() }) }
-            composable("rewards") { ReferenceBoardScreen("rewards", { nav.navigate(it) }, { nav.popBackStack() }) }
+            composable("learn") { LearnActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("play") { PlayActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("stories") { StoryActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("draw") { DrawActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("rewards") { ReferenceScreen("rewards", { nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("settings") { SettingsScreen { nav.popBackStack() } }
             composable("music") { MusicActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
         }
