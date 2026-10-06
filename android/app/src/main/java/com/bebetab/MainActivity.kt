@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.bebetab.data.ParentSettingsStore
+import com.bebetab.audio.BebeAudioEngine
 import com.bebetab.ui.screens.*
 import com.bebetab.ui.theme.BebeTabTheme
 import kotlinx.coroutines.delay
@@ -45,6 +46,11 @@ private fun BebeTabNavigation() {
     val used by settings.usedSeconds.collectAsState(0)
     val scope = rememberCoroutineScope()
     var locked by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        BebeAudioEngine.startMusic()
+        onDispose { BebeAudioEngine.release() }
+    }
 
     LaunchedEffect(enabled, minutes, locked) {
         while (enabled && !locked) {
