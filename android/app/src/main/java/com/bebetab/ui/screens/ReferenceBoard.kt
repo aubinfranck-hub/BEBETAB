@@ -20,15 +20,19 @@ import kotlinx.coroutines.withContext
 
 private data class Crop(val x:Int,val y:Int,val w:Int,val h:Int)
 
+// reference_board.jpg is the 3x3 professional reference board (320x213).
+// The previous build used coordinates from a different scaled board, which
+// caused the home screen to show only a tiny/incorrect portion of the art.
 private val crops=mapOf(
-    "home" to Crop(1,1,118,65),
-    "world" to Crop(122,1,117,65),
-    "france" to Crop(1,68,83,47),
-    "live" to Crop(85,68,84,47),
-    "learn" to Crop(170,68,69,47),
-    "play" to Crop(1,118,83,41),
-    "stories" to Crop(86,118,84,41),
-    "draw" to Crop(171,118,68,41)
+    "home" to Crop(2,2,156,69),
+    "world" to Crop(160,2,158,69),
+    "france" to Crop(2,74,103,68),
+    "live" to Crop(107,74,104,68),
+    "learn" to Crop(213,74,105,68),
+    "play" to Crop(2,145,103,66),
+    "stories" to Crop(107,145,104,66),
+    "draw" to Crop(213,145,105,66),
+    "rewards" to Crop(2,145,103,66)
 )
 
 @Composable
