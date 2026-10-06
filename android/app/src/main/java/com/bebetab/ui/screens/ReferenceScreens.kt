@@ -229,48 +229,36 @@ private fun CountryCard(text: String, emoji: String) {
 @Composable
 private fun LiveScreen(onBack: () -> Unit, onSettings: () -> Unit) {
     val lang = language()
-    val places = listOf("Paris","New York","Tokyo","Nairobi","La Savane","Barrière de corail")
-    val emojis = listOf("🗼","🏙️","🌸","🦒","🐘","🐠")
-    val flags = listOf("🇫🇷","🇺🇸","🇯🇵","🇰🇪","🌍","🇦🇺")
-
-    BebeTabFrame("LIVE WORLD", onBack, onSettings) {
+    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    BebeTabFrame(if (lang == "en") "ANIMAL LIVE" else "CAMERAS ANIMAUX", onBack, onSettings) {
         Column(Modifier.fillMaxSize().padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("🔴 EN DIRECT", color = Color.Red, fontWeight = FontWeight.Black, fontSize = 18.sp)
-                Spacer(Modifier.width(10.dp))
-                Text(if (lang == "en") "Watch the world live!" else "Regarde le monde en direct !", fontWeight = FontWeight.ExtraBold, color = OutlineBlue)
+            Text(
+                if (lang == "en") "Real animals • YouTube and official live cameras" else "De vrais animaux • YouTube et cameras officielles",
+                color = OutlineBlue, fontWeight = FontWeight.ExtraBold
+            )
+            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AnimalLiveData.cams.take(4).forEach { cam -> LiveAnimalCard(cam, lang, Modifier.weight(1f)) { uriHandler.openUri(cam.youtubeUrl ?: cam.officialUrl) } }
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                places.chunked(3).forEach { row ->
-                    Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        row.forEach { place ->
-                            val i = places.indexOf(place)
-                            Surface(
-                                Modifier.weight(1f).fillMaxHeight().shadow(3.dp, RoundedCornerShape(16.dp)),
-                                shape = RoundedCornerShape(16.dp),
-                                color = Color.White
-                            ) {
-                                Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Box(
-                                        Modifier.fillMaxWidth().weight(1f).background(
-                                            Brush.verticalGradient(listOf(Color(0xFF83D7FF), Color(0xFFDDF6FF)))
-                                        ),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(emojis[i], fontSize = 55.sp)
-                                    }
-                                    Text(place, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
-                                    Text(flags[i] + "  LIVE", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(bottom = 5.dp))
-                                }
-                            }
-                        }
-                    }
-                }
+            Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AnimalLiveData.cams.drop(4).forEach { cam -> LiveAnimalCard(cam, lang, Modifier.weight(1f)) { uriHandler.openUri(cam.youtubeUrl ?: cam.officialUrl) } }
             }
-            Row(Modifier.fillMaxWidth().height(50.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                listOf("🏙️ Villes","🌳 Nature","🐾 Animaux","🏛️ Monuments","🏖️ Plages","⛰️ Montagnes").forEach {
-                    SmallWhiteChip(it, Modifier.weight(1f))
-                }
+        }
+    }
+}
+
+@Composable
+private fun LiveAnimalCard(cam: AnimalLiveCam, lang: String, modifier: Modifier, onClick: () -> Unit) {
+    Surface(modifier.fillMaxHeight(), shape = RoundedCornerShape(18.dp), color = Color.White, shadowElevation = 4.dp, onClick = onClick) {
+        Column(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxWidth().weight(1f).background(Brush.verticalGradient(listOf(Color(0xFF8BD8FF), Color(0xFFE8F9FF)))), contentAlignment = Alignment.Center) {
+                Text(cam.emoji, fontSize = 56.sp)
+                Text("LIVE", color = Color.Red, fontSize = 10.sp, fontWeight = FontWeight.Black, modifier = Modifier.align(Alignment.TopEnd).padding(8.dp))
+            }
+            Column(Modifier.fillMaxWidth().padding(8.dp)) {
+                Text(if (lang == "en") cam.nameEn else cam.nameFr, fontWeight = FontWeight.Black, color = OutlineBlue, fontSize = 13.sp)
+                Text(if (lang == "en") cam.animalEn else cam.animalFr, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Text(cam.location, fontSize = 8.sp)
+                Text(if (lang == "en") "WATCH" else "REGARDER", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Black)
             }
         }
     }
