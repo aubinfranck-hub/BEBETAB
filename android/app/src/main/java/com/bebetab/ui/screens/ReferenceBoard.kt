@@ -83,6 +83,8 @@ private fun ReferenceHotspots(route:String,onNavigate:(String)->Unit,onBack:(()-
         if(route!="home" && onBack!=null){
             Hotspot(.005f,.01f,.09f,.15f){onBack()}
             Hotspot(.92f,.005f,.075f,.15f){onNavigate("settings")}
+        } else if(route=="home"){
+            Hotspot(.92f,.005f,.075f,.15f){onNavigate("settings")}
         }
 
         when(route){
