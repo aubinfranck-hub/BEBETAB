@@ -8,10 +8,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -25,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bebetab.data.ProgressStore
+import com.bebetab.audio.BebeAudioEngine
 import com.bebetab.ui.theme.*
 
 data class HomeTile(
@@ -115,8 +122,8 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                     )
                     Spacer(Modifier.height(10.dp))
                     Button(
-                        onClick = { onNavigate("world") },
-                        modifier = Modifier.fillMaxWidth(.84f).height(58.dp),
+                        onClick = { BebeAudioEngine.click(); onNavigate("world") },
+                        modifier = Modifier.fillMaxWidth(.84f).height(58.dp).hoverable(remember { MutableInteractionSource() }),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8F00)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp)
@@ -188,7 +195,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                             textAlign = TextAlign.Center
                         )
                         Button(
-                            onClick = { onNavigate("live") },
+                            onClick = { BebeAudioEngine.click(); onNavigate("live") },
                             modifier = Modifier.fillMaxWidth().height(54.dp),
                             shape = RoundedCornerShape(28.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = LiveBlue)
@@ -207,9 +214,21 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 tiles.forEach { tile ->
+                    val tileInteraction = remember(tile.route) { MutableInteractionSource() }
+                    val tileHovered by tileInteraction.collectIsHoveredAsState()
+                    val tilePressed by tileInteraction.collectIsPressedAsState()
+                    val tileScale by animateFloatAsState(
+                        if (tilePressed) .94f else if (tileHovered) 1.035f else 1f,
+                        label = "tileScale"
+                    )
                     Button(
-                        onClick = { onNavigate(tile.route) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        onClick = { BebeAudioEngine.click(); onNavigate(tile.route) },
+                        interactionSource = tileInteraction,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .scale(tileScale)
+                            .hoverable(tileInteraction),
                         shape = RoundedCornerShape(24.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = tile.color),
                         contentPadding = PaddingValues(8.dp),
