@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.*
@@ -85,7 +86,8 @@ private fun ReferenceCropImage(
             srcOffset=IntOffset(crop.x,crop.y),
             srcSize=IntSize(crop.w,crop.h),
             dstOffset=IntOffset.Zero,
-            dstSize=IntSize(size.width.toInt(),size.height.toInt())
+            dstSize=IntSize(size.width.toInt(),size.height.toInt()),
+            filterQuality = FilterQuality.High
         )
     }
 }
