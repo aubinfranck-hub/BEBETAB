@@ -2,7 +2,15 @@ package com.bebetab.ui.screens
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -10,11 +18,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.*
 import com.bebetab.R
+import com.bebetab.audio.BebeAudioEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -95,15 +105,48 @@ private fun ReferenceHotspots(
             h:Float,
             action:()->Unit
         ){
+            val interaction = remember { MutableInteractionSource() }
+            val pressed by interaction.collectIsPressedAsState()
+            val hovered by interaction.collectIsHoveredAsState()
+            val scale by animateFloatAsState(
+                targetValue = when {
+                    pressed -> 0.94f
+                    hovered -> 1.035f
+                    else -> 1f
+                },
+                label = "hotspotScale"
+            )
             Box(
                 Modifier
                     .offset(maxWidth*x,maxHeight*y)
                     .width(maxWidth*w)
                     .height(maxHeight*h)
-                    .pointerInput(Unit){
-                        detectTapGestures(onTap={action()})
+                    .scale(scale)
+                    .hoverable(interaction)
+                    .clickable(
+                        interactionSource = interaction,
+                        indication = null
+                    ) {
+                        BebeAudioEngine.click()
+                        action()
                     }
-            )
+            ) {
+                if (hovered || pressed) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(
+                                Color.White.copy(alpha = if (pressed) .20f else .08f)
+                            )
+                            .border(
+                                2.dp,
+                                Color.White.copy(alpha = if (pressed) .80f else .42f),
+                                RoundedCornerShape(18.dp)
+                            )
+                    )
+                }
+            }
         }
 
         if(route!="home" && onBack!=null){
