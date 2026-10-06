@@ -31,6 +31,11 @@ private fun language(): String {
 fun ReferenceScreen(route: String, onBack: () -> Unit, onSettings: () -> Unit = {}) {
     when (route) {
         "world" -> WorldScreen(onBack, onSettings)
+        "france" -> {
+            val lang = language()
+            val france = ContentData.countries.first { it.id == "france" }
+            CountryScreen(france, lang, onBack, onSettings)
+        }
         "live" -> LiveScreen(onBack, onSettings)
         "rewards" -> RewardsScreen(onBack, onSettings)
         else -> SimpleScreen(route, onBack)
