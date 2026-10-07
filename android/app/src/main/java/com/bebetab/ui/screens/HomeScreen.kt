@@ -331,7 +331,13 @@ private fun FantiHero(modifier: Modifier) {
         drawLine(dark,Offset(cx+bodyW*.06f,cy+bodyH*.10f),Offset(cx+bodyW*.02f,cy+bodyH*.60f),bodyW*.10f,StrokeCap.Round)
         drawLine(gray,Offset(cx-bodyW*.43f,cy+bodyH*.00f),Offset(cx-bodyW*.62f,cy+bodyH*.23f),bodyW*.09f,StrokeCap.Round)
         drawOval(shirt,Offset(cx-bodyW*.16f,cy+bodyH*.08f),Size(bodyW*.33f,bodyH*.30f))
+        // Globe emblem on Fanti's yellow shirt.
+        drawCircle(Color(0xFF2B8BE6),bodyW*.065f,Offset(cx+bodyW*.005f,cy+bodyH*.22f))
+        drawArc(Color.White,180f,180f,false,Offset(cx-bodyW*.06f,cy+bodyH*.16f),Size(bodyW*.12f,bodyH*.12f),style=androidx.compose.ui.graphics.drawscope.Stroke(width=bodyW*.012f))
         drawRoundRect(blue,Offset(cx+bodyW*.26f,cy+bodyH*.02f),Size(bodyW*.18f,bodyH*.45f),CornerRadius(16f,16f))
+        // Yellow cap with blue B, matching the reference mascot identity.
+        drawOval(shirt,Offset(cx-bodyW*.28f,cy-bodyH*.62f),Size(bodyW*.56f,bodyH*.20f))
+        drawCircle(OutlineBlue,bodyW*.035f,Offset(cx-bodyW*.01f,cy-bodyH*.52f))
         drawArc(shirt,200f,140f,false,Offset(cx-bodyW*.55f,cy-bodyH*.48f),Size(bodyW*.32f,bodyH*.24f),style=androidx.compose.ui.graphics.drawscope.Stroke(width=bodyW*.03f))
     }
 }
