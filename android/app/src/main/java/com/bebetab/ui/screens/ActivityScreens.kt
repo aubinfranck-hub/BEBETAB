@@ -126,8 +126,8 @@ private fun MiniQuiz(id:String, language:String, onStars:(Int)->Unit, onDone:()-
 @Composable
 private fun ActivityDetail(id:String, language:String, onBack:()->Unit, onStars:(Int)->Unit) {
     when(id){
-        "letters" -> QuizLettres(onStars)
-        "numbers" -> QuizNombres(onStars)
+        "letters" -> QuizLettres(onStars,language)
+        "numbers" -> QuizNombres(onStars,language)
         "art" -> DrawGame(language, if(language=="en")"Art studio" else "Atelier d’art")
         else -> MiniQuiz(id,language,onStars,onBack)
     }
