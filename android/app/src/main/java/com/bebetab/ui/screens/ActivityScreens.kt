@@ -57,19 +57,19 @@ private val miniQuestions = mapOf(
 
 @Composable
 private fun FantiPane(message: String) {
-    Surface(
-        Modifier.fillMaxHeight().width(300.dp).shadow(3.dp, RoundedCornerShape(24.dp)),
-        shape = RoundedCornerShape(24.dp), color = Color.White.copy(alpha = .72f)
+    Column(
+        Modifier.fillMaxHeight().width(238.dp).padding(start = 2.dp, end = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(Modifier.fillMaxSize().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            FantiMascot(Modifier.fillMaxWidth().height(150.dp).padding(8.dp))
-            Spacer(Modifier.height(4.dp))
-            Surface(shape = RoundedCornerShape(18.dp), color = Color.White, tonalElevation = 2.dp) {
-                Text(message, Modifier.padding(14.dp), textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.ExtraBold, color = Color(0xFF19324A), fontSize = 15.sp)
-            }
-            Spacer(Modifier.weight(1f))
-            Text("BébéTab", color = OutlineBlue, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
+        Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.BottomCenter) {
+            FantiMascot(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal = 8.dp))
+        }
+        Surface(
+            Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp).shadow(3.dp, RoundedCornerShape(18.dp)),
+            shape = RoundedCornerShape(18.dp), color = Color.White
+        ) {
+            Text(message, Modifier.padding(horizontal = 12.dp, vertical = 11.dp), textAlign = TextAlign.Center,
+                fontWeight = FontWeight.ExtraBold, color = Color(0xFF19324A), fontSize = 13.sp)
         }
     }
 }
@@ -78,15 +78,16 @@ private fun FantiPane(message: String) {
 private fun ActivityTile(title:String, subtitle:String, emoji:String, color:Color, onClick:()->Unit) {
     Button(
         onClick=onClick,
-        modifier=Modifier.fillMaxSize().shadow(3.dp,RoundedCornerShape(18.dp)),
+        modifier=Modifier.fillMaxSize().shadow(4.dp,RoundedCornerShape(18.dp)),
         shape=RoundedCornerShape(18.dp), colors=ButtonDefaults.buttonColors(containerColor=color),
-        contentPadding=PaddingValues(8.dp)
+        contentPadding=PaddingValues(horizontal = 8.dp, vertical = 6.dp)
     ) {
         Column(Modifier.fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){
-            Text(emoji,fontSize=34.sp)
-            Spacer(Modifier.height(6.dp))
-            Text(title,fontWeight=FontWeight.ExtraBold,fontSize=16.sp,color=Color.White,textAlign=TextAlign.Center)
-            Text(subtitle,fontWeight=FontWeight.Bold,fontSize=10.sp,color=Color.White,textAlign=TextAlign.Center)
+            Box(Modifier.fillMaxWidth().weight(1f).padding(horizontal = 8.dp, vertical = 4.dp), contentAlignment = Alignment.Center) {
+                ActivityCardIllustration(Modifier.fillMaxSize(), emoji)
+            }
+            Text(title,fontWeight=FontWeight.Black,fontSize=15.sp,color=Color.White,textAlign=TextAlign.Center,maxLines=1)
+            Text(subtitle,fontWeight=FontWeight.Bold,fontSize=9.sp,color=Color.White.copy(.92f),textAlign=TextAlign.Center,maxLines=1)
         }
     }
 }
@@ -223,11 +224,10 @@ fun StoryActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
                 FantiPane(if(language=="en")"Listen, read and live amazing stories with Fanti!" else "Écoute, lis et vis des histoires incroyables avec Fanti !")
                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(14.dp)){
                     Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(14.dp)){
-                        val storyEmojis=listOf("🌳","🏜️","🚀")
                         ContentData.stories.forEachIndexed{index,story->
                             Surface(onClick={storyIndex=index;openReader=true},modifier=Modifier.weight(1f).fillMaxHeight().shadow(3.dp,RoundedCornerShape(20.dp)),shape=RoundedCornerShape(20.dp),color=Color.White){
                                 Column(Modifier.fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally){
-                                    Box(Modifier.fillMaxWidth().weight(1f).background(Brush.verticalGradient(listOf(Color(0xFFB9EBFF),Color(0xFFFFE39E)))),contentAlignment=Alignment.Center){Text(storyEmojis[index],fontSize=70.sp)}
+                                    Box(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(topStart=20.dp,topEnd=20.dp)),contentAlignment=Alignment.Center){StoryIllustration(Modifier.fillMaxSize(),index)}
                                     Text(story.text(language),Modifier.padding(12.dp),fontWeight=FontWeight.ExtraBold,textAlign=TextAlign.Center,fontSize=14.sp)
                                 }
                             }
@@ -266,14 +266,14 @@ fun DrawActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
                 FantiPane(if(language=="en")"Create with Fanti!" else "Crée avec Fanti !")
                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(12.dp)){
                     Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
-                        DrawMode(Modifier.weight(1f),"🖌️",if(language=="en")"Free drawing" else "Dessin libre",DrawYellow){mode=if(language=="en")"Free drawing" else "Dessin libre"}
-                        DrawMode(Modifier.weight(1f),"🦋",if(language=="en")"Coloring" else "Coloriage",Color(0xFFFFB22E)){mode=if(language=="en")"Coloring" else "Coloriage"}
-                        DrawMode(Modifier.weight(1f),"A",if(language=="en")"Trace letters" else "Tracer lettres",Color(0xFF3DA6EF)){mode=if(language=="en")"Trace letters" else "Tracer lettres"}
+                        DrawMode(Modifier.weight(1f),"free",if(language=="en")"Free drawing" else "Dessin libre",DrawYellow){mode=if(language=="en")"Free drawing" else "Dessin libre"}
+                        DrawMode(Modifier.weight(1f),"color",if(language=="en")"Coloring" else "Coloriage",Color(0xFFFFB22E)){mode=if(language=="en")"Coloring" else "Coloriage"}
+                        DrawMode(Modifier.weight(1f),"letters",if(language=="en")"Trace letters" else "Tracer lettres",Color(0xFF3DA6EF)){mode=if(language=="en")"Trace letters" else "Tracer lettres"}
                     }
                     Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
-                        DrawMode(Modifier.weight(1f),"1 2 3",if(language=="en")"Trace numbers" else "Tracer chiffres",Color(0xFFAA6CF2)){mode=if(language=="en")"Trace numbers" else "Tracer chiffres"}
-                        DrawMode(Modifier.weight(1f),"🔵",if(language=="en")"Shapes" else "Formes",Color(0xFF7CCB38)){mode=if(language=="en")"Shapes" else "Formes"}
-                        DrawMode(Modifier.weight(1f),"🎵",if(language=="en")"Create music" else "Créer musique",MusicPink){mode=if(language=="en")"Create music" else "Créer musique"}
+                        DrawMode(Modifier.weight(1f),"numbers",if(language=="en")"Trace numbers" else "Tracer chiffres",Color(0xFFAA6CF2)){mode=if(language=="en")"Trace numbers" else "Tracer chiffres"}
+                        DrawMode(Modifier.weight(1f),"shapes",if(language=="en")"Shapes" else "Formes",Color(0xFF7CCB38)){mode=if(language=="en")"Shapes" else "Formes"}
+                        DrawMode(Modifier.weight(1f),"music",if(language=="en")"Create music" else "Créer musique",MusicPink){mode=if(language=="en")"Create music" else "Créer musique"}
                     }
                 }
             }
@@ -283,11 +283,10 @@ fun DrawActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
 
 @Composable
 private fun DrawMode(modifier:Modifier,icon:String,label:String,color:Color,onClick:()->Unit){
-    Button(onClick=onClick,modifier=modifier.fillMaxHeight().shadow(3.dp,RoundedCornerShape(20.dp)),shape=RoundedCornerShape(20.dp),colors=ButtonDefaults.buttonColors(containerColor=color)){
-        Column(horizontalAlignment=Alignment.CenterHorizontally){
-            Text(icon,fontSize=30.sp,color=Color.White)
-            Spacer(Modifier.height(8.dp))
-            Text(label,color=Color.White,fontSize=14.sp,fontWeight=FontWeight.ExtraBold,textAlign=TextAlign.Center)
+    Button(onClick=onClick,modifier=modifier.fillMaxHeight().shadow(4.dp,RoundedCornerShape(20.dp)),shape=RoundedCornerShape(20.dp),colors=ButtonDefaults.buttonColors(containerColor=color),contentPadding=PaddingValues(8.dp)){
+        Column(Modifier.fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){
+            Box(Modifier.fillMaxWidth().weight(1f),contentAlignment=Alignment.Center){DrawModeIllustration(Modifier.fillMaxSize(),icon)}
+            Text(label,color=Color.White,fontSize=14.sp,fontWeight=FontWeight.Black,textAlign=TextAlign.Center)
         }
     }
 }
