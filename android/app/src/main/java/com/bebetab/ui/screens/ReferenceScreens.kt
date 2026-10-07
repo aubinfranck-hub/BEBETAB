@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bebetab.data.*
 import com.bebetab.ui.components.BebeTabFrame
+import com.bebetab.ui.components.FantiMascot
 import com.bebetab.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -71,7 +72,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
                             Text(if(lang=="en")"AFRICA          OCEANIA" else "AFRIQUE          OCÉANIE",color=Color(0xFFEC461E),fontWeight=FontWeight.Black,fontSize=15.sp)
                             Text(if(lang=="en")"OCEANS        ANTARCTICA" else "OCÉANS        ANTARCTIQUE",color=OutlineBlue,fontWeight=FontWeight.Black,fontSize=13.sp)
                         }
-                        Text("🐘",fontSize=82.sp,modifier=Modifier.align(Alignment.BottomStart).padding(12.dp))
+                        FantiMascot(Modifier.align(Alignment.BottomStart).padding(10.dp).size(115.dp))
                         Surface(Modifier.align(Alignment.BottomStart).padding(start=100.dp,bottom=36.dp),shape=RoundedCornerShape(18.dp),color=Color.White,shadowElevation=3.dp){
                             Text(if(selectedCategory==null)
                                 if(lang=="en")"Where do you want to go today?" else "Où veux-tu aller aujourd’hui ?"
