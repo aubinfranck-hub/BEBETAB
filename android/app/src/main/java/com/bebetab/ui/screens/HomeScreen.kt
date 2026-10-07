@@ -104,14 +104,12 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                         fontWeight = FontWeight.Black,
                         letterSpacing = 1.sp
                     )
-                    Text(
-                        "LE MONDE DANS TES MAINS",
+                    Text(if (language == "en") "THE WORLD IN YOUR HANDS" else "LE MONDE DANS TES MAINS",
                         color = OutlineBlue,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Black
                     )
-                    Text(
-                        "Jouer • Apprendre • Découvrir • Explorer",
+                    Text(if (language == "en") "Play • Learn • Discover • Explore" else "Jouer • Apprendre • Découvrir • Explorer",
                         color = OutlineBlue,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
