@@ -182,7 +182,7 @@ fun PlayActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
                 Spacer(Modifier.height(8.dp))
                 Box(Modifier.fillMaxSize().weight(1f)){
                     val detailId=if(selected=="animals")"animals-game" else selected!!
-                    if(detailId=="memory") MemoryGame{stars->scope.launch{store.addStars(stars)}}
+                    if(detailId=="memory") MemoryGame({stars->scope.launch{store.addStars(stars)}},language)
                     else MiniQuiz(detailId,language,{stars->scope.launch{store.addStars(stars)}},{selected=null})
                 }
             }
