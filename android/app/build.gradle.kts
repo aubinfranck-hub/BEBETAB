@@ -4,6 +4,21 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 android {
+    val releaseKeystore = System.getenv("BEBETAB_KEYSTORE_FILE")
+    val releaseStorePassword = System.getenv("BEBETAB_KEYSTORE_PASSWORD")
+    val releaseKeyAlias = System.getenv("BEBETAB_KEY_ALIAS")
+    val releaseKeyPassword = System.getenv("BEBETAB_KEY_PASSWORD")
+
+    signingConfigs {
+        create("release") {
+            if (!releaseKeystore.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() && !releaseKeyAlias.isNullOrBlank() && !releaseKeyPassword.isNullOrBlank()) {
+                storeFile = file(releaseKeystore)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
     namespace = "com.bebetab"
     compileSdk = 35
     defaultConfig {
