@@ -89,7 +89,31 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             }
         }
         FloatingDecor(Modifier.fillMaxSize())
-        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Surface(
+                Modifier.fillMaxWidth().height(46.dp).shadow(4.dp, RoundedCornerShape(22.dp)),
+                shape=RoundedCornerShape(22.dp), color=Color(0xFF1287EA)
+            ){
+                Row(Modifier.fillMaxSize().padding(horizontal=8.dp), verticalAlignment=Alignment.CenterVertically){
+                    Surface(Modifier.size(38.dp),shape=CircleShape,color=Color.White){
+                        com.bebetab.ui.components.FantiMascot(Modifier.fillMaxSize().padding(2.dp))
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Text("Kofi",color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Black)
+                    Spacer(Modifier.width(10.dp))
+                    Text("⭐ $stars",color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Black)
+                    Spacer(Modifier.width(12.dp))
+                    Text(if(language=="en")"Level $level" else "Niveau $level",color=Color.White,fontSize=10.sp,fontWeight=FontWeight.Black)
+                    Spacer(Modifier.width(5.dp))
+                    LinearProgressIndicator(progress={progress},Modifier.width(90.dp).height(6.dp),color=Yellow,trackColor=Color.White.copy(alpha=.3f))
+                    Spacer(Modifier.weight(1f))
+                    Text(if(language=="fr")"FR" else "EN",color=OutlineBlue,fontSize=10.sp,fontWeight=FontWeight.Black,modifier=Modifier.background(Yellow,RoundedCornerShape(12.dp)).padding(horizontal=8.dp,vertical=4.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(if(language=="fr")"EN" else "FR",color=OutlineBlue,fontSize=10.sp,fontWeight=FontWeight.Black,modifier=Modifier.background(Color.White,RoundedCornerShape(12.dp)).padding(horizontal=8.dp,vertical=4.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Icon(Icons.Default.Settings,null,tint=Color.White,modifier=Modifier.size(22.dp))
+                }
+            }
             Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
 
                 // LEFT / FANTI
@@ -115,19 +139,6 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(6.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("⭐", fontSize = 30.sp)
-                        Spacer(Modifier.width(6.dp))
-                        Text("$stars", color = OutlineBlue, fontSize = 24.sp, fontWeight = FontWeight.Black)
-                        Text("  •  Niveau $level", color = OutlineBlue, fontSize = 20.sp, fontWeight = FontWeight.Black)
-                    }
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.fillMaxWidth(.82f).height(7.dp),
-                        color = OutlineBlue,
-                        trackColor = Color.White.copy(alpha = .6f)
-                    )
-                    Spacer(Modifier.height(4.dp))
                     Box(Modifier.weight(1f).fillMaxWidth()) {
                         FantiHero(Modifier.fillMaxSize())
                     }
