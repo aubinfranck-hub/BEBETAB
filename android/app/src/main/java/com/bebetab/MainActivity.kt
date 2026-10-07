@@ -19,6 +19,7 @@ import com.bebetab.data.ParentSettingsStore
 import com.bebetab.audio.BebeAudioEngine
 import com.bebetab.ui.screens.*
 import com.bebetab.ui.theme.BebeTabTheme
+import com.bebetab.update.AutoUpdateOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -77,6 +78,7 @@ private fun BebeTabNavigation() {
             composable("settings") { SettingsScreen { nav.popBackStack() } }
             composable("music") { MusicActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
         }
+        if (!locked) AutoUpdateOverlay()
         if (locked) {
             ScreenTimeLock(
                 minutes = minutes,
