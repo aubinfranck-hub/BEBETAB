@@ -48,6 +48,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
     val progressStore = remember { ProgressStore(context) }
     val parentSettings = remember { com.bebetab.data.ParentSettingsStore(context) }
     val language by parentSettings.language.collectAsState(initial = "fr")
+    val scope = rememberCoroutineScope()
     val stars by progressStore.stars.collectAsState(initial = 2450)
     val level = stars / 50 + 1
     val progress = (stars % 50) / 50f
@@ -80,7 +81,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = {
                     val next = if (language == "fr") "en" else "fr"
-                    kotlinx.coroutines.MainScope().launch { parentSettings.setLanguage(next) }
+                    scope.launch { parentSettings.setLanguage(next) }
                 }) {
                     Text(if (language == "fr") "FR • EN" else "EN • FR", color = OutlineBlue, fontWeight = FontWeight.Black, fontSize = 11.sp)
                 }
