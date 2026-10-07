@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import com.bebetab.ui.theme.MusicPink
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -51,8 +52,8 @@ fun ActivityCardIllustration(modifier: Modifier = Modifier, kind: String) {
                 drawCircle(Color(0xFF2196F3), w*.27f, Offset(cx,cy))
                 drawOval(Color(0xFF66BB6A), Offset(cx-w*.18f,cy-h*.12f), Size(w*.22f,h*.18f))
                 drawOval(Color(0xFF81C784), Offset(cx+w*.03f,cy-h*.08f), Size(w*.18f,h*.14f))
-                drawArc(Color.White.copy(.35f), 0f, 180f, false, Rect(cx-w*.24f,cy-h*.27f,cx+w*.24f,cy+h*.27f), style=Stroke(w*.018f))
-                drawArc(Color.White.copy(.25f), 90f, 180f, false, Rect(cx-w*.27f,cy-h*.17f,cx+w*.27f,cy+h*.17f), style=Stroke(w*.018f))
+                drawArc(Color.White.copy(.35f), 0f, 180f, false, Offset(cx-w*.24f,cy-h*.27f), Size(w*.48f,h*.54f), style=Stroke(w*.018f))
+                drawArc(Color.White.copy(.25f), 90f, 180f, false, Offset(cx-w*.27f,cy-h*.17f), Size(w*.54f,h*.34f), style=Stroke(w*.018f))
             }
             "animals", "animals-game" -> {
                 drawCircle(Color(0xFFFFC107), w*.20f, Offset(cx,cy))
@@ -130,7 +131,7 @@ fun StoryIllustration(modifier: Modifier = Modifier, index: Int) {
             else -> {
                 drawCircle(Color(0xFF26324A),w*.33f,Offset(w*.50f,h*.50f))
                 drawCircle(Color(0xFFFFD54F),w*.10f,Offset(w*.50f,h*.50f))
-                drawArc(Color(0xFF90CAF9),-20f,220f,false,Rect(w*.20f,h*.30f,w*.80f,h*.70f),style=Stroke(w*.025f))
+                drawArc(Color(0xFF90CAF9),-20f,220f,false,Offset(w*.20f,h*.30f),Size(w*.60f,h*.40f),style=Stroke(w*.025f))
                 for(i in 0..7) dot(this,w*(.12f+(i%4)*.25f),h*(.15f+(i/4)*.70f),w*.014f,Color.White)
             }
         }
