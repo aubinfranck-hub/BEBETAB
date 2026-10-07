@@ -20,6 +20,9 @@ import com.bebetab.data.*
 import com.bebetab.ui.components.BebeTabFrame
 import com.bebetab.ui.components.FantiMascot
 import com.bebetab.ui.theme.*
+import com.bebetab.ui.screens.WorldMapIllustration
+import com.bebetab.ui.screens.FranceIllustration
+import com.bebetab.ui.screens.LiveCityIllustration
 import kotlinx.coroutines.launch
 
 @Composable
@@ -65,7 +68,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
             Surface(Modifier.weight(1f).fillMaxHeight().shadow(3.dp,RoundedCornerShape(22.dp)),shape=RoundedCornerShape(22.dp),color=Color.Transparent){
                 SkyBackdrop{
                     Box(Modifier.fillMaxSize()){
-                        Text("🌎",fontSize=190.sp,modifier=Modifier.align(Alignment.Center))
+                        WorldMapIllustration(Modifier.fillMaxSize().padding(10.dp))
                         Column(Modifier.align(Alignment.TopCenter).padding(top=12.dp),horizontalAlignment=Alignment.CenterHorizontally){
                             Text("🎈  ☁️  🏰  ✈️  🎈",fontSize=26.sp)
                             Text(if(lang=="en")"AMERICA     EUROPE     ASIA" else "AMÉRIQUE     EUROPE     ASIE",color=Color(0xFF168A4A),fontWeight=FontWeight.Black,fontSize=15.sp)
@@ -131,7 +134,7 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
                 SkyBackdrop{
                     Box(Modifier.fillMaxSize()){
                         Text(country.flag,fontSize=72.sp,modifier=Modifier.align(Alignment.TopCenter).padding(top=4.dp))
-                        Text(if(country.id=="france")"🗼" else "🌍",fontSize=185.sp,modifier=Modifier.align(Alignment.Center))
+                        if(country.id=="france") FranceIllustration(Modifier.fillMaxSize().padding(10.dp)) else WorldMapIllustration(Modifier.fillMaxSize().padding(10.dp))
                         Text("🏙️   🌳   ☁️   🎈",fontSize=34.sp,modifier=Modifier.align(Alignment.BottomCenter).padding(bottom=24.dp))
                         FantiMascot(Modifier.align(Alignment.BottomStart).padding(10.dp).size(115.dp))
                         Surface(Modifier.align(Alignment.BottomStart).padding(start=98.dp,bottom=30.dp),shape=RoundedCornerShape(18.dp),color=Color.White,shadowElevation=3.dp){
@@ -242,7 +245,7 @@ private fun LiveAnimalCard(cam:AnimalLiveCam,lang:String,modifier:Modifier,onCli
     Surface(onClick=onClick,modifier=modifier.fillMaxHeight(),shape=RoundedCornerShape(18.dp),color=Color.White,shadowElevation=4.dp){
         Column(Modifier.fillMaxSize()){
             Box(Modifier.fillMaxWidth().weight(1f).background(Brush.verticalGradient(listOf(Color(0xFF8BD8FF),Color(0xFFE8F9FF)))),contentAlignment=Alignment.Center){
-                Text(cam.emoji,fontSize=56.sp)
+                LiveCityIllustration(Modifier.fillMaxSize(),kotlin.math.abs(cam.id.hashCode())%4)
                 Text("LIVE",color=Color.Red,fontSize=10.sp,fontWeight=FontWeight.Black,modifier=Modifier.align(Alignment.TopEnd).padding(8.dp))
             }
             Column(Modifier.fillMaxWidth().padding(8.dp)){
