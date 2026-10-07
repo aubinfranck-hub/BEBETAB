@@ -47,7 +47,7 @@ fun ReferenceScreen(route:String,onBack:()->Unit,onSettings:()->Unit={}) {
 
 @Composable
 private fun SkyBackdrop(content:@Composable ColumnScope.()->Unit) {
-    Column(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(SkyBlue,Color(0xFFBEEBFF),Color(0xFFE9F7FF))),content=content))
+    Column(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(SkyBlue,Color(0xFFBEEBFF),Color(0xFFE9F7FF))),), content=content)
 }
 
 @Composable
@@ -82,7 +82,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
                                 else (if(lang=="en")"Discover "+selectedCategory+" !" else "Découvre : "+selectedCategory+" !"),
                                 Modifier.padding(12.dp),fontWeight=FontWeight.ExtraBold,fontSize=13.sp,textAlign=TextAlign.Center)
                         }
-                        Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal=8.dp,bottom=8.dp),horizontalArrangement=Arrangement.spacedBy(5.dp)){
+                        Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(start=8.dp,end=8.dp,bottom=8.dp),horizontalArrangement=Arrangement.spacedBy(5.dp)){
                             categories.take(6).forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),{selectedCategory=cat})}
                         }
                     }
