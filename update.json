@@ -1,0 +1,9 @@
+{
+  "versionCode": 3,
+  "versionName": "1.2.0",
+  "apkUrl": "https://github.com/aubinfranck-hub/BEBETAB/releases/download/v1.2.0/bebetab-release.apk",
+  "sha256": "REPLACE_WITH_SIGNED_APK_SHA256",
+  "mandatory": false,
+  "notesFr": "Nouvelle version de BébéTab.",
+  "notesEn": "New BébéTab version."
+}
