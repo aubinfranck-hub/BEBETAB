@@ -116,6 +116,7 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
     val scope=rememberCoroutineScope()
     val store=remember{ProgressStore(context)}
     var awarded by remember(country.id){mutableStateOf(false)}
+    var action by remember{mutableStateOf<String?>(null)}
     BebeTabFrame(country.name.text(lang).uppercase(),onBack,onSettings){
         Column(Modifier.fillMaxSize().padding(horizontal=8.dp, vertical=4.dp), verticalArrangement=Arrangement.spacedBy(5.dp)){
             Text(
@@ -147,7 +148,23 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
                 }
                 Surface(shape=RoundedCornerShape(16.dp),color=Color.White,shadowElevation=2.dp){Text(country.fact.text(lang),Modifier.padding(9.dp),fontSize=10.sp,fontWeight=FontWeight.Bold)}
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)){
-                    listOf(if(lang=="en")"Videos" else "Vidéos",if(lang=="en")"Live" else "Live",if(lang=="en")"Games" else "Jeux",if(lang=="en")"Quiz" else "Quiz",if(lang=="en")"Images" else "Images",if(lang=="en")"Music" else "Musique").forEach{SmallWhiteChip(it,Modifier.weight(1f))}
+                    listOf(
+                        if(lang=="en")"Videos" else "Vidéos",
+                        if(lang=="en")"Live" else "Live",
+                        if(lang=="en")"Games" else "Jeux",
+                        if(lang=="en")"Quiz" else "Quiz",
+                        if(lang=="en")"Images" else "Images",
+                        if(lang=="en")"Music" else "Musique"
+                    ).forEach{label->SmallWhiteChip(label,Modifier.weight(1f)){action=label}}
+                }
+                if(action!=null){
+                    Surface(Modifier.fillMaxWidth(),shape=RoundedCornerShape(14.dp),color=Color(0xFFEAF7FF),shadowElevation=1.dp){
+                        Text(
+                            if(lang=="en") action+" • More content for "+country.name.text(lang)+" will open here."
+                            else action+" • Plus de contenus sur "+country.name.text(lang)+" seront disponibles ici.",
+                            Modifier.padding(8.dp),fontSize=9.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center
+                        )
+                    }
                 }
                 if(!awarded)Button(onClick={awarded=true;scope.launch{store.addStars(1)}},modifier=Modifier.fillMaxWidth().height(40.dp),shape=RoundedCornerShape(18.dp)){Text(if(lang=="en")"I discovered it! +1 ⭐" else "J’ai découvert ! +1 ⭐")}
             }
