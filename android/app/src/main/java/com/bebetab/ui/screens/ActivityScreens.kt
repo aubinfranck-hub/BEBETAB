@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bebetab.data.*
 import com.bebetab.ui.components.BebeTabFrame
+import com.bebetab.ui.components.FantiMascot
 import com.bebetab.ui.games.*
 import com.bebetab.ui.theme.*
 import kotlinx.coroutines.launch
@@ -61,7 +62,7 @@ private fun FantiPane(message: String) {
         shape = RoundedCornerShape(24.dp), color = Color.White.copy(alpha = .72f)
     ) {
         Column(Modifier.fillMaxSize().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("🐘", fontSize = 128.sp)
+            FantiMascot(Modifier.fillMaxWidth().height(150.dp).padding(8.dp))
             Spacer(Modifier.height(4.dp))
             Surface(shape = RoundedCornerShape(18.dp), color = Color.White, tonalElevation = 2.dp) {
                 Text(message, Modifier.padding(14.dp), textAlign = TextAlign.Center,
