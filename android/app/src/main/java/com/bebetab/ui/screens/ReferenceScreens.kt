@@ -171,7 +171,6 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
             }
         }
     }
-    }
 }
 
 @Composable private fun CountryCard(text:String,emoji:String){
