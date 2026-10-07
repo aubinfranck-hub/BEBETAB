@@ -78,13 +78,12 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             color = Color.Transparent
         ) {
             Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.End) {
-                Text(
-                    if (language == "fr") "FR" else "EN",
-                    color = OutlineBlue,
-                    fontWeight = FontWeight.Black,
-                    fontSize = 11.sp,
-                    modifier = Modifier.padding(8.dp)
-                )
+                TextButton(onClick = {
+                    val next = if (language == "fr") "en" else "fr"
+                    kotlinx.coroutines.MainScope().launch { parentSettings.setLanguage(next) }
+                }) {
+                    Text(if (language == "fr") "FR • EN" else "EN • FR", color = OutlineBlue, fontWeight = FontWeight.Black, fontSize = 11.sp)
+                }
             }
         }
         FloatingDecor(Modifier.fillMaxSize())
@@ -133,7 +132,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                         FantiHero(Modifier.fillMaxSize())
                     }
                     SpeechBubble(
-                        text = "Bonjour ! Hello !\nPrêt pour une nouvelle aventure ?",
+                        text = if (language == "en") "Hello! Ready for a new adventure?" else "Bonjour ! Hello !\nPrêt pour une nouvelle aventure ?",
                         modifier = Modifier.fillMaxWidth(.96f)
                     )
                     Spacer(Modifier.height(10.dp))
@@ -146,7 +145,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(Modifier.width(6.dp))
-                        Text("EXPLORER LE MONDE", fontSize = 18.sp, fontWeight = FontWeight.Black)
+                        Text(if (language == "en") "EXPLORE THE WORLD" else "EXPLORER LE MONDE", fontSize = 18.sp, fontWeight = FontWeight.Black)
                     }
                 }
 
@@ -171,7 +170,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                         color = Color.White
                     ) {
                         Column(Modifier.fillMaxSize().padding(16.dp)) {
-                            Text("Aujourd’hui avec Fanti", color = OutlineBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
+                            Text(if (language == "en") "Today with Fanti" else "Aujourd’hui avec Fanti", color = OutlineBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
                             Spacer(Modifier.height(10.dp))
                             Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 TodayCard("🦁", "1 vidéo", Modifier.weight(1f))
@@ -218,7 +217,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                         ) {
                             Icon(Icons.Default.PlayArrow, contentDescription = null)
                             Spacer(Modifier.width(4.dp))
-                            Text("Regarder", fontSize = 17.sp, fontWeight = FontWeight.Black)
+                            Text(if (language == "en") "Watch" else "Regarder", fontSize = 17.sp, fontWeight = FontWeight.Black)
                         }
                         Box(Modifier.fillMaxWidth().height(5.dp).background(LearnOrange, RoundedCornerShape(50)))
                     }
