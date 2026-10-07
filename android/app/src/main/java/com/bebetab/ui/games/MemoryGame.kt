@@ -11,7 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.delay
 
 @Composable
-fun MemoryGame(onStars:(Int)->Unit){
+fun MemoryGame(onStars:(Int)->Unit, language:String="fr"){
     val animals=listOf("🐘","🦁","🐒","🦒","🐼","🦓")
     val cards=remember{(animals+animals).shuffled()}
     var opened by remember{mutableStateOf(emptyList<Int>())}
@@ -26,7 +26,7 @@ fun MemoryGame(onStars:(Int)->Unit){
         }
     }
     Column(Modifier.fillMaxSize().padding(18.dp),horizontalAlignment=Alignment.CenterHorizontally){
-        Text("Mémoire des animaux",fontSize=28.sp,fontWeight=FontWeight.Black)
+        Text(if(language=="en")"Animal memory" else "Mémoire des animaux",fontSize=28.sp,fontWeight=FontWeight.Black)
         Spacer(Modifier.height(10.dp))
         Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
             cards.chunked(4).forEachIndexed{rowIndex,row->
@@ -49,10 +49,10 @@ fun MemoryGame(onStars:(Int)->Unit){
             }
         }
         Spacer(Modifier.height(8.dp))
-        Text("Paires : $pairs / 6",fontWeight=FontWeight.Bold)
+        Text(if(language=="en")"Pairs: $pairs / 6" else "Paires : $pairs / 6",fontWeight=FontWeight.Bold)
         if(matched.size==12 && !completionAwarded){
             LaunchedEffect(Unit){ completionAwarded=true; onStars(5) }
         }
-        if(matched.size==12) Text("Bravo ! ⭐ +5 étoiles",fontSize=20.sp,fontWeight=FontWeight.Black)
+        if(matched.size==12) Text(if(language=="en")"Great job! ⭐ +5 stars" else "Bravo ! ⭐ +5 étoiles",fontSize=20.sp,fontWeight=FontWeight.Black)
     }
 }
