@@ -11,7 +11,8 @@ data class AnimalLiveCam(
     val youtubeUrl: String?,
     val officialUrl: String,
     val factFr: String,
-    val factEn: String
+    val factEn: String,
+    val categories: List<String>
 )
 
 object AnimalLiveData {
