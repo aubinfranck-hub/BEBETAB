@@ -150,7 +150,9 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
                 }
                 if(!awarded)Button(onClick={awarded=true;scope.launch{store.addStars(1)}},modifier=Modifier.fillMaxWidth().height(40.dp),shape=RoundedCornerShape(18.dp)){Text(if(lang=="en")"I discovered it! +1 ⭐" else "J’ai découvert ! +1 ⭐")}
             }
+            }
         }
+    }
     }
 }
 
