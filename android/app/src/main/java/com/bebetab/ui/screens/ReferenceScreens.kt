@@ -202,7 +202,7 @@ private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
             Text(if(lang=="en")"Real animals • child-safe external live cameras" else "De vrais animaux • accès externe protégé pour les enfants",color=OutlineBlue,fontWeight=FontWeight.ExtraBold)
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){
                 filters.forEachIndexed{index,label->
-                    val key=listOf("all","cities","nature","animals","monuments","beaches","mountains")[index]
+                    val key=listOf("cities","nature","animals","monuments","beaches","mountains")[index]
                     SmallWhiteChip(label,Modifier.weight(1f)){filter=key}
                 }
             }
@@ -212,10 +212,10 @@ private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
                 }
             }else{
                 Column(Modifier.fillMaxWidth().weight(1f),verticalArrangement=Arrangement.spacedBy(8.dp)){
-                    filtered.chunked(4).forEach{row->
+                    filtered.chunked(3).forEach{row->
                         Row(Modifier.fillMaxWidth().weight(1f),horizontalArrangement=Arrangement.spacedBy(8.dp)){
                             row.forEach{cam->LiveAnimalCard(cam,lang,Modifier.weight(1f)){pendingUrl=cam.youtubeUrl?:cam.officialUrl;code=""}}
-                            repeat(4-row.size){Spacer(Modifier.weight(1f))}
+                            repeat(3-row.size){Spacer(Modifier.weight(1f))}
                         }
                     }
                 }
