@@ -47,10 +47,10 @@ fun BebeTabFrame(
     ){insets->
         Column(Modifier.fillMaxSize().background(SkyLight).padding(insets)){
             Surface(
-                Modifier.fillMaxWidth().padding(8.dp).shadow(5.dp,RoundedCornerShape(22.dp)),
+                Modifier.fillMaxWidth().padding(5.dp).shadow(5.dp,RoundedCornerShape(20.dp)),
                 shape=RoundedCornerShape(22.dp),color=Color(0xFF1287EA)
             ){
-                Row(Modifier.fillMaxWidth().height(62.dp).padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically){
+                Row(Modifier.fillMaxWidth().height(58.dp).padding(horizontal=7.dp),verticalAlignment=Alignment.CenterVertically){
                     IconButton(onClick=onBack,modifier=Modifier.size(46.dp).background(Color.White,CircleShape)){
                         Icon(Icons.Default.ArrowBack,null,tint=OutlineBlue)
                     }
@@ -69,7 +69,7 @@ fun BebeTabFrame(
                     },fontSize=24.sp)
                     Spacer(Modifier.width(6.dp))
                     Column(Modifier.weight(1f)){
-                        Text(title,color=Color.White,fontSize=22.sp,fontWeight=FontWeight.Black)
+                        Text(title,color=Color.White,fontSize=20.sp,fontWeight=FontWeight.Black,maxLines=1)
                         Text(
                             when(title){
                                 "EXPLORER LE MONDE","EXPLORE THE WORLD"->if(lang=="fr")"Découvre les pays, les cultures, les animaux !" else "Discover countries, cultures and animals!"
@@ -83,7 +83,7 @@ fun BebeTabFrame(
                                 else->if(lang=="fr")"Tes découvertes et récompenses" else "Your discoveries and rewards"
                             },color=Color.White.copy(alpha=.95f),fontSize=9.sp,fontWeight=FontWeight.Bold)
                     }
-                    HeaderChip("👦 "+childName.take(10))
+                    Surface(Modifier.size(42.dp),shape=CircleShape,color=Color.White,shadowElevation=2.dp){FantiMascot(Modifier.fillMaxSize().padding(3.dp))}
                     Spacer(Modifier.width(4.dp))
                     HeaderChip("⭐ $stars")
                     Spacer(Modifier.width(4.dp))
