@@ -46,6 +46,8 @@ data class HomeTile(
 fun HomeScreen(onNavigate: (String) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val progressStore = remember { ProgressStore(context) }
+    val parentSettings = remember { com.bebetab.data.ParentSettingsStore(context) }
+    val language by parentSettings.language.collectAsState(initial = "fr")
     val stars by progressStore.stars.collectAsState(initial = 2450)
     val level = stars / 50 + 1
     val progress = (stars % 50) / 50f
@@ -71,6 +73,20 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             )
             .padding(horizontal = 26.dp, vertical = 18.dp)
     ) {
+        androidx.compose.material3.Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Transparent
+        ) {
+            Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.End) {
+                Text(
+                    if (language == "fr") "FR" else "EN",
+                    color = OutlineBlue,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
         FloatingDecor(Modifier.fillMaxSize())
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
