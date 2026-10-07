@@ -60,7 +60,15 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
         listOf("Villes","Animaux","Cultures","Monuments","Nature","Océans","Espace","Métiers","Cuisine","Langues","Histoire")
 
     BebeTabFrame(if(lang=="en")"EXPLORE THE WORLD" else "EXPLORER LE MONDE",onBack,onSettings){
-        Row(Modifier.fillMaxSize().padding(8.dp),horizontalArrangement=Arrangement.spacedBy(12.dp)){
+        Column(Modifier.fillMaxSize().padding(horizontal=8.dp, vertical=4.dp), verticalArrangement=Arrangement.spacedBy(5.dp)){
+            Text(
+                if(lang=="en") "World > "+country.continent.text(lang)+" > "+country.name.text(lang)
+                else "Monde > "+country.continent.text(lang)+" > "+country.name.text(lang),
+                color=OutlineBlue,
+                fontSize=11.sp,
+                fontWeight=FontWeight.Bold
+            )
+            Row(Modifier.fillMaxWidth().weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
             Surface(Modifier.weight(1f).fillMaxHeight().shadow(3.dp,RoundedCornerShape(22.dp)),shape=RoundedCornerShape(22.dp),color=Color.Transparent){
                 SkyBackdrop{
                     Box(Modifier.fillMaxSize()){
