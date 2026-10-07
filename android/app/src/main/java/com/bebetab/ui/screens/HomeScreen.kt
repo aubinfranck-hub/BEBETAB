@@ -324,6 +324,14 @@ private fun WorldGlobe(modifier: Modifier) {
         drawOval(green, Offset(c.x-r*.62f,c.y-r*.32f), Size(r*.42f,r*.24f))
         drawOval(green, Offset(c.x+r*.22f,c.y-r*.32f), Size(r*.30f,r*.17f))
         drawOval(green, Offset(c.x+r*.30f,c.y+r*.20f), Size(r*.11f,r*.28f))
+        // Curved latitude/longitude lines give the globe the illustrated reference look.
+        drawOval(Color.White.copy(alpha=.22f), Offset(c.x-r*.82f,c.y-r*.30f), Size(r*1.64f,r*.60f), style=androidx.compose.ui.graphics.drawscope.Stroke(width=r*.018f))
+        drawOval(Color.White.copy(alpha=.18f), Offset(c.x-r*.50f,c.y-r*.96f), Size(r*1.00f,r*1.92f), style=androidx.compose.ui.graphics.drawscope.Stroke(width=r*.018f))
+        // Tiny landmark silhouettes around the globe.
+        drawRect(Color(0xFF7A6B60), Offset(c.x-r*.82f,c.y-r*.05f), Size(r*.10f,r*.22f))
+        drawLine(Color(0xFF7A6B60), Offset(c.x-r*.77f,c.y-r*.05f), Offset(c.x-r*.72f,c.y-r*.22f), r*.025f)
+        drawLine(Color(0xFF7A6B60), Offset(c.x+r*.63f,c.y+r*.03f), Offset(c.x+r*.63f,c.y-r*.25f), r*.035f)
+        drawLine(Color(0xFF7A6B60), Offset(c.x+r*.56f,c.y-r*.18f), Offset(c.x+r*.70f,c.y-r*.18f), r*.025f)
     }
 }
 
