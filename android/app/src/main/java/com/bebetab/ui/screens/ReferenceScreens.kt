@@ -169,14 +169,37 @@ private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
     val uriHandler=LocalUriHandler.current
     var pendingUrl by remember{mutableStateOf<String?>(null)}
     var code by remember{mutableStateOf("")}
+    var filter by remember{mutableStateOf("all")}
+    val filters=if(lang=="en") listOf("All","Cities","Nature","Animals","Monuments","Beaches","Mountains")
+                 else listOf("Tous","Villes","Nature","Animaux","Monuments","Plages","Montagnes")
+    val filtered=when(filter){
+        "animals"->AnimalLiveData.cams.filter{it.categories.contains("animals")}
+        "nature"->AnimalLiveData.cams.filter{it.categories.contains("nature")}
+        "beaches"->AnimalLiveData.cams.filter{it.categories.contains("beaches")}
+        else->AnimalLiveData.cams
+    }
     BebeTabFrame(if(lang=="en")"ANIMAL LIVE" else "CAMÉRAS ANIMAUX",onBack,onSettings){
         Column(Modifier.fillMaxSize().padding(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
             Text(if(lang=="en")"Real animals • child-safe external live cameras" else "De vrais animaux • accès externe protégé pour les enfants",color=OutlineBlue,fontWeight=FontWeight.ExtraBold)
-            Row(Modifier.fillMaxWidth().weight(1f),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-                AnimalLiveData.cams.take(4).forEach{cam->LiveAnimalCard(cam,lang,Modifier.weight(1f)){pendingUrl=cam.youtubeUrl?:cam.officialUrl;code=""}}
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){
+                filters.forEachIndexed{index,label->
+                    val key=listOf("all","cities","nature","animals","monuments","beaches","mountains")[index]
+                    SmallWhiteChip(label,Modifier.weight(1f)){filter=key}
+                }
             }
-            Row(Modifier.fillMaxWidth().weight(1f),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-                AnimalLiveData.cams.drop(4).forEach{cam->LiveAnimalCard(cam,lang,Modifier.weight(1f)){pendingUrl=cam.youtubeUrl?:cam.officialUrl;code=""}}
+            if(filtered.isEmpty()){
+                Box(Modifier.fillMaxSize().weight(1f),contentAlignment=Alignment.Center){
+                    Text(if(lang=="en")"No camera is available in this category yet." else "Aucune caméra disponible dans cette catégorie pour le moment.",fontWeight=FontWeight.Bold)
+                }
+            }else{
+                Column(Modifier.fillMaxWidth().weight(1f),verticalArrangement=Arrangement.spacedBy(8.dp)){
+                    filtered.chunked(4).forEach{row->
+                        Row(Modifier.fillMaxWidth().weight(1f),horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                            row.forEach{cam->LiveAnimalCard(cam,lang,Modifier.weight(1f)){pendingUrl=cam.youtubeUrl?:cam.officialUrl;code=""}}
+                            repeat(4-row.size){Spacer(Modifier.weight(1f))}
+                        }
+                    }
+                }
             }
         }
     }
