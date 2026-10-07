@@ -132,7 +132,7 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
                         Text(country.flag,fontSize=72.sp,modifier=Modifier.align(Alignment.TopCenter).padding(top=4.dp))
                         Text(if(country.id=="france")"🗼" else "🌍",fontSize=185.sp,modifier=Modifier.align(Alignment.Center))
                         Text("🏙️   🌳   ☁️   🎈",fontSize=34.sp,modifier=Modifier.align(Alignment.BottomCenter).padding(bottom=24.dp))
-                        Text("🐘",fontSize=78.sp,modifier=Modifier.align(Alignment.BottomStart).padding(15.dp))
+                        FantiMascot(Modifier.align(Alignment.BottomStart).padding(10.dp).size(115.dp))
                         Surface(Modifier.align(Alignment.BottomStart).padding(start=98.dp,bottom=30.dp),shape=RoundedCornerShape(18.dp),color=Color.White,shadowElevation=3.dp){
                             Text(if(lang=="en")"Discover "+country.name.text(lang)+"!" else "Découvre "+country.name.text(lang)+" !",Modifier.padding(11.dp),fontWeight=FontWeight.ExtraBold)
                         }
