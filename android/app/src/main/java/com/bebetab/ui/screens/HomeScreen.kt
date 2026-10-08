@@ -49,6 +49,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
     val progressStore = remember { ProgressStore(context) }
     val parentSettings = remember { com.bebetab.data.ParentSettingsStore(context) }
     val language by parentSettings.language.collectAsState(initial = "fr")
+    val childName by parentSettings.childName.collectAsState(initial = "Kofi")
     val scope = rememberCoroutineScope()
     val stars by progressStore.stars.collectAsState(initial = 2450)
     val level = stars / 50 + 1
@@ -99,7 +100,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                         com.bebetab.ui.components.FantiMascot(Modifier.fillMaxSize().padding(2.dp))
                     }
                     Spacer(Modifier.width(6.dp))
-                    Text("Kofi",color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Black)
+                    Text(childName,color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Black)
                     Spacer(Modifier.width(10.dp))
                     Text("⭐ $stars",color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Black)
                     Spacer(Modifier.width(12.dp))
@@ -111,7 +112,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                     Spacer(Modifier.width(4.dp))
                     Text(if(language=="fr")"EN" else "FR",color=OutlineBlue,fontSize=10.sp,fontWeight=FontWeight.Black,modifier=Modifier.background(Color.White,RoundedCornerShape(12.dp)).padding(horizontal=8.dp,vertical=4.dp))
                     Spacer(Modifier.width(4.dp))
-                    Icon(Icons.Default.Settings,null,tint=Color.White,modifier=Modifier.size(22.dp))
+                    IconButton(onClick={ onNavigate("settings") },modifier=Modifier.size(36.dp)){ Icon(Icons.Default.Settings,contentDescription=if(language=="en")"Settings" else "Réglages",tint=Color.White,modifier=Modifier.size(22.dp)) }
                 }
             }
             Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
@@ -184,10 +185,10 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                             Text(if (language == "en") "Today with Fanti" else "Aujourd’hui avec Fanti", color = OutlineBlue, fontSize = 22.sp, fontWeight = FontWeight.Black)
                             Spacer(Modifier.height(10.dp))
                             Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                TodayCard("🦁", "1 vidéo", Modifier.weight(1f))
-                                TodayCard("🎮", "2 jeux", Modifier.weight(1f))
-                                TodayCard("📖", "1 histoire", Modifier.weight(1f))
-                                TodayCard("🎵", "1 chanson", Modifier.weight(1f))
+                                TodayCard("🦁", if(language=="en")"1 video" else "1 vidéo", Modifier.weight(1f)) { onNavigate("live") }
+                                TodayCard("🎮", if(language=="en")"2 games" else "2 jeux", Modifier.weight(1f)) { onNavigate("play") }
+                                TodayCard("📖", if(language=="en")"1 story" else "1 histoire", Modifier.weight(1f)) { onNavigate("stories") }
+                                TodayCard("🎵", if(language=="en")"1 song" else "1 chanson", Modifier.weight(1f)) { onNavigate("music") }
                             }
                         }
                     }
@@ -295,8 +296,8 @@ private fun MonumentBadge(icon: String, alignment: Alignment) {
 }
 
 @Composable
-private fun TodayCard(icon: String, label: String, modifier: Modifier) {
-    Surface(modifier, shape = RoundedCornerShape(18.dp), color = Color(0xFFF1EEF6)) {
+private fun TodayCard(icon: String, label: String, modifier: Modifier, onClick: () -> Unit) {
+    Surface(onClick = onClick, modifier = modifier, shape = RoundedCornerShape(18.dp), color = Color(0xFFF1EEF6)) {
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(icon, fontSize = 31.sp)
             Spacer(Modifier.height(3.dp))
