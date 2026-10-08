@@ -1,6 +1,7 @@
 package com.bebetab
 
 import android.os.Bundle
+import android.app.Activity
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -128,6 +129,6 @@ private fun ScreenTimeLock(
     }
 }
 
-private fun finishApp(nav: NavHostController) {
-    nav.navigate("home") { popUpTo("home") { inclusive = true } }
+private fun finishApp(context: android.content.Context) {
+    (context as? Activity)?.finish()
 }
