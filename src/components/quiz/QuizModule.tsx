@@ -13,17 +13,19 @@ import {
 } from "lucide-react";
 
 interface QuizModuleProps {
+  initialSubject?: string;
   user: UserProfile;
   onAwardXP: (xp: number, stars: number) => void;
   onBack: () => void;
 }
 
 export const QuizModule: React.FC<QuizModuleProps> = ({
+  initialSubject,
   user,
   onAwardXP,
   onBack,
 }) => {
-  const [subject, setSubject] = useState("Maths & Chiffres");
+  const [subject, setSubject] = useState(initialSubject || "Maths & Chiffres");
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -55,6 +57,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
           subject: subj,
         }),
       });
+      if (!res.ok) throw new Error("Quiz indisponible");
       const data = await res.json();
       if (data.questions && data.questions.length > 0) {
         setQuestions(data.questions);
@@ -64,7 +67,7 @@ export const QuizModule: React.FC<QuizModuleProps> = ({
         );
       }
     } catch (e) {
-      console.error(e);
+      setQuestions([{id:1,question:"Combien font 2 + 3 ?",options:["4","5","6"],correctIndex:1,explanation:"Deux et trois font cinq."},{id:2,question:"Quel animal possède une trompe ?",options:["Lion","Éléphant","Chat"],correctIndex:1,explanation:"L’éléphant utilise sa trompe pour boire et saisir des objets."}]);
     } finally {
       setIsLoading(false);
     }

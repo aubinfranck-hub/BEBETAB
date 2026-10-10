@@ -25,9 +25,11 @@ export const StoriesModule: React.FC<StoriesModuleProps> = ({
 }) => {
   const [hero, setHero] = useState("Un petit lapin");
   const [animal, setAnimal] = useState("Fanti l'éléphant");
-  const [setting, setSetting] = useState(user.currentWorld);
+  const [setting, setSetting] = useState<string>(user.currentWorld);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const [error, setError] = useState("");
   const [story, setStory] = useState<InteractiveStory | null>(null);
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
 
@@ -58,6 +60,8 @@ export const StoriesModule: React.FC<StoriesModuleProps> = ({
     soundFx.playTap();
     setIsLoading(true);
     setStory(null);
+    setFinished(false);
+    setError("");
     setCurrentSceneIdx(0);
 
     try {
@@ -72,24 +76,27 @@ export const StoriesModule: React.FC<StoriesModuleProps> = ({
         }),
       });
 
+      if (!res.ok) throw new Error("Histoire indisponible");
       const data = await res.json();
       setStory(data);
       speakText(`Voici l'histoire : ${data.title}. ${data.intro}`);
       onAwardXP(25, 3);
     } catch (e) {
-      console.error(e);
+      setError("L’histoire est indisponible. Réessaie ou choisis une histoire de la bibliothèque.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleChoice = (choiceText: string) => {
+    if (finished) return;
     soundFx.playVictory();
     if (story && currentSceneIdx < story.scenes.length - 1) {
       const nextIdx = currentSceneIdx + 1;
       setCurrentSceneIdx(nextIdx);
       speakText(story.scenes[nextIdx].text);
     } else {
+      setFinished(true);
       // Completed Story!
       confetti({ particleCount: 100, spread: 80 });
       speakText(`Fin de la belle histoire ! Morale : ${story?.moral}`);
@@ -120,6 +127,8 @@ export const StoriesModule: React.FC<StoriesModuleProps> = ({
       </div>
 
       {/* Story Setup Builder */}
+      {error && <p role="alert" className="p-4 bg-amber-50 rounded-xl">{error}</p>}
+      {finished && <p role="status" className="p-4 bg-green-50 rounded-xl">Histoire terminée ! Tu as reçu 5 étoiles.</p>}
       {!story && !isLoading && (
         <div className="bg-white/90 backdrop-blur rounded-3xl p-6 shadow-xl border-4 border-amber-200 space-y-6">
           <h3 className="text-2xl font-black text-slate-800 flex items-center gap-2">
@@ -278,6 +287,7 @@ export const StoriesModule: React.FC<StoriesModuleProps> = ({
                   {story.scenes[currentSceneIdx].choices.map((choice, idx) => (
                     <button
                       key={idx}
+                      disabled={finished}
                       onClick={() => handleChoice(choice)}
                       className="p-4 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-900 font-black text-left rounded-2xl shadow-md border-2 border-white active:scale-95 transition-all text-sm"
                     >

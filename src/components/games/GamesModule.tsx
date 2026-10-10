@@ -18,19 +18,21 @@ import {
 } from "lucide-react";
 
 interface GamesModuleProps {
+  initialGame?: string;
   user: UserProfile;
   onAwardXP: (xp: number, stars: number) => void;
   onBack: () => void;
 }
 
 export const GamesModule: React.FC<GamesModuleProps> = ({
+  initialGame,
   user,
   onAwardXP,
   onBack,
 }) => {
   const [activeGame, setActiveGame] = useState<
     "selector" | "balloons" | "memory" | "intrus" | "speedmath" | "tapmole" | "piano" | "tictactoe" | "maze" | "garden" | "cooking" | "builder" | "safari" | "space"
-  >("selector");
+  >(["selector","balloons","memory","intrus","speedmath","tapmole","piano","tictactoe","maze","garden","cooking","builder","safari","space"].includes(initialGame || "") ? initialGame as "selector" | "balloons" | "memory" | "intrus" | "speedmath" | "tapmole" | "piano" | "tictactoe" | "maze" | "garden" | "cooking" | "builder" | "safari" | "space" : "selector");
 
   // --- BALLOONS GAME STATE ---
   const [balloons, setBalloons] = useState<

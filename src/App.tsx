@@ -1,40 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "motion/react";
-import { UserProfile, ActiveScreen, WorldTheme, MascotOutfit } from "./types";
-import { HomeLauncher } from "./components/HomeLauncher";
-import { LearningModule } from "./components/learning/LearningModule";
-import { GamesModule } from "./components/games/GamesModule";
-import { DrawingModule } from "./components/drawing/DrawingModule";
-import { MusicModule } from "./components/music/MusicModule";
-import { StoriesModule } from "./components/stories/StoriesModule";
-import { QuizModule } from "./components/quiz/QuizModule";
-import { RewardsModule } from "./components/rewards/RewardsModule";
-import { WorldsModule } from "./components/worlds/WorldsModule";
-import { WorldExplorerModule } from "./components/worlds/WorldExplorerModule";
-import { LiveWorldModule } from "./components/worlds/LiveWorldModule";
-import { VideosModule } from "./components/videos/VideosModule";
-import { DailyChallengesModule } from "./components/defis/DailyChallengesModule";
-import { ParentsPortal } from "./components/parents/ParentsPortal";
-import { FantiChatModal, MascotFanti } from "./components/MascotFanti";
-import { AdBroadcastOverlay } from "./components/ads/AdBroadcastOverlay";
-import { AdminAdDashboard } from "./components/ads/AdminAdDashboard";
-import { GeckoMascot } from "./components/GeckoMascot";
-import { soundFx } from "./utils/audio";
-import { PremiumModal } from "./components/PremiumModal";
-import { BebeTabFrame } from "./components/BebeTabFrame";
-import { ReferenceScreens } from "./components/ReferenceScreens";
-import { CountryModule } from "./components/CountryModule";
+import React, { useState, useEffect } from 'react';
+import { UserProfile, MascotOutfit } from './types';
+import { LearningModule } from './components/learning/LearningModule';
+import { GamesModule } from './components/games/GamesModule';
+import { DrawingModule } from './components/drawing/DrawingModule';
+import { MusicModule } from './components/music/MusicModule';
+import { StoriesModule } from './components/stories/StoriesModule';
+import { QuizModule } from './components/quiz/QuizModule';
+import { RewardsModule } from './components/rewards/RewardsModule';
+import { WorldsModule } from './components/worlds/WorldsModule';
+import { LiveWorldModule } from './components/worlds/LiveWorldModule';
+import { VideosModule } from './components/videos/VideosModule';
+import { DailyChallengesModule } from './components/defis/DailyChallengesModule';
+import { ParentsPortal } from './components/parents/ParentsPortal';
+import { FantiChatModal } from './components/MascotFanti';
+import { AdBroadcastOverlay } from './components/ads/AdBroadcastOverlay';
+import { AdminAdDashboard } from './components/ads/AdminAdDashboard';
+import { PremiumModal } from './components/PremiumModal';
+import { ExperienceShell, HomeHub, ActivityHub, WorldHub, CountryHub, Art } from './components/experience/ExperienceShell';
+import { StoryReader } from './components/experience/StoryReader';
+import { Destination, parseDestination, destinationHash, screenMeta, hubCards } from './navigation/catalog';
+import './components/experience/experience.css';
 
-export default function App() {
-  // User Profile State with local persistence
-  const [user, setUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem("bebe_tab_user");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {}
-    }
-    return {
+function readProfile():UserProfile {
+ const saved=localStorage.getItem('bebe_tab_user');
+ if(saved){try{const profile=JSON.parse(saved);if(profile && typeof profile.name==='string' && Array.isArray(profile.badges) && Number.isFinite(profile.stars))return profile;}catch{}}
+ return {
       name: "Petit Champion",
       ageGroup: "5-7",
       xp: 120,
@@ -104,220 +94,65 @@ export default function App() {
         },
       ],
     };
-  });
 
-  const [activeScreen, setActiveScreen] = useState<ActiveScreen>("home");
-  const [isParentsOpen, setIsParentsOpen] = useState(false);
-  const [isFantiChatOpen, setIsFantiChatOpen] = useState(false);
-  const [isAdminAdDashboardOpen, setIsAdminAdDashboardOpen] = useState(false);
-  const [isPremiumOpen, setIsPremiumOpen] = useState(false);
+}
 
-  // Sync to LocalStorage
-  useEffect(() => {
-    localStorage.setItem("bebe_tab_user", JSON.stringify(user));
-  }, [user]);
+class ActivityBoundary extends React.Component<{children:React.ReactNode;onBack:()=>void},{failed:boolean}>{
+ state={failed:false};
+ static getDerivedStateFromError(){return {failed:true}}
+ render(){return this.state.failed?<section className="home-welcome"><h2>Reprenons l’aventure</h2><p>Cette activité n’a pas pu s’ouvrir. Tu peux revenir au menu.</p><button className="primary-cta" onClick={this.props.onBack}>Retour aux activités</button></section>:this.props.children;}
+}
 
-  // Screen time limit counter
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setUser((prev) => {
-        const nextMins = prev.totalTimeMinutes + 1;
-        const shouldLock =
-          prev.screenTimeLimitMinutes > 0 &&
-          nextMins >= prev.screenTimeLimitMinutes;
-        return {
-          ...prev,
-          totalTimeMinutes: nextMins,
-          isLockedByTime: shouldLock,
-        };
-      });
-    }, 60000); // Check every minute
-    return () => clearInterval(timer);
-  }, []);
-
-  // Award XP and Stars Helper
-  const handleAwardXP = (gainedXP: number, gainedStars: number) => {
-    setUser((prev) => {
-      const newXP = prev.xp + gainedXP;
-      const newStars = prev.stars + gainedStars;
-      const newLevel = Math.floor(newXP / 100) + 1;
-      return {
-        ...prev,
-        xp: newXP,
-        stars: newStars,
-        level: newLevel,
-      };
-    });
-  };
-
-  // Dynamic Theme Gradients per World
-  const worldGradients: Record<WorldTheme, string> = {
-    Jungle: "from-emerald-400 via-teal-300 to-amber-200",
-    Océan: "from-sky-400 via-cyan-300 to-blue-200",
-    Espace: "from-indigo-950 via-purple-900 to-slate-900 text-white",
-    Dinosaures: "from-amber-400 via-orange-300 to-yellow-200",
-    Savane: "from-yellow-300 via-amber-200 to-orange-200",
-    "Royaume Magique": "from-purple-400 via-pink-300 to-indigo-200",
-    Ville: "from-rose-400 via-red-300 to-orange-200",
-    Ferme: "from-lime-400 via-emerald-300 to-teal-200",
-  };
-
-  return (
-    <div
-      className={`min-h-screen bg-gradient-to-br ${worldGradients[user.currentWorld]} font-sans transition-colors duration-700 flex flex-col justify-between select-none pb-12`}
-    >
-      {/* Screen Time Rest Screen with Fade-to-Black Night Animation */}
-      {user.isLockedByTime ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
-          className="fixed inset-0 z-50 bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center space-y-6 overflow-hidden select-none"
-        >
-          {/* Night Sky Background Elements */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
-            {/* Glowing Crescent Moon */}
-            <motion.div
-              animate={{ y: [0, -10, 0], opacity: [0.85, 1, 0.85] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              className="absolute top-10 right-10 text-6xl sm:text-7xl drop-shadow-[0_0_30px_rgba(253,224,71,0.7)]"
-            >
-              🌙
-            </motion.div>
-
-            {/* Twinkling Night Stars */}
-            {[
-              { top: "12%", left: "10%", delay: 0 },
-              { top: "22%", left: "32%", delay: 0.5 },
-              { top: "15%", left: "65%", delay: 1 },
-              { top: "32%", left: "82%", delay: 1.5 },
-              { top: "65%", left: "12%", delay: 0.8 },
-              { top: "78%", left: "75%", delay: 1.2 },
-              { top: "82%", left: "30%", delay: 0.3 },
-              { top: "45%", left: "8%", delay: 1.8 },
-            ].map((star, idx) => (
-              <motion.div
-                key={idx}
-                animate={{ opacity: [0.2, 1, 0.2], scale: [0.7, 1.2, 0.7] }}
-                transition={{ repeat: Infinity, duration: 2.8, delay: star.delay }}
-                style={{ top: star.top, left: star.left }}
-                className="absolute text-yellow-200 text-xl sm:text-2xl drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]"
-              >
-                ✨
-              </motion.div>
-            ))}
-
-            {/* Subtle Gradient Glow at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-80 bg-gradient-to-t from-indigo-950/90 via-purple-950/40 to-transparent" />
-          </div>
-
-          {/* Sleeping Mascot with Bonnet & ZZZ */}
-          <motion.div
-            initial={{ scale: 0.8, y: 30 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="z-10 relative"
-          >
-            <MascotFanti
-              size="xl"
-              isSleeping={true}
-              mood="sleeping"
-              interactive={true}
-              speechBubble="Zzz... Fanti fait de doux rêves ! 💤"
-            />
-          </motion.div>
-
-          {/* Night Info Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.5 }}
-            className="bg-slate-900/90 backdrop-blur-2xl border-2 border-indigo-500/40 rounded-3xl p-8 shadow-[0_0_50px_rgba(79,70,229,0.3)] max-w-md space-y-4 z-10"
-          >
-            <div className="inline-block px-4 py-1.5 bg-indigo-950/80 text-indigo-300 rounded-full text-xs font-black uppercase tracking-wider border border-indigo-500/40 shadow">
-              🌙 Pause Temps d'Écran
-            </div>
-
-            <h2 className="text-3xl font-black text-yellow-300 drop-shadow">
-              C'est l'heure de se reposer ! 🐘💤
-            </h2>
-
-            <p className="text-sm font-semibold text-slate-300 leading-relaxed">
-              Tu as super bien travaillé aujourd'hui ! Fanti s'est endormi pour faire de doux rêves.
-              Ferme les yeux, repose-toi et à bientôt pour de nouvelles découvertes ! 🌟
-            </p>
-
-            <button
-              onClick={() => setIsParentsOpen(true)}
-              className="mt-4 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl border border-white/20 active:scale-95 transition-all"
-            >
-              🔓 Déverrouiller (Espace Parents)
-            </button>
-          </motion.div>
-        </motion.div>
-      ) : (
-        /* Main Application Router */
-        <main className="flex-1 w-full">
-          {activeScreen === "home" ? (
-            <HomeLauncher
-              user={user}
-              onNavigate={(screen) => setActiveScreen(screen)}
-              onOpenFantiChat={() => setIsFantiChatOpen(true)}
-              onOpenParents={() => setIsParentsOpen(true)}
-              onOpenPremium={() => setIsPremiumOpen(true)}
-            />
-          ) : (
-            <ReferenceScreens
-              screen={activeScreen}
-              user={user}
-              onBack={() => setActiveScreen("home")}
-              onParents={() => setIsParentsOpen(true)}
-              onPremium={() => setIsPremiumOpen(true)}
-              onNavigate={(screen) => setActiveScreen(screen)}
-              onAwardXP={handleAwardXP}
-            />
-          )}
-        </main>
-      )}
-
-      {/* Fanti AI Chat Voice Dialog Modal */
-      <FantiChatModal
-        isOpen={isFantiChatOpen}
-        onClose={() => setIsFantiChatOpen(false)}
-        ageGroup={user.ageGroup}
-        currentWorld={user.currentWorld}
-      />
-
-      <PremiumModal isOpen={isPremiumOpen} plan={user.plan} onClose={() => setIsPremiumOpen(false)} onChoosePlan={(plan) => setUser((prev) => ({ ...prev, plan }))} />
-
-      {/* Parents Control Portal Modal */}
-      {isParentsOpen && (
-        <ParentsPortal
-          user={user}
-          onUpdateProfile={(updates) => setUser((prev) => ({ ...prev, ...updates }))}
-          onClose={() => setIsParentsOpen(false)}
-          onOpenAdminAdDashboard={() => setIsAdminAdDashboardOpen(true)}
-        />
-      )}
-
-      {/* Admin Ad Broadcast Dashboard Modal */}
-      {isAdminAdDashboardOpen && (
-        <AdminAdDashboard onClose={() => setIsAdminAdDashboardOpen(false)} />
-      )}
-
-      {/* Mandatory Broadcast Ad Overlay for connected clients */}
-      {user.plan === "free" && <AdBroadcastOverlay
-        onRewardUser={(_stars) => {
-          setUser((prev) => ({
-            ...prev,
-            stars: prev.stars + 10,
-            xp: prev.xp + 50,
-          }));
-        }}
-      />}
-
-      {/* Animated Gecko Mascot */}
-      <GeckoMascot />
-    </div>
-  );
+export default function App(){
+ const [user,setUser]=useState<UserProfile>(readProfile);
+ const [route,setRoute]=useState<Destination>(()=>parseDestination(window.location.hash));
+ const [isParentsOpen,setIsParentsOpen]=useState(false);
+ const [isFantiChatOpen,setIsFantiChatOpen]=useState(false);
+ const [isAdminOpen,setIsAdminOpen]=useState(false);
+ const [isPremiumOpen,setIsPremiumOpen]=useState(false);
+ useEffect(()=>{const sync=()=>{setRoute(parseDestination(window.location.hash));window.scrollTo(0,0)};window.addEventListener('hashchange',sync);return()=>window.removeEventListener('hashchange',sync)},[]);
+ useEffect(()=>{localStorage.setItem('bebe_tab_user',JSON.stringify(user))},[user]);
+ useEffect(()=>{document.title=`${screenMeta[route.screen]?.title||'BÉBÉTAB'} • Bebetab`},[route.screen]);
+ useEffect(()=>{
+  const today=new Date().toLocaleDateString('en-CA');
+  if(localStorage.getItem('bebe_tab_usage_date')!==today){localStorage.setItem('bebe_tab_usage_date',today);setUser(p=>({...p,totalTimeMinutes:0,isLockedByTime:false}))}
+  const timer=window.setInterval(()=>{if(document.visibilityState==='hidden'||isParentsOpen||isAdminOpen)return;const day=new Date().toLocaleDateString('en-CA');const reset=localStorage.getItem('bebe_tab_usage_date')!==day;localStorage.setItem('bebe_tab_usage_date',day);setUser(p=>{if(p.isLockedByTime&&!reset)return p;const mins=reset?1:p.totalTimeMinutes+1;return {...p,totalTimeMinutes:mins,isLockedByTime:p.screenTimeLimitMinutes>0&&mins>=p.screenTimeLimitMinutes}})},60000);
+  return()=>window.clearInterval(timer);
+ },[isParentsOpen,isAdminOpen]);
+ const navigate=(to:Destination)=>{const hash=destinationHash(to);if(window.location.hash===hash){setRoute(to);window.scrollTo(0,0)}else window.location.hash=hash};
+ const back=()=>route.activity?navigate({screen:route.screen,country:route.country}):route.screen==='country'?navigate({screen:'world'}):navigate({screen:'home'});
+ const award=(xp:number,stars:number)=>{
+  if(xp>0&&stars>0&&route.screen!=='defis'){
+   const key='bebe_tab_activities_'+new Date().toISOString().slice(0,10);
+   let done:string[]=[];try{done=JSON.parse(localStorage.getItem(key)||'[]')}catch{}
+   localStorage.setItem(key,JSON.stringify([...new Set([...done,route.screen])]));
+  }
+  setUser(p=>({...p,xp:p.xp+xp,stars:p.stars+stars,level:Math.floor((p.xp+xp)/100)+1}));
+ };
+ const props={user,onBack:back,onAwardXP:award};
+ const module=()=>{
+  switch(route.screen){
+   case 'apprendre':return <LearningModule {...props} initialCategory={route.activity==='english'?'alphabet':route.activity} initialLanguage={route.activity==='english'?'en':user.language}/>;
+   case 'jouer':return <GamesModule {...props} initialGame={route.activity}/>;
+   case 'dessiner':return <DrawingModule {...props} mode={route.activity}/>;
+   case 'musique':return <MusicModule {...props} initialTab={route.activity}/>;
+   case 'histoires':return route.activity==='create'?<StoriesModule {...props}/>:<StoryReader id={route.activity||'forest'} {...props}/>;
+   case 'quiz':return <QuizModule {...props} initialSubject={route.activity}/>;
+   case 'live':return <LiveWorldModule user={user} onBack={back} onOpenWorld={()=>navigate({screen:'world'})} onQuiz={()=>navigate({screen:'quiz',activity:'Animaux & Nature'})}/>;
+   case 'videos':return <VideosModule {...props}/>;
+   case 'defis':return <DailyChallengesModule {...props} onNavigate={screen=>navigate({screen})}/>;
+   case 'mondes':return <WorldsModule {...props} onChangeWorld={world=>setUser(p=>({...p,currentWorld:world}))}/>;
+   case 'recompenses':return <RewardsModule user={user} onBack={back} onEquipOutfit={outfit=>setUser(p=>p.unlockedOutfits.includes(outfit)?({...p,currentOutfit:outfit}):p)} onUnlockOutfit={(outfit:MascotOutfit,cost:number)=>setUser(p=>p.stars>=cost&&!p.unlockedOutfits.includes(outfit)?({...p,stars:p.stars-cost,unlockedOutfits:[...p.unlockedOutfits,outfit],currentOutfit:outfit}):p)}/>;
+   default:return <HomeHub user={user} onNavigate={navigate} onAssistant={()=>setIsFantiChatOpen(true)}/>;
+  }
+ };
+ const content=route.screen==='home'?<HomeHub user={user} onNavigate={navigate} onAssistant={()=>setIsFantiChatOpen(true)}/>:route.screen==='world'?<WorldHub user={user} onNavigate={navigate}/>:route.screen==='country'?<CountryHub key={route.country} route={route} user={user} onNavigate={navigate}/>:hubCards[route.screen]&&!route.activity?<ActivityHub route={route} user={user} onNavigate={navigate}/>:<ActivityBoundary key={destinationHash(route)} onBack={back}><div className="activity-module"><div className="module-art-banner"><Art name={screenMeta[route.screen]?.art||'worlds'}/><strong>{screenMeta[route.screen]?.title}</strong><button onClick={back}>← Retour</button></div>{module()}</div></ActivityBoundary>;
+ return <>
+  {user.isLockedByTime?<div className="rest-screen"><Art name="rest"/><section><h1>C’est l’heure de se reposer !</h1><p>À bientôt pour une nouvelle aventure avec Fanti.</p><button className="primary-cta" onClick={()=>setIsParentsOpen(true)}>Espace parents</button></section></div>:<ExperienceShell route={route} user={user} onNavigate={navigate} onBack={back} onParents={()=>setIsParentsOpen(true)} onAssistant={()=>setIsFantiChatOpen(true)} onPremium={()=>setIsPremiumOpen(true)} onLanguage={language=>setUser(p=>({...p,language}))}>{content}</ExperienceShell>}
+  <FantiChatModal isOpen={isFantiChatOpen} onClose={()=>setIsFantiChatOpen(false)} ageGroup={user.ageGroup} currentWorld={user.currentWorld}/>
+  <PremiumModal isOpen={isPremiumOpen} plan={user.plan} onClose={()=>setIsPremiumOpen(false)} onChoosePlan={plan=>setUser(p=>({...p,plan}))}/>
+  {isParentsOpen&&<ParentsPortal user={user} onUpdateProfile={updates=>setUser(p=>({...p,...updates}))} onClose={()=>setIsParentsOpen(false)} onOpenAdminAdDashboard={()=>setIsAdminOpen(true)}/>}
+  {isAdminOpen&&<AdminAdDashboard onClose={()=>setIsAdminOpen(false)}/>}
+  {user.plan==='free'&&!user.isLockedByTime&&<AdBroadcastOverlay onRewardUser={stars=>award(50,stars)}/>}
+ </>;
 }

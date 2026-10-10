@@ -1,0 +1,3 @@
+Noto Color Emoji — Google Fonts
+Source: https://fonts.google.com/noto/specimen/Noto+Color+Emoji
+Licensed under SIL Open Font License 1.1.

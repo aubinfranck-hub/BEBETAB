@@ -31,19 +31,22 @@ import {
 } from "./encartaData";
 
 interface LearningModuleProps {
+  initialCategory?: string;
+  initialLanguage?: "fr" | "en";
   user: UserProfile;
   onAwardXP: (xp: number, stars: number) => void;
   onBack: () => void;
 }
 
 export const LearningModule: React.FC<LearningModuleProps> = ({
+  initialCategory, initialLanguage,
   user,
   onAwardXP,
   onBack,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<string>(initialCategory || "all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeLang, setActiveLang] = useState<"fr" | "en">(user.language);
+  const [activeLang, setActiveLang] = useState<"fr" | "en">(initialLanguage || user.language);
   const [selectedArticle, setSelectedArticle] = useState<EncartaArticle | null>(null);
 
   // States for alphabet tracing & counting

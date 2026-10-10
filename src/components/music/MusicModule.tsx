@@ -4,19 +4,21 @@ import { soundFx, speakText } from "../../utils/audio";
 import { ArrowLeft, Music, Volume2, Play, Pause, Sparkles } from "lucide-react";
 
 interface MusicModuleProps {
+  initialTab?: string;
   user: UserProfile;
   onAwardXP: (xp: number, stars: number) => void;
   onBack: () => void;
 }
 
 export const MusicModule: React.FC<MusicModuleProps> = ({
+  initialTab,
   user,
   onAwardXP,
   onBack,
 }) => {
   const [activeTab, setActiveTab] = useState<
     "piano" | "xylophone" | "drums" | "karaoke"
-  >("piano");
+  >(["piano","xylophone","drums","karaoke"].includes(initialTab || "") ? initialTab as "piano" | "xylophone" | "drums" | "karaoke" : "piano");
 
   // Piano Notes (C4 to C5)
   const pianoKeys = [

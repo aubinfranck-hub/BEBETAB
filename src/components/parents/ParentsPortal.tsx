@@ -48,6 +48,7 @@ export const ParentsPortal: React.FC<ParentsPortalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-rose-300 max-h-[90vh] overflow-y-auto relative">
+        <img src="/art/parents.webp" alt="" className="w-full h-32 object-cover rounded-2xl mb-4"/>
         {/* Close Button */}
         <button
           onClick={onClose}

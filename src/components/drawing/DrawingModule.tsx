@@ -14,12 +14,14 @@ import {
 } from "lucide-react";
 
 interface DrawingModuleProps {
+  mode?: string;
   user: UserProfile;
   onAwardXP: (xp: number, stars: number) => void;
   onBack: () => void;
 }
 
 export const DrawingModule: React.FC<DrawingModuleProps> = ({
+  mode = "free",
   user,
   onAwardXP,
   onBack,
@@ -46,16 +48,38 @@ export const DrawingModule: React.FC<DrawingModuleProps> = ({
 
   const stamps = ["🐘", "⭐", "❤️", "👑", "🌈", "🎈", "🌸", "🚀"];
 
+  const [guide, setGuide] = useState(mode === "numbers" ? "1" : "A");
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Fill white background initially
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }, []);
+    let previousWidth = 0, previousHeight = 0;
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const saved = document.createElement('canvas');
+      saved.width = canvas.width; saved.height = canvas.height;
+      saved.getContext('2d')?.drawImage(canvas, 0, 0);
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, rect.width, rect.height);
+      if (previousWidth) ctx.drawImage(saved,0,0,saved.width,saved.height,0,0,rect.width,rect.height);
+      else if (mode === 'letters' || mode === 'numbers') {
+        ctx.fillStyle='#DCE6F1';ctx.font=`900 ${Math.min(rect.width,rect.height)*.75}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(guide,rect.width/2,rect.height/2);
+      } else if (mode === 'coloring' || mode === 'shapes') {
+        ctx.strokeStyle='#ABC0D8';ctx.lineWidth=3;
+        ctx.beginPath();ctx.arc(rect.width*.3,rect.height*.45,rect.height*.22,0,Math.PI*2);ctx.stroke();
+        ctx.strokeRect(rect.width*.58,rect.height*.22,rect.height*.4,rect.height*.4);
+      }
+      previousWidth=rect.width;previousHeight=rect.height;
+    };
+    resize();const observer=new ResizeObserver(resize);observer.observe(canvas);
+    return()=>observer.disconnect();
+  }, [mode, guide]);
 
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
@@ -145,7 +169,7 @@ export const DrawingModule: React.FC<DrawingModuleProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
   };
 
   const downloadCanvas = () => {
@@ -334,12 +358,11 @@ export const DrawingModule: React.FC<DrawingModuleProps> = ({
           </div>
         </div>
 
+        {(mode === 'letters' || mode === 'numbers') && <div className="flex flex-wrap gap-2">{(mode === 'letters' ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') : '0123456789'.split('')).map(value=><button key={value} onClick={()=>setGuide(value)} className="rounded-xl bg-white p-3 font-black text-blue-700">{value}</button>)}</div>}
         {/* Canvas Board */}
         <div className="flex-1 bg-white rounded-3xl p-2 shadow-2xl border-4 border-yellow-300 relative overflow-hidden flex items-center justify-center">
           <canvas
             ref={canvasRef}
-            width={800}
-            height={520}
             onMouseDown={startDrawing}
             onMouseMove={draw}
             onMouseUp={stopDrawing}
@@ -347,7 +370,7 @@ export const DrawingModule: React.FC<DrawingModuleProps> = ({
             onTouchStart={startDrawing}
             onTouchMove={draw}
             onTouchEnd={stopDrawing}
-            className="w-full h-[520px] touch-none cursor-crosshair rounded-2xl bg-white"
+            className="w-full h-[min(65vh,40rem)] touch-none cursor-crosshair rounded-2xl bg-white"
           />
         </div>
       </div>
