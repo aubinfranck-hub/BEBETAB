@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root{
-  font-family:"Trebuchet MS","Arial Rounded MT Bold",system-ui,sans-serif;
+  font-family:"Trebuchet MS","Arial Rounded MT Bold",system-ui,"Bebetab Emoji",sans-serif;
   color-scheme:light;
 }
 html,body,#root{min-height:100%;margin:0}
@@ -125,7 +125,7 @@ button{touch-action:manipulation}
     radial-gradient(ellipse at 42% 25%,rgba(255,255,255,.6) 0 2%,transparent 9%),
     linear-gradient(180deg,var(--sky) 0%,var(--sky2) 57%,#f5d38b 75%,var(--ground) 100%);
   position:relative;
-  font-family:"Trebuchet MS","Arial Rounded MT Bold",system-ui,sans-serif;
+  font-family:"Trebuchet MS","Arial Rounded MT Bold",system-ui,"Bebetab Emoji",sans-serif;
 }
 .ref-app:after{
   content:"";position:absolute;left:0;right:0;bottom:0;height:24%;
@@ -185,3 +185,5 @@ button{touch-action:manipulation}
  .ref-learning{height:auto;min-height:calc(100vh - 90px);grid-template-columns:1fr;gap:5px}.ref-learning-fanti{min-height:260px}.ref-learning-fanti svg{width:170px!important;height:200px!important}.ref-subject-grid{grid-template-columns:repeat(2,1fr);max-width:none}.ref-subject-grid .ref-card{min-height:110px}
  .ref-stories,.ref-drawing{height:auto;min-height:calc(100vh - 90px);grid-template-columns:1fr;grid-template-rows:auto auto auto}.ref-story-fanti{min-height:220px}.ref-story-fanti svg{width:190px!important;height:220px!important}.ref-story-grid{grid-template-columns:1fr}.ref-story-grid .ref-card{min-height:150px}.ref-story-cats{grid-column:1;grid-template-columns:repeat(3,1fr)}.ref-drawing-fanti{min-height:240px}.ref-draw-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+@font-face{font-family:"Bebetab Emoji";src:url("/fonts/emoji.woff") format("woff");font-weight:400;font-display:swap}

@@ -352,6 +352,7 @@ export const FantiChatModal: React.FC<FantiChatModalProps> = ({
           currentWorld,
         }),
       });
+      if (!res.ok) throw new Error("Fanti indisponible");
       const data = await res.json();
       const text = data.text || "Youpi ! Fanti t'écoute !";
       if (data.color) setFantiColor(data.color);

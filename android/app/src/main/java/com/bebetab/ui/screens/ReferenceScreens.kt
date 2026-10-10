@@ -32,12 +32,12 @@ private fun language(): String {
 }
 
 @Composable
-fun ReferenceScreen(route:String,onBack:()->Unit,onSettings:()->Unit={}) {
+fun ReferenceScreen(route:String,onBack:()->Unit,onSettings:()->Unit={},onNavigate:(String)->Unit={}) {
     when(route) {
-        "world" -> WorldScreen(onBack,onSettings)
+        "world" -> WorldScreen(onBack,onSettings,onNavigate)
         "france" -> {
             val lang=language()
-            CountryScreen(ContentData.countries.first{it.id=="france"},lang,onBack,onSettings)
+            CountryScreen(ContentData.countries.first{it.id=="france"},lang,onBack,onSettings,onNavigate)
         }
         "live" -> LiveScreen(onBack,onSettings)
         "rewards" -> RewardsScreen(onBack,onSettings)
@@ -51,12 +51,12 @@ private fun SkyBackdrop(content:@Composable ColumnScope.()->Unit) {
 }
 
 @Composable
-private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
+private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit,onNavigate:(String)->Unit) {
     var selected by remember{mutableStateOf<String?>(null)}
     var selectedCategory by remember{mutableStateOf<String?>(null)}
     val lang=language()
     val country=ContentData.countries.firstOrNull{it.id==selected}
-    if(country!=null){CountryScreen(country,lang,onBack,onSettings);return}
+    if(country!=null){CountryScreen(country,lang,{selected=null},onSettings,onNavigate);return}
 
     val categories=if(lang=="en")
         listOf("Cities","Animals","Cultures","Monuments","Nature","Oceans","Space","Jobs","Cuisine","Languages","History")
@@ -68,7 +68,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
             Surface(Modifier.weight(1f).fillMaxHeight().shadow(3.dp,RoundedCornerShape(22.dp)),shape=RoundedCornerShape(22.dp),color=Color.Transparent){
                 SkyBackdrop{
                     Box(Modifier.fillMaxSize()){
-                        WorldMapIllustration(Modifier.fillMaxSize().padding(10.dp))
+                        com.bebetab.ui.components.Artwork("worlds",Modifier.fillMaxSize())
                         Column(Modifier.align(Alignment.TopCenter).padding(top=12.dp),horizontalAlignment=Alignment.CenterHorizontally){
                             Text("🎈  ☁️  🏰  ✈️  🎈",fontSize=26.sp)
                             Text(if(lang=="en")"AMERICA     EUROPE     ASIA" else "AMÉRIQUE     EUROPE     ASIE",color=Color(0xFF168A4A),fontWeight=FontWeight.Black,fontSize=15.sp)
@@ -83,7 +83,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
                                 Modifier.padding(12.dp),fontWeight=FontWeight.ExtraBold,fontSize=13.sp,textAlign=TextAlign.Center)
                         }
                         Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(start=8.dp,end=8.dp,bottom=8.dp),horizontalArrangement=Arrangement.spacedBy(5.dp)){
-                            categories.take(6).forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),{selectedCategory=cat})}
+                            categories.take(6).forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),{onNavigate(when(cat){"Océans","Oceans","Nature","Animaux","Animals"->"live";"Espace","Space","Langues","Languages","Histoire","History","Cultures","Métiers","Jobs","Cuisine","Monuments"->"learn";else->"worlds"})})}
                         }
                     }
                 }
@@ -104,7 +104,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
                     Text(if(lang=="en")"EXPLORE" else "EXPLORER",fontSize=14.sp,fontWeight=FontWeight.Black,color=OutlineBlue)
                     categories.drop(6).chunked(2).forEach{pair->
                         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)){
-                            pair.forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),{selectedCategory=cat})}
+                            pair.forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),{onNavigate(when(cat){"Océans","Oceans","Nature","Animaux","Animals"->"live";"Espace","Space","Langues","Languages","Histoire","History","Cultures","Métiers","Jobs","Cuisine","Monuments"->"learn";else->"worlds"})})}
                         }
                     }
                 }
@@ -114,12 +114,11 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
 }
 
 @Composable
-private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onSettings:()->Unit){
+private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onSettings:()->Unit,onNavigate:(String)->Unit){
     val context=LocalContext.current
     val scope=rememberCoroutineScope()
     val store=remember{ProgressStore(context)}
     var awarded by remember(country.id){mutableStateOf(false)}
-    var action by remember{mutableStateOf<String?>(null)}
     BebeTabFrame(country.name.text(lang).uppercase(),onBack,onSettings){
         Column(Modifier.fillMaxSize().padding(horizontal=8.dp, vertical=4.dp), verticalArrangement=Arrangement.spacedBy(5.dp)){
             Text(
@@ -146,8 +145,8 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
             Column(Modifier.width(340.dp).fillMaxHeight(),verticalArrangement=Arrangement.spacedBy(7.dp)){
                 Text(if(lang=="en")"DISCOVER "+country.name.text(lang).uppercase() else "DÉCOUVRIR "+country.name.text(lang).uppercase(),color=OutlineBlue,fontSize=18.sp,fontWeight=FontWeight.Black)
                 Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(7.dp)){
-                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)){country.cards.take(3).forEachIndexed{i,c->CountryCard(c.text(lang),listOf("🗼","🎭","🦁")[i])}}
-                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)){country.cards.drop(3).take(3).forEachIndexed{i,c->CountryCard(c.text(lang),listOf("🍴","🏙️","🏛️")[i])}}
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)){country.cards.take(3).forEachIndexed{i,c->CountryCard(c.text(lang),listOf("🗼","🎭","🦁")[i]){onNavigate("learn")}}}
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)){country.cards.drop(3).take(3).forEachIndexed{i,c->CountryCard(c.text(lang),listOf("🍴","🏙️","🏛️")[i]){onNavigate("learn")}}}
                 }
                 Surface(shape=RoundedCornerShape(16.dp),color=Color.White,shadowElevation=2.dp){Text(country.fact.text(lang),Modifier.padding(9.dp),fontSize=10.sp,fontWeight=FontWeight.Bold)}
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)){
@@ -158,16 +157,16 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
                         if(lang=="en")"Quiz" else "Quiz",
                         if(lang=="en")"Images" else "Images",
                         if(lang=="en")"Music" else "Musique"
-                    ).forEach{label->SmallWhiteChip(label,Modifier.weight(1f)){action=label}}
-                }
-                if(action!=null){
-                    Surface(Modifier.fillMaxWidth(),shape=RoundedCornerShape(14.dp),color=Color(0xFFEAF7FF),shadowElevation=1.dp){
-                        Text(
-                            if(lang=="en") action+" • More content for "+country.name.text(lang)+" will open here."
-                            else action+" • Plus de contenus sur "+country.name.text(lang)+" seront disponibles ici.",
-                            Modifier.padding(8.dp),fontSize=9.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center
-                        )
-                    }
+                    ).forEach{label->SmallWhiteChip(label,Modifier.weight(1f)){
+                        onNavigate(when(label) {
+                            "Vidéos","Videos" -> "videos"
+                            "Live" -> "live"
+                            "Jeux","Games" -> "play"
+                            "Quiz" -> "quiz"
+                            "Images" -> "learn"
+                            else -> "music"
+                        })
+                    }}
                 }
                 if(!awarded)Button(onClick={awarded=true;scope.launch{store.addStars(1)}},modifier=Modifier.fillMaxWidth().height(40.dp),shape=RoundedCornerShape(18.dp)){Text(if(lang=="en")"I discovered it! +1 ⭐" else "J’ai découvert ! +1 ⭐")}
             }
@@ -176,8 +175,8 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
     }
 }
 
-@Composable private fun CountryCard(text:String,emoji:String){
-    Surface(Modifier.fillMaxWidth().height(92.dp).shadow(2.dp,RoundedCornerShape(15.dp)),shape=RoundedCornerShape(15.dp),color=Color.White){
+@Composable private fun CountryCard(text:String,emoji:String,onClick:()->Unit){
+    Surface(onClick=onClick,modifier=Modifier.fillMaxWidth().height(92.dp).shadow(2.dp,RoundedCornerShape(15.dp)),shape=RoundedCornerShape(15.dp),color=Color.White){
         Column(Modifier.fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Text(emoji,fontSize=27.sp);Text(text,fontWeight=FontWeight.ExtraBold,fontSize=10.sp,textAlign=TextAlign.Center)}
     }
 }

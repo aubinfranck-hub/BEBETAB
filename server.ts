@@ -9,7 +9,7 @@ import { WebSocketServer } from "ws";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const httpServer = createHttpServer(app);
 
 app.use(express.json({ limit: "10mb" }));
@@ -262,7 +262,7 @@ app.post("/api/fanti/chat", async (req, res) => {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
       contents: prompt || "Bonjour Fanti !",
       config: {
         systemInstruction: `Tu es Fanti, une mascotte éléphant magique, joyeuse, bienveillante et très encourageante pour une application éducative pour enfants (BéBé-TAB Kids World).
@@ -330,7 +330,7 @@ app.post("/api/fanti/story", async (req, res) => {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
       contents: `Génère une histoire interactive personnalisée et merveilleuse pour un enfant de ${ageGroup} ans.
 Héros principal: ${hero}
 Compagnon: ${animal}
@@ -416,7 +416,7 @@ app.post("/api/fanti/quiz", async (req, res) => {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
       contents: `Crée un quiz ludique de 4 questions pour un enfant de ${ageGroup} ans sur la matière : "${subject}".`,
       config: {
         systemInstruction: `Tu es Fanti, le professeur éléphant rigolo. Crée un quiz parfaitement adapté à l'âge sélectionné (${ageGroup} ans).

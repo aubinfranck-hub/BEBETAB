@@ -50,7 +50,6 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
     val parentSettings = remember { com.bebetab.data.ParentSettingsStore(context) }
     val language by parentSettings.language.collectAsState(initial = "fr")
     val childName by parentSettings.childName.collectAsState(initial = "Kofi")
-    val childName by parentSettings.childName.collectAsState(initial = "Kofi")
     val scope = rememberCoroutineScope()
     val stars by progressStore.stars.collectAsState(initial = 2450)
     val level = stars / 50 + 1
@@ -116,6 +115,11 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                     IconButton(onClick={ onNavigate("settings") },modifier=Modifier.size(36.dp)){ Icon(Icons.Default.Settings,contentDescription=if(language=="en")"Settings" else "Réglages",tint=Color.White,modifier=Modifier.size(22.dp)) }
                 }
             }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                listOf("quiz" to "🧠 Quiz", "challenges" to "🏆 Défis", "worlds" to "🪐 Mondes", "videos" to "🎬 Vidéos", "assistant" to "🐘 Fanti").forEach { (route,label) ->
+                    OutlinedButton(onClick={onNavigate(route)},modifier=Modifier.weight(1f),contentPadding=PaddingValues(6.dp)) { Text(label,fontSize=11.sp,maxLines=1) }
+                }
+            }
             Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
 
                 // LEFT / FANTI
@@ -142,7 +146,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
                     )
                     Spacer(Modifier.height(6.dp))
                     Box(Modifier.weight(1f).fillMaxWidth()) {
-                        FantiHero(Modifier.fillMaxSize())
+                        com.bebetab.ui.components.Artwork("assistant", Modifier.fillMaxSize())
                     }
                     SpeechBubble(
                         text = if (language == "en") "Hello! Ready for a new adventure?" else "Bonjour ! Hello !\nPrêt pour une nouvelle aventure ?",

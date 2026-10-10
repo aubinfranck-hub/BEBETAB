@@ -57,13 +57,13 @@ private val miniQuestions = mapOf(
 )
 
 @Composable
-private fun FantiPane(message: String) {
+private fun FantiPane(message: String, art: String = "assistant") {
     Column(
         Modifier.fillMaxHeight().width(238.dp).padding(start = 2.dp, end = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.BottomCenter) {
-            FantiMascot(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal = 8.dp))
+            com.bebetab.ui.components.Artwork(art,Modifier.fillMaxSize())
         }
         Surface(
             Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp).shadow(3.dp, RoundedCornerShape(18.dp)),

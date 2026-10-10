@@ -1,0 +1,50 @@
+import React, { useState } from 'react';
+import { ArrowLeft, Home, Settings, Star, Crown, Volume2, ChevronRight, Compass, Play, Globe2, BookOpen, Gamepad2, Library, Camera, Music, Palette, Trophy, Brain, Rocket, Film, UserRound, Sparkles, Shapes } from 'lucide-react';
+import { UserProfile, ActiveScreen } from '../../types';
+import { Destination, ScreenCard, screenMeta, mainCards, extraCards, hubCards, countries, continents } from '../../navigation/catalog';
+import { speakText } from '../../utils/audio';
+
+function TileIcon({id}:{id:string}) {
+ const icons:Record<string,React.ElementType>={world:Globe2,learn:BookOpen,play:Gamepad2,stories:Library,live:Camera,music:Music,draw:Palette,rewards:Trophy,quiz:Brain,challenges:Trophy,worlds:Rocket,videos:Film,letters:BookOpen,numbers:Shapes,science:Sparkles,animals:Sparkles,space:Rocket,art:Palette,languages:BookOpen,puzzles:Shapes,math:Shapes,geography:Globe2,memory:Brain,logic:Shapes,french:BookOpen,english:BookOpen,all:Gamepad2,forest:Library,desert:Library,create:Sparkles,free:Palette,coloring:Palette,shapes:Shapes,piano:Music,xylophone:Music,drums:Music,karaoke:Music};
+ const Icon=icons[id]||Sparkles; return <Icon aria-hidden="true"/>;
+}
+export function Art({name, className=''}:{name:string;className?:string}){
+ return <img className={`experience-art ${className}`} src={`/art/${name}.webp`} alt="" loading="lazy" decoding="async" onError={e=>{e.currentTarget.style.visibility='hidden'}}/>;
+}
+export function ExperienceShell({route,user,onNavigate,onBack,onParents,onAssistant,onPremium,onLanguage,children}:{route:Destination;user:UserProfile;onNavigate:(to:Destination)=>void;onBack:()=>void;onParents:()=>void;onAssistant:()=>void;onPremium:()=>void;onLanguage:(language:'fr'|'en')=>void;children?:React.ReactNode}){
+ const meta=screenMeta[route.screen]||screenMeta.home!;
+ const en=user.language==='en';
+ return <div className={`experience-shell screen-${route.screen}`} style={{'--screen-accent':meta.accent} as React.CSSProperties}>
+  <header className="experience-header">
+   <button className="round-control" onClick={route.screen==='home'?onParents:onBack} aria-label={route.screen==='home'?'Espace parents':'Retour'}>{route.screen==='home'?<Settings/>:<ArrowLeft/>}</button>
+   <div className="experience-heading"><h1>{en?meta.en:meta.title}</h1><p>{meta.subtitle}</p></div>
+   <div className="experience-profile"><span className="child-avatar"><UserRound/></span><b>{user.name}</b><span className="stars"><Star/>{user.stars.toLocaleString('fr-FR')}</span><div className="level"><b>{en?'Level':'Niveau'} {user.level}</b><progress value={user.xp%100} max="100" aria-label="Progression"/></div></div>
+   <div className="header-actions"><button className={en?'':'selected'} onClick={()=>onLanguage('fr')} aria-label="Français">FR</button><button className={en?'selected':''} onClick={()=>onLanguage('en')} aria-label="English">EN</button><button className="round-control" onClick={onPremium} aria-label="Offres Bebetab"><Crown/></button><button className="round-control" onClick={onParents} aria-label="Espace parents"><Settings/></button></div>
+  </header>
+  <nav className="experience-breadcrumb" aria-label="Fil d’Ariane"><button onClick={()=>onNavigate({screen:'home'})}><Home/>{en?'Home':'Accueil'}</button>{route.screen!=='home'&&<><ChevronRight/><button onClick={()=>onNavigate({screen:route.screen,country:route.country})}>{en?meta.en:meta.title}</button></>}{route.activity&&<><ChevronRight/><span>{route.activity}</span></>}</nav>
+  <main className="experience-main">{children}</main>
+  <footer className="experience-footer"><span><Sparkles/> {en?'Explore with Fanti':'Explore avec Fanti'}</span><div>{extraCards.map(card=><button key={card.id} onClick={()=>onNavigate(card.to)}><TileIcon id={card.id}/> {en?card.en:card.title}</button>)}<button onClick={onAssistant}><Sparkles/> {en?'Talk to Fanti':'Parler à Fanti'}</button></div></footer>
+ </div>
+}
+
+const colors=['#09b85b','#ff9e00','#f74461','#9649ed','#039edc','#e63b99','#f4af08','#13b571'];
+export function CardGrid({cards,user,onNavigate}:{cards:ScreenCard[];user:UserProfile;onNavigate:(to:Destination)=>void}){
+ return <div className="experience-card-grid">{cards.map((card,i)=><button key={card.id} data-card={card.id} className="experience-card" onClick={()=>onNavigate(card.to)} style={{'--card-color':card.color||colors[i%colors.length]} as React.CSSProperties}><span className="card-illustration"><TileIcon id={card.id}/></span><strong>{user.language==='en'?card.en:card.title}</strong>{card.subtitle&&<small>{card.subtitle}</small>}<span className="card-open"><Play/> {user.language==='en'?'Discover':'Découvrir'}</span></button>)}</div>;
+}
+export function HomeHub({user,onNavigate,onAssistant}:{user:UserProfile;onNavigate:(to:Destination)=>void;onAssistant:()=>void}){
+ return <><section className="home-adventure"><div className="home-art"><Art name="worlds"/><button className="fanti-action" onClick={onAssistant}><Sparkles/> {user.language==='en'?'Hello! Talk to Fanti':'Bonjour ! Parle à Fanti'}</button></div><div className="home-welcome"><span className="eyebrow">BÉBÉTAB • KIDS WORLD</span><h2>{user.language==='en'?'A world of discoveries!':'Un monde de découvertes !'}</h2><p>{user.language==='en'?'Play, learn and create with Fanti. Choose your adventure.':'Joue, apprends et crée avec Fanti. Choisis ton aventure.'}</p><button className="primary-cta" onClick={()=>onNavigate({screen:'world'})}><Compass/> {user.language==='en'?'Explore the world':'Explorer le monde'}</button><div className="today-panel"><h3>{user.language==='en'?'Today with Fanti':'Aujourd’hui avec Fanti'}</h3><div>{[{icon:'🎬',title:'1 vidéo',screen:'videos'},{icon:'🎮',title:'2 jeux',screen:'jouer'},{icon:'📖',title:'1 histoire',screen:'histoires'},{icon:'🎵',title:'1 chanson',screen:'musique'}].map(item=><button key={item.screen} onClick={()=>onNavigate({screen:item.screen as ActiveScreen})}><span><TileIcon id={item.screen==='jouer'?'play':item.screen==='histoires'?'stories':item.screen==='musique'?'music':item.screen}/></span>{item.title}</button>)}</div></div></div></section><CardGrid cards={mainCards} user={user} onNavigate={onNavigate}/></>;
+}
+export function ActivityHub({route,user,onNavigate}:{route:Destination;user:UserProfile;onNavigate:(to:Destination)=>void}){
+ const meta=screenMeta[route.screen]!;
+ return <section className="activity-hub"><aside className="guide-panel"><Art name={meta.art}/><div className="guide-message"><h2>{user.language==='en'?'Your next adventure':'Ta prochaine aventure'}</h2><p>{meta.subtitle}</p><button onClick={()=>speakText(meta.subtitle,user.language==='en'?'en-US':'fr-FR')}><Volume2/> {user.language==='en'?'Listen':'Écouter Fanti'}</button></div></aside><CardGrid cards={hubCards[route.screen]||[]} user={user} onNavigate={onNavigate}/></section>;
+}
+export function WorldHub({user,onNavigate}:{user:UserProfile;onNavigate:(to:Destination)=>void}){
+ const [continent,setContinent]=useState('Tous');
+ const places=continent==='Tous'?countries:countries.filter(c=>c.continent===continent);
+ return <section className="world-hub"><div className="world-art"><Art name="worlds"/><div className="world-prompt"><h2>Où veux-tu aller aujourd’hui ?</h2><p>Touche un continent, puis choisis un pays.</p></div></div><div className="world-content"><div className="continent-controls">{['Tous',...continents].map(c=><button key={c} className={continent===c?'selected':''} onClick={()=>setContinent(c)}>{c}</button>)}</div><h2>{continent==='Tous'?'Lieux à découvrir':continent}</h2><div className="country-grid">{places.map(c=><button key={c.id} onClick={()=>onNavigate({screen:'country',country:c.id})}><span>{c.flag}</span><strong>{c.city}</strong><small>{c.name}</small><ChevronRight/></button>)}</div>{places.length===0&&<div className="empty-discovery"><span>🐧</span><h3>L’Antarctique, un continent de glace</h3><p>Il n’a pas de pays. Découvre les animaux polaires et les océans.</p><button className="primary-cta" onClick={()=>onNavigate({screen:'apprendre',activity:'animaux'})}>Découvrir les animaux</button></div>}<div className="world-shortcuts"><button onClick={()=>onNavigate({screen:'live'})}>📷 Caméras du monde</button><button onClick={()=>onNavigate({screen:'quiz',activity:'Culture & Histoire'})}>🧠 Quiz du monde</button><button onClick={()=>onNavigate({screen:'apprendre',activity:'histoire'})}>🏛️ Culture & histoire</button></div></div></section>;
+}
+export function CountryHub({route,user,onNavigate}:{route:Destination;user:UserProfile;onNavigate:(to:Destination)=>void}){
+ const country=countries.find(c=>c.id===route.country)||countries[1];
+ const [topic,setTopic]=useState<string|null>(null);
+ return <section className="country-hub"><div className="country-banner"><span>{country.flag}</span><h2>{country.name}</h2><p>Monde › {country.continent} › {country.city}</p><p>{country.fact}</p><button onClick={()=>speakText(country.fact,user.language==='en'?'en-US':'fr-FR')}><Volume2/> Écouter</button></div><div className="country-topics"><h2>Découvrir {country.name}</h2><div>{country.topics.map((t,i)=><button key={t} onClick={()=>setTopic(t)}><span>{['🏛️','🎭','🐾','🍲','🏙️','📖'][i]}</span><strong>{t}</strong></button>)}</div><div className="country-links">{[['🎬','Vidéos','videos'],['📷','Caméras','live'],['🎮','Jeux','jouer'],['🧠','Quiz','quiz'],['📖','Découvertes','apprendre'],['🎵','Musique','musique']].map(([icon,title,screen])=><button key={screen} onClick={()=>onNavigate({screen:screen as ActiveScreen,activity:screen==='quiz'?'Culture & Histoire':undefined})}>{icon} {title}</button>)}</div></div>{topic&&<div className="topic-overlay" role="dialog" aria-modal="true" aria-label={topic}><section><button className="topic-close" onClick={()=>setTopic(null)}>Fermer ×</button><span>{country.flag}</span><h2>{topic}</h2><p>{country.fact}</p><p>Explore les articles de la bibliothèque pour continuer ta découverte.</p><button className="primary-cta" onClick={()=>onNavigate({screen:'apprendre',activity:topic==='Animaux'?'animaux':'histoire'})}>Ouvrir la bibliothèque</button></section></div>}</section>;
+}

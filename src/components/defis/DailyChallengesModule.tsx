@@ -131,28 +131,24 @@ export const DailyChallengesModule: React.FC<DailyChallengesModuleProps> = ({
     localStorage.setItem(`bebe_tab_bonus_${todayKey}`, String(bonusClaimed));
   }, [bonusClaimed, todayKey]);
 
+  const completedActivities: string[] = JSON.parse(localStorage.getItem('bebe_tab_activities_'+todayKey)||'[]');
   const completedCount = challenges.filter((c) => c.completed).length;
   const isAllCompleted = completedCount === challenges.length;
 
   // Complete a challenge
   const handleCompleteChallenge = (id: string) => {
-    setChallenges((prev) =>
-      prev.map((item) => {
-        if (item.id === id && !item.completed) {
-          soundFx.playVictory();
-          confetti({ particleCount: 50, spread: 60 });
-          speakText(`Bravo ! Tu as complété le défi ${item.title} !`);
-          onAwardXP(item.rewardXP, item.rewardStars);
-          return { ...item, completed: true };
-        }
-        return item;
-      })
-    );
+    const item = challenges.find(item=>item.id===id);
+    if (!item || item.completed || !completedActivities.includes(item.targetScreen)) return;
+    setChallenges(prev=>prev.map(c=>c.id===id?{...c,completed:true}:c));
+    soundFx.playVictory();
+    confetti({particleCount:50,spread:60});
+    speakText(`Bravo ! Tu as complété le défi ${item.title} !`);
+    onAwardXP(item.rewardXP,item.rewardStars);
   };
 
   // Claim Grand Daily Treasure
   const handleClaimBonus = () => {
-    if (bonusClaimed) return;
+    if (bonusClaimed || !isAllCompleted) return;
     setBonusClaimed(true);
     soundFx.playVictory();
     confetti({ particleCount: 120, spread: 90 });
@@ -319,11 +315,12 @@ export const DailyChallengesModule: React.FC<DailyChallengesModuleProps> = ({
                   </button>
 
                   <button
+                    disabled={!completedActivities.includes(challenge.targetScreen)}
                     onClick={() => handleCompleteChallenge(challenge.id)}
                     className="w-full py-2 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs rounded-xl shadow border border-emerald-300 flex items-center justify-center gap-1.5 active:scale-95 transition-all"
                   >
                     <CheckCircle2 className="w-4 h-4 text-yellow-200" />
-                    <span>Valider & Réclamer les ⭐</span>
+                    <span>{completedActivities.includes(challenge.targetScreen) ? "Recevoir les étoiles ⭐" : "Termine d’abord l’activité"}</span>
                   </button>
                 </div>
               )}

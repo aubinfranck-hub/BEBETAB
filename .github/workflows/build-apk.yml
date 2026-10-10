@@ -2,6 +2,8 @@ name: Build BEBETAB Android APK
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths: ["android/**"]
   push:
     paths:
       - "android/**"

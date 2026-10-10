@@ -68,14 +68,19 @@ private fun BebeTabNavigation() {
     Box(Modifier.fillMaxSize()) {
         NavHost(nav, startDestination = "home", modifier = Modifier.fillMaxSize()) {
             composable("home") { HomeScreen { nav.navigate(it) } }
-            composable("world") { ReferenceScreen("world", { nav.popBackStack() }, { nav.navigate("settings") }) }
-            composable("france") { ReferenceScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("world") { ReferenceScreen("world", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
+            composable("france") { ReferenceScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
             composable("live") { ReferenceScreen("live", { nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("learn") { LearnActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("play") { PlayActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("stories") { StoryActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("draw") { DrawActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("rewards") { ReferenceScreen("rewards", { nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("quiz") { DiscoveryQuizScreen({nav.popBackStack()}, {nav.navigate("settings")}) }
+            composable("challenges") { ChallengeScreen({nav.popBackStack()}, {nav.navigate(it)}, {nav.navigate("settings")}) }
+            composable("worlds") { WorldsHubScreen({nav.popBackStack()}, {nav.navigate(it)}, {nav.navigate("settings")}) }
+            composable("videos") { VideoLibraryScreen({nav.popBackStack()}, {nav.navigate("settings")}) }
+            composable("assistant") { FantiGuideScreen({nav.popBackStack()}, {nav.navigate(it)}, {nav.navigate("settings")}) }
             composable("settings") { SettingsScreen { nav.popBackStack() } }
             composable("music") { MusicActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
         }
@@ -84,7 +89,7 @@ private fun BebeTabNavigation() {
             ScreenTimeLock(
                 minutes = minutes,
                 onUnlock = { scope.launch { settings.resetUsage(); locked = false } },
-                onClose = { finishApp(nav) }
+                onClose = { finishApp(context) }
             )
         }
     }

@@ -31,6 +31,7 @@ fun SettingsScreen(onBack:()->Unit){
 
     if(!unlocked){
         Column(Modifier.fillMaxSize().padding(30.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){
+            com.bebetab.ui.components.Artwork("parents",Modifier.fillMaxWidth(.7f).height(125.dp))
             Text(if(language=="fr")"Espace parents" else "Parent area",fontSize=30.sp)
             Text(if(language=="fr")"Entre le code parent pour accéder aux réglages." else "Enter the parent code to access settings.")
             OutlinedTextField(value=code,onValueChange={code=it.filter(Char::isDigit).take(4)},label={Text(if(language=="fr")"Code parent" else "Parent code")},keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.NumberPassword))
