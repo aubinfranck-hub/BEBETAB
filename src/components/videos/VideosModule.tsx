@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UserProfile, KidsVideo } from "../../types";
 import { soundFx, speakText } from "../../utils/audio";
 import confetti from "canvas-confetti";
@@ -214,6 +214,28 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
   ];
 
   const [videosList, setVideosList] = useState(initialVideos);
+  useEffect(() => {
+    let active = true;
+    const refresh = async () => {
+      try {
+        const response = await fetch("/api/education/videos");
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!active || !Array.isArray(data.videos)) return;
+        const fresh = data.videos.filter((v: any) => /^[a-zA-Z0-9_-]{11}$/.test(v.id)).map((v: any) => ({
+          id: v.id, youtubeId: v.id, title: v.title, category: v.category,
+          duration: "Nouveau", thumbnail: v.thumbnail, ageGroup: user.ageGroup,
+          views: "Nouveau", rating: 5, tag: "Nouvelle vidéo",
+          fantiIntro: "Découvrons cette nouvelle vidéo éducative !"
+        }));
+        setVideosList(previous => [...fresh, ...previous.filter(v => !fresh.some((n: any) => n.id === v.id))]);
+      } catch { /* Keep existing videos offline */ }
+    };
+    void refresh();
+    const timer = window.setInterval(refresh, 6 * 60 * 60 * 1000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [user.ageGroup]);
+
 
   const categories = [
     { id: "all", label: "🔥 Tout / Populaire", icon: Flame },
