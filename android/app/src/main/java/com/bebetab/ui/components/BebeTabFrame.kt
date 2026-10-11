@@ -29,6 +29,7 @@ fun BebeTabFrame(
     title:String,
     onBack:()->Unit,
     onSettings:()->Unit={},
+    subtitle:String?=null,
     content:@Composable ColumnScope.()->Unit
 ){
     val context=LocalContext.current
@@ -71,7 +72,7 @@ fun BebeTabFrame(
                     Column(Modifier.weight(1f)){
                         Text(title,color=Color.White,fontSize=20.sp,fontWeight=FontWeight.Black,maxLines=1)
                         Text(
-                            when(title){
+                            subtitle ?: when(title){
                                 "EXPLORER LE MONDE","EXPLORE THE WORLD"->if(lang=="fr")"Découvre les pays, les cultures, les animaux !" else "Discover countries, cultures and animals!"
                                 "FRANCE"->"Europe > France"
                                 "LIVE WORLD","ANIMAL LIVE","CAMÉRAS ANIMAUX"->if(lang=="fr")"Regarde le monde en direct !" else "Watch the world live!"
@@ -88,9 +89,15 @@ fun BebeTabFrame(
                     HeaderChip("⭐ $stars")
                     Spacer(Modifier.width(4.dp))
                     IconButton(
+                        // Un cadeau par jour : avant, chaque tap donnait +5 étoiles sans limite.
                         onClick={scope.launch{
-                            progress.addStars(5)
-                            snackbar.showSnackbar(if(lang=="fr")"🎁 Cadeau Fanti : +5 étoiles !" else "🎁 Fanti gift: +5 stars!")
+                            val granted=progress.claimDaily("gift",5)
+                            snackbar.showSnackbar(when{
+                                granted&&lang=="fr"->"🎁 Cadeau Fanti : +5 étoiles !"
+                                granted->"🎁 Fanti gift: +5 stars!"
+                                lang=="fr"->"🎁 Reviens demain pour un nouveau cadeau !"
+                                else->"🎁 Come back tomorrow for a new gift!"
+                            })
                         }},
                         modifier=Modifier.size(38.dp).background(Color.White,CircleShape)
                     ){Icon(Icons.Default.CardGiftcard,null,tint=Color(0xFFFF1744))}

@@ -18,7 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bebetab.data.*
 import com.bebetab.ui.components.BebeTabFrame
+import com.bebetab.ui.components.Claim
 import com.bebetab.ui.components.FantiMascot
+import com.bebetab.ui.components.rememberClaim
 import com.bebetab.ui.games.*
 import com.bebetab.ui.theme.*
 import kotlinx.coroutines.launch
@@ -36,24 +38,6 @@ private val learnColors = listOf(
 private val gameColors = listOf(
     Color(0xFF64C94C), Color(0xFF5866E8), Color(0xFF28A9D8), Color(0xFFFFA326),
     Color(0xFFB833D8), Color(0xFF17A8B8), Color(0xFFF39A17), Color(0xFF27A96B)
-)
-
-private data class MiniQuestion(val fr:String,val en:String,val choices:List<String>,val answer:String)
-
-private val miniQuestions = mapOf(
-    "science" to listOf(MiniQuestion("Quelle planète est la nôtre ?","Which planet is our home?",listOf("Mars","Terre","Lune"),"Terre")),
-    "world" to listOf(MiniQuestion("Sur quel continent se trouve la Côte d’Ivoire ?","Which continent is Côte d’Ivoire in?",listOf("Afrique","Europe","Asie"),"Afrique")),
-    "animals" to listOf(MiniQuestion("Quel animal a une longue trompe ?","Which animal has a long trunk?",listOf("Lion","Éléphant","Panda"),"Éléphant")),
-    "space" to listOf(MiniQuestion("Quelle étoile éclaire la Terre ?","Which star lights the Earth?",listOf("Soleil","Sirius","Lune"),"Soleil")),
-    "art" to listOf(MiniQuestion("Quelle couleur obtient-on avec bleu + jaune ?","What color do blue + yellow make?",listOf("Vert","Rouge","Rose"),"Vert")),
-    "languages" to listOf(MiniQuestion("Comment dit-on 'chat' en anglais ?","How do you say 'chat' in English?",listOf("Dog","Cat","Bird"),"Cat")),
-    "puzzle" to listOf(MiniQuestion("Quelle pièce complète la suite ? 🔴 🔵 🔴 ?","Which piece completes the pattern? 🔴 🔵 🔴 ?",listOf("🔵","🟢","🟡"),"🔵")),
-    "math" to listOf(MiniQuestion("Combien font 2 + 3 ?","What is 2 + 3?",listOf("4","5","6"),"5")),
-    "geography" to listOf(MiniQuestion("Quelle ville est en France ?","Which city is in France?",listOf("Paris","Tokyo","Nairobi"),"Paris")),
-    "animals-game" to listOf(MiniQuestion("Quel animal rugit ?","Which animal roars?",listOf("Lion","Vache","Lapin"),"Lion")),
-    "logic" to listOf(MiniQuestion("Quelle suite vient après 2, 4, 6 ?","What comes after 2, 4, 6?",listOf("7","8","9"),"8")),
-    "french" to listOf(MiniQuestion("Quel mot est un fruit ?","Which word is a fruit?",listOf("Pomme","Chaise","Livre"),"Pomme")),
-    "english" to listOf(MiniQuestion("Choose the English word for 'chien'.","Choose the English word for 'chien'.",listOf("Dog","Cat","Sun"),"Dog"))
 )
 
 @Composable
@@ -94,54 +78,19 @@ private fun ActivityTile(title:String, subtitle:String, emoji:String, color:Colo
 }
 
 @Composable
-private fun MiniQuiz(id:String, language:String, onStars:(Int)->Unit, onDone:()->Unit) {
-    val question=miniQuestions[id]?.firstOrNull()
-    if(question==null){ onDone(); return }
-    var answered by remember(id,language){mutableStateOf(false)}
-    var correct by remember(id,language){mutableStateOf(false)}
-    Column(Modifier.fillMaxSize().padding(18.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(14.dp)){
-        Text(if(language=="en")"Mini challenge" else "Mini-défi",fontSize=28.sp,fontWeight=FontWeight.Black,color=OutlineBlue)
-        Text(if(language=="en")question.en else question.fr,fontSize=23.sp,fontWeight=FontWeight.Bold,textAlign=TextAlign.Center)
-        Row(horizontalArrangement=Arrangement.spacedBy(12.dp)){
-            question.choices.forEach { choice ->
-                Button(enabled=!answered,onClick={
-                    answered=true
-                    correct=choice==question.answer || (id=="science"&&choice=="Terre") || (id=="world"&&choice=="Afrique") ||
-                        (id=="animals"&&choice=="Éléphant") || (id=="space"&&choice=="Soleil") ||
-                        (id=="art"&&choice=="Vert") || (id=="languages"&&choice=="Cat") ||
-                        (id=="puzzle"&&choice=="🔵") || (id=="math"&&choice=="5") || (id=="geography"&&choice=="Paris") ||
-                        (id=="animals-game"&&choice=="Lion") || (id=="logic"&&choice=="8") || (id=="french"&&choice=="Pomme") ||
-                        (id=="english"&&choice=="Dog")
-                    if(correct) onStars(2)
-                },modifier=Modifier.sizeIn(minWidth=120.dp,minHeight=68.dp),shape=RoundedCornerShape(20.dp)){
-                    Text(choice,fontSize=21.sp,fontWeight=FontWeight.Black)
-                }
-            }
-        }
-        if(answered){
-            Text(if(correct) (if(language=="en")"Great job! ⭐ +2" else "Bravo ! ⭐ +2") else (if(language=="en")"Try again!" else "Essaie encore !"),
-                fontSize=22.sp,fontWeight=FontWeight.Black)
-            Button(onClick=onDone){Text(if(language=="en")"Back to activities" else "Retour aux activités")}
-        }
-    }
-}
-
-@Composable
-private fun ActivityDetail(id:String, language:String, onBack:()->Unit, onStars:(Int)->Unit) {
+private fun ActivityDetail(id:String, language:String, onBack:()->Unit, claim:Claim) {
     when(id){
-        "letters" -> QuizLettres(onStars,language)
-        "numbers" -> QuizNombres(onStars,language)
-        "art" -> DrawGame(language, if(language=="en")"Art studio" else "Atelier d’art")
-        else -> MiniQuiz(id,language,onStars,onBack)
+        "letters" -> QuizLettres(language,claim,onBack)
+        "numbers" -> QuizNombres(language,claim,onBack)
+        "art" -> DrawGame(language,"art")
+        else -> MiniQuiz(id,language,claim,onBack)
     }
 }
 
 @Composable
 fun LearnActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
     val language=currentLanguage()
-    val context=LocalContext.current
-    val scope=rememberCoroutineScope()
-    val store=remember{ProgressStore(context)}
+    val claim=rememberClaim()
     var selected by remember{mutableStateOf<String?>(null)}
     BebeTabFrame(if(language=="en")"LEARN" else "APPRENDRE",onBack,onSettings){
         if(selected!=null){
@@ -149,7 +98,7 @@ fun LearnActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
                 OutlinedButton(onClick={selected=null}){Text(if(language=="en")"← All subjects" else "← Toutes les matières")}
                 Spacer(Modifier.height(8.dp))
                 Box(Modifier.fillMaxSize().weight(1f)){
-                    ActivityDetail(selected!!,language,{selected=null}){stars->scope.launch{store.addStars(stars)}}
+                    ActivityDetail(selected!!,language,{selected=null},claim)
                 }
             }
         }else{
@@ -174,9 +123,7 @@ fun LearnActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
 @Composable
 fun PlayActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
     val language=currentLanguage()
-    val context=LocalContext.current
-    val scope=rememberCoroutineScope()
-    val store=remember{ProgressStore(context)}
+    val claim=rememberClaim()
     var selected by remember{mutableStateOf<String?>(null)}
     BebeTabFrame(if(language=="en")"PLAY" else "JOUER",onBack,onSettings){
         if(selected!=null){
@@ -184,9 +131,9 @@ fun PlayActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
                 OutlinedButton(onClick={selected=null}){Text(if(language=="en")"← All games" else "← Tous les jeux")}
                 Spacer(Modifier.height(8.dp))
                 Box(Modifier.fillMaxSize().weight(1f)){
-                    val detailId=if(selected=="animals")"animals-game" else selected!!
-                    if(detailId=="memory") MemoryGame({stars->scope.launch{store.addStars(stars)}},language)
-                    else MiniQuiz(detailId,language,{stars->scope.launch{store.addStars(stars)}},{selected=null})
+                    val detailId=selected!!
+                    if(detailId=="memory") MemoryGame(claim,language)
+                    else MiniQuiz(detailId,language,claim,{selected=null})
                 }
             }
         }else{
@@ -252,29 +199,31 @@ fun MusicActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
 }
 
 @Composable
-fun DrawActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
+fun DrawActivityScreen(onBack:()->Unit,onSettings:()->Unit={},onNavigate:(String)->Unit={}) {
     val language=currentLanguage()
+    val en=language=="en"
     var mode by remember{mutableStateOf<String?>(null)}
-    BebeTabFrame(if(language=="en")"DRAW" else "DESSINER",onBack,onSettings){
+    BebeTabFrame(if(en)"DRAW" else "DESSINER",onBack,onSettings){
         if(mode!=null){
             Column(Modifier.fillMaxSize().padding(10.dp)){
-                OutlinedButton(onClick={mode=null}){Text(if(language=="en")"← All modes" else "← Tous les modes")}
+                OutlinedButton(onClick={mode=null}){Text(if(en)"← All modes" else "← Tous les modes")}
                 Spacer(Modifier.height(5.dp))
                 DrawGame(language,mode!!)
             }
         }else{
             Row(Modifier.fillMaxSize().padding(8.dp),horizontalArrangement=Arrangement.spacedBy(16.dp)){
-                FantiPane(if(language=="en")"Create with Fanti!" else "Crée avec Fanti !")
+                FantiPane(if(en)"Create with Fanti!" else "Crée avec Fanti !")
                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(12.dp)){
                     Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
-                        DrawMode(Modifier.weight(1f),"free",if(language=="en")"Free drawing" else "Dessin libre",DrawYellow){mode=if(language=="en")"Free drawing" else "Dessin libre"}
-                        DrawMode(Modifier.weight(1f),"color",if(language=="en")"Coloring" else "Coloriage",Color(0xFFFFB22E)){mode=if(language=="en")"Coloring" else "Coloriage"}
-                        DrawMode(Modifier.weight(1f),"letters",if(language=="en")"Trace letters" else "Tracer lettres",Color(0xFF3DA6EF)){mode=if(language=="en")"Trace letters" else "Tracer lettres"}
+                        DrawMode(Modifier.weight(1f),"free",if(en)"Free drawing" else "Dessin libre",DrawYellow){mode="free"}
+                        DrawMode(Modifier.weight(1f),"color",if(en)"Coloring" else "Coloriage",Color(0xFFFFB22E)){mode="color"}
+                        DrawMode(Modifier.weight(1f),"letters",if(en)"Trace letters" else "Tracer lettres",Color(0xFF3DA6EF)){mode="letters"}
                     }
                     Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
-                        DrawMode(Modifier.weight(1f),"numbers",if(language=="en")"Trace numbers" else "Tracer chiffres",Color(0xFFAA6CF2)){mode=if(language=="en")"Trace numbers" else "Tracer chiffres"}
-                        DrawMode(Modifier.weight(1f),"shapes",if(language=="en")"Shapes" else "Formes",Color(0xFF7CCB38)){mode=if(language=="en")"Shapes" else "Formes"}
-                        DrawMode(Modifier.weight(1f),"music",if(language=="en")"Create music" else "Créer musique",MusicPink){mode=if(language=="en")"Create music" else "Créer musique"}
+                        DrawMode(Modifier.weight(1f),"numbers",if(en)"Trace numbers" else "Tracer chiffres",Color(0xFFAA6CF2)){mode="numbers"}
+                        DrawMode(Modifier.weight(1f),"shapes",if(en)"Shapes" else "Formes",Color(0xFF7CCB38)){mode="shapes"}
+                        // « Créer musique » ouvre le clavier musical (et non une toile de dessin).
+                        DrawMode(Modifier.weight(1f),"music",if(en)"Create music" else "Créer musique",MusicPink){onNavigate("music")}
                     }
                 }
             }

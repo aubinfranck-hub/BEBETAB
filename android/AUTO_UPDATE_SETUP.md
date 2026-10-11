@@ -44,6 +44,9 @@ Dans GitHub, ajouter ces secrets Actions :
 - `BEBETAB_KEY_ALIAS`
 - `BEBETAB_KEY_PASSWORD`
 
+> Le build `release` n'est signé que si les 4 secrets sont définis **et** que le fichier de clé existe
+> (voir `app/build.gradle.kts`). Sans eux, il produit `app-release-unsigned.apk` et aucune release n'est publiée.
+
 Après cette configuration, le workflow :
 
 `Kotlin/Compose -> APK signé -> GitHub Release -> SHA-256 -> update.json`

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.bebetab.data.*
 import com.bebetab.ui.components.BebeTabFrame
 import com.bebetab.ui.components.FantiMascot
+import com.bebetab.ui.components.rememberClaim
 import com.bebetab.ui.theme.*
 import com.bebetab.ui.screens.WorldMapIllustration
 import com.bebetab.ui.screens.FranceIllustration
@@ -32,12 +33,12 @@ private fun language(): String {
 }
 
 @Composable
-fun ReferenceScreen(route:String,onBack:()->Unit,onSettings:()->Unit={}) {
+fun ReferenceScreen(route:String,onBack:()->Unit,onSettings:()->Unit={},onNavigate:(String)->Unit={}) {
     when(route) {
-        "world" -> WorldScreen(onBack,onSettings)
+        "world" -> WorldScreen(onBack,onSettings,onNavigate)
         "france" -> {
             val lang=language()
-            CountryScreen(ContentData.countries.first{it.id=="france"},lang,onBack,onSettings)
+            CountryScreen(ContentData.countries.first{it.id=="france"},lang,onBack,onSettings,onNavigate)
         }
         "live" -> LiveScreen(onBack,onSettings)
         "rewards" -> RewardsScreen(onBack,onSettings)
@@ -51,12 +52,12 @@ private fun SkyBackdrop(content:@Composable ColumnScope.()->Unit) {
 }
 
 @Composable
-private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
+private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit,onNavigate:(String)->Unit) {
     var selected by remember{mutableStateOf<String?>(null)}
     var selectedCategory by remember{mutableStateOf<String?>(null)}
     val lang=language()
     val country=ContentData.countries.firstOrNull{it.id==selected}
-    if(country!=null){CountryScreen(country,lang,onBack,onSettings);return}
+    if(country!=null){CountryScreen(country,lang,{selected=null},onSettings,onNavigate);return}
 
     val categories=if(lang=="en")
         listOf("Cities","Animals","Cultures","Monuments","Nature","Oceans","Space","Jobs","Cuisine","Languages","History")
@@ -83,7 +84,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
                                 Modifier.padding(12.dp),fontWeight=FontWeight.ExtraBold,fontSize=13.sp,textAlign=TextAlign.Center)
                         }
                         Row(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(start=8.dp,end=8.dp,bottom=8.dp),horizontalArrangement=Arrangement.spacedBy(5.dp)){
-                            categories.take(6).forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),{selectedCategory=cat})}
+                            categories.take(6).forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),onClick={selectedCategory=cat})}
                         }
                     }
                 }
@@ -104,7 +105,7 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
                     Text(if(lang=="en")"EXPLORE" else "EXPLORER",fontSize=14.sp,fontWeight=FontWeight.Black,color=OutlineBlue)
                     categories.drop(6).chunked(2).forEach{pair->
                         Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)){
-                            pair.forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),{selectedCategory=cat})}
+                            pair.forEach{cat->SmallWhiteChip(cat,Modifier.weight(1f),onClick={selectedCategory=cat})}
                         }
                     }
                 }
@@ -114,13 +115,13 @@ private fun WorldScreen(onBack:()->Unit,onSettings:()->Unit) {
 }
 
 @Composable
-private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onSettings:()->Unit){
-    val context=LocalContext.current
+private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onSettings:()->Unit,onNavigate:(String)->Unit){
     val scope=rememberCoroutineScope()
-    val store=remember{ProgressStore(context)}
-    var awarded by remember(country.id){mutableStateOf(false)}
+    val claim=rememberClaim()
+    // null = pas encore réclamé ; true = étoile donnée ; false = déjà gagnée aujourd'hui
+    var discovered by remember(country.id){mutableStateOf<Boolean?>(null)}
     var action by remember{mutableStateOf<String?>(null)}
-    BebeTabFrame(country.name.text(lang).uppercase(),onBack,onSettings){
+    BebeTabFrame(country.name.text(lang).uppercase(),onBack,onSettings,subtitle=country.continent.text(lang)+" > "+country.name.text(lang)){
         Column(Modifier.fillMaxSize().padding(horizontal=8.dp, vertical=4.dp), verticalArrangement=Arrangement.spacedBy(5.dp)){
             Text(
                 if(lang=="en") "World > "+country.continent.text(lang)+" > "+country.name.text(lang)
@@ -151,14 +152,15 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
                 }
                 Surface(shape=RoundedCornerShape(16.dp),color=Color.White,shadowElevation=2.dp){Text(country.fact.text(lang),Modifier.padding(9.dp),fontSize=10.sp,fontWeight=FontWeight.Bold)}
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)){
+                    // (libellé, écran vers lequel mener l'enfant ; null = contenu pas encore disponible)
                     listOf(
-                        if(lang=="en")"Videos" else "Vidéos",
-                        if(lang=="en")"Live" else "Live",
-                        if(lang=="en")"Games" else "Jeux",
-                        if(lang=="en")"Quiz" else "Quiz",
-                        if(lang=="en")"Images" else "Images",
-                        if(lang=="en")"Music" else "Musique"
-                    ).forEach{label->SmallWhiteChip(label,Modifier.weight(1f)){action=label}}
+                        (if(lang=="en")"Videos" else "Vidéos") to null,
+                        "Live" to "live",
+                        (if(lang=="en")"Games" else "Jeux") to "play",
+                        "Quiz" to "learn",
+                        "Images" to null,
+                        (if(lang=="en")"Music" else "Musique") to "music"
+                    ).forEach{(label,route)->SmallWhiteChip(label,Modifier.weight(1f)){if(route!=null) onNavigate(route) else action=label}}
                 }
                 if(action!=null){
                     Surface(Modifier.fillMaxWidth(),shape=RoundedCornerShape(14.dp),color=Color(0xFFEAF7FF),shadowElevation=1.dp){
@@ -169,7 +171,11 @@ private fun CountryScreen(country:CountryContent,lang:String,onBack:()->Unit,onS
                         )
                     }
                 }
-                if(!awarded)Button(onClick={awarded=true;scope.launch{store.addStars(1)}},modifier=Modifier.fillMaxWidth().height(40.dp),shape=RoundedCornerShape(18.dp)){Text(if(lang=="en")"I discovered it! +1 ⭐" else "J’ai découvert ! +1 ⭐")}
+                when(discovered){
+                    null->Button(onClick={scope.launch{discovered=claim("country:${country.id}",1)}},modifier=Modifier.fillMaxWidth().height(40.dp),shape=RoundedCornerShape(18.dp)){Text(if(lang=="en")"I discovered it! +1 ⭐" else "J’ai découvert ! +1 ⭐")}
+                    true->Text(if(lang=="en")"Great job! ⭐ +1" else "Bravo ! ⭐ +1",fontWeight=FontWeight.ExtraBold,color=OutlineBlue)
+                    false->Text(if(lang=="en")"You already discovered this today!" else "Tu as déjà découvert ce pays aujourd’hui !",fontWeight=FontWeight.Bold,color=OutlineBlue,fontSize=11.sp)
+                }
             }
             }
         }
@@ -189,21 +195,16 @@ private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
     var pendingUrl by remember{mutableStateOf<String?>(null)}
     var code by remember{mutableStateOf("")}
     var filter by remember{mutableStateOf("all")}
-    val filters=if(lang=="en") listOf("All","Cities","Nature","Animals","Monuments","Beaches","Mountains")
-                 else listOf("Tous","Villes","Nature","Animaux","Monuments","Plages","Montagnes")
-    val filtered=when(filter){
-        "animals"->AnimalLiveData.cams.filter{it.categories.contains("animals")}
-        "nature"->AnimalLiveData.cams.filter{it.categories.contains("nature")}
-        "beaches"->AnimalLiveData.cams.filter{it.categories.contains("beaches")}
-        else->AnimalLiveData.cams
-    }
-    BebeTabFrame(if(lang=="en")"ANIMAL LIVE" else "CAMÉRAS ANIMAUX",onBack,onSettings){
+    // Chaque filtre porte sa propre clé : plus de liste de clés parallèle qui peut se désynchroniser.
+    val filters=if(lang=="en") listOf("all" to "All","cities" to "Cities","nature" to "Nature","animals" to "Animals","monuments" to "Monuments","beaches" to "Beaches","mountains" to "Mountains")
+                 else listOf("all" to "Tous","cities" to "Villes","nature" to "Nature","animals" to "Animaux","monuments" to "Monuments","beaches" to "Plages","mountains" to "Montagnes")
+    val filtered=if(filter=="all") AnimalLiveData.cams else AnimalLiveData.cams.filter{it.categories.contains(filter)}
+    BebeTabFrame("LIVE WORLD",onBack,onSettings){
         Column(Modifier.fillMaxSize().padding(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
             Text(if(lang=="en")"Real animals • child-safe external live cameras" else "De vrais animaux • accès externe protégé pour les enfants",color=OutlineBlue,fontWeight=FontWeight.ExtraBold)
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)){
-                filters.forEachIndexed{index,label->
-                    val key=listOf("cities","nature","animals","monuments","beaches","mountains")[index]
-                    SmallWhiteChip(label,Modifier.weight(1f)){filter=key}
+                filters.forEach{(key,label)->
+                    SmallWhiteChip(label,Modifier.weight(1f),selected=filter==key){filter=key}
                 }
             }
             if(filtered.isEmpty()){
@@ -291,11 +292,11 @@ private fun RewardsScreen(onBack:()->Unit,onSettings:()->Unit){
 }
 
 @Composable
-private fun SmallWhiteChip(text:String,modifier:Modifier=Modifier,onClick:(()->Unit)?=null){
+private fun SmallWhiteChip(text:String,modifier:Modifier=Modifier,selected:Boolean=false,onClick:(()->Unit)?=null){
     Surface(
         onClick=onClick?:{},
         modifier=modifier.height(44.dp),
-        shape=RoundedCornerShape(14.dp),color=Color.White,shadowElevation=2.dp
+        shape=RoundedCornerShape(14.dp),color=if(selected)Yellow else Color.White,shadowElevation=2.dp
     ){
         Box(Modifier.fillMaxSize(),contentAlignment=Alignment.Center){Text(text,fontSize=10.sp,fontWeight=FontWeight.ExtraBold,textAlign=TextAlign.Center)}
     }

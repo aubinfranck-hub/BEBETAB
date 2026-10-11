@@ -51,7 +51,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
     val language by parentSettings.language.collectAsState(initial = "fr")
     val childName by parentSettings.childName.collectAsState(initial = "Kofi")
     val scope = rememberCoroutineScope()
-    val stars by progressStore.stars.collectAsState(initial = 2450)
+    val stars by progressStore.stars.collectAsState(initial = 0)
     val level = stars / 50 + 1
     val progress = (stars % 50) / 50f
 
@@ -76,19 +76,6 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
             )
             .padding(horizontal = 26.dp, vertical = 18.dp)
     ) {
-        androidx.compose.material3.Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color.Transparent
-        ) {
-            Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = {
-                    val next = if (language == "fr") "en" else "fr"
-                    scope.launch { parentSettings.setLanguage(next) }
-                }) {
-                    Text(if (language == "fr") "FR • EN" else "EN • FR", color = OutlineBlue, fontWeight = FontWeight.Black, fontSize = 11.sp)
-                }
-            }
-        }
         FloatingDecor(Modifier.fillMaxSize())
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Surface(

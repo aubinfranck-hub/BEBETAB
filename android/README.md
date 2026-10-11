@@ -17,7 +17,13 @@ Application Android native Kotlin + Jetpack Compose Material 3 pour enfants de 2
 Accueil, Explorer le monde, France, Live World, Apprendre, Jouer, Histoires, Musique, Dessiner, Récompenses et Espace parents.
 
 ## Progression
-Quiz : +2 étoiles. Memory : +1 par paire et +5 à la fin. Niveau : étoiles / 50 + 1. Médailles : 10, 50, 100 et 250 étoiles. Les données sont persistées localement.
+L'enfant commence à 0 étoile. Niveau : étoiles / 50 + 1. Médailles : 10, 50, 100 et 250 étoiles. Les données sont persistées localement.
+
+Gains d'étoiles (chacun une seule fois par jour, pour éviter de les « farmer ») :
+- Quiz : +2 étoiles à la première bonne réponse (+1 après une erreur), une fois par question et par jour ;
+- Memory : +1 par paire d'animal et +5 à la fin de la partie ;
+- Cadeau de Fanti (bouton rouge de la barre) : +5 étoiles ;
+- « J'ai découvert ! » d'un pays : +1 étoile par pays.
 
 ## Contrôle parental
 Langue FR/EN, nom de l'enfant, limite quotidienne configurable, verrouillage du temps d'écran et réinitialisation confirmée des étoiles.
