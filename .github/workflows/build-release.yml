@@ -71,9 +71,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version_name }}
         run: |
-          gh release create "v$VERSION" bebetab-release.apk \
-            --title "BébéTab v$VERSION" \
-            --notes "Mise à jour automatique de BébéTab."
+          # Idempotent : relancer le workflow pour une version déjà publiée remplace l'APK au lieu d'échouer.
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release upload "v$VERSION" bebetab-release.apk --clobber
+          else
+            gh release create "v$VERSION" bebetab-release.apk \
+              --title "BébéTab v$VERSION" \
+              --notes "Mise à jour automatique de BébéTab."
+          fi
 
       - name: Calculate SHA-256
         if: steps.signing.outputs.signed == 'true'

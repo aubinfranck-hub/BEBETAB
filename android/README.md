@@ -31,10 +31,11 @@ Langue FR/EN, nom de l'enfant, limite quotidienne configurable, verrouillage du 
 ## Build
 Ouvrir le dossier android dans Android Studio puis synchroniser Gradle.
 
-Commande :
+Commandes (le wrapper Gradle 8.10 est fourni, comme dans la CI) :
 ```
 cd android
-gradle assembleDebug
+./gradlew testDebugUnitTest   # tests unitaires (règles d'étoiles, code parent, notes, contenu des quiz)
+./gradlew assembleDebug       # APK debug
 ```
 
 APK debug :
