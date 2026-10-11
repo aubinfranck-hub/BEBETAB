@@ -25,6 +25,18 @@ data class UpdateInfo(
     val notesEn: String = ""
 )
 
+/**
+ * L'APK ne peut être téléchargé que depuis GitHub (https). Le manifeste vient du même dépôt que l'APK :
+ * sans cette vérification, un manifeste modifié pourrait pointer vers n'importe quel serveur.
+ */
+internal fun isTrustedApkUrl(url: String): Boolean {
+    val uri = try { java.net.URI(url) } catch (e: Exception) { return false }
+    if (uri.scheme != "https" || uri.userInfo != null) return false
+    val host = uri.host?.lowercase() ?: return false
+    return host == "github.com" || host.endsWith(".github.com") ||
+        host == "githubusercontent.com" || host.endsWith(".githubusercontent.com")
+}
+
 sealed interface UpdateResult {
     data class Available(val info: UpdateInfo) : UpdateResult
     data object UpToDate : UpdateResult
@@ -50,8 +62,9 @@ object UpdateManager {
                 notesEn = json.optString("notesEn")
             )
             val current = context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode
-            if (info.versionCode > current) UpdateResult.Available(info)
-            else UpdateResult.UpToDate
+            if (info.versionCode <= current) UpdateResult.UpToDate
+            else if (!isTrustedApkUrl(info.apkUrl)) UpdateResult.Error("Untrusted APK URL")
+            else UpdateResult.Available(info)
         } catch (e: Exception) {
             UpdateResult.Error(e.message ?: "Update check failed")
         }

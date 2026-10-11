@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import com.bebetab.data.ParentSettingsStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -23,6 +24,9 @@ fun AutoUpdateOverlay() {
     var downloading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var checked by remember { mutableStateOf(false) }
+    var dismissedVersion by remember { mutableStateOf<Int?>(null) }
+    val language by remember { ParentSettingsStore(context) }.language.collectAsState("fr")
+    val en = language == "en"
 
     fun checkNow() {
         scope.launch {
@@ -67,6 +71,8 @@ fun AutoUpdateOverlay() {
     }
 
     val update = info ?: return
+    // « Plus tard » : l'enfant n'est pas bloqué par une mise à jour facultative.
+    if (!update.mandatory && dismissedVersion == update.versionCode) return
     Box(
         Modifier.fillMaxSize().background(Color.Black.copy(alpha = .30f)),
         contentAlignment = Alignment.Center
@@ -82,19 +88,20 @@ fun AutoUpdateOverlay() {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text("🚀", fontSize = 42.sp)
-                Text("Nouvelle version de BébéTab", style = MaterialTheme.typography.headlineSmall)
+                Text(if (en) "New BébéTab version" else "Nouvelle version de BébéTab", style = MaterialTheme.typography.headlineSmall)
                 Text("Version " + update.versionName, color = Color(0xFF1E88E5))
-                if (update.notesFr.isNotBlank()) {
-                    Text(update.notesFr, style = MaterialTheme.typography.bodyMedium)
+                val notes = if (en && update.notesEn.isNotBlank()) update.notesEn else update.notesFr
+                if (notes.isNotBlank()) {
+                    Text(notes, style = MaterialTheme.typography.bodyMedium)
                 }
 
                 when {
                     downloading -> {
                         CircularProgressIndicator()
-                        Text("Téléchargement automatique…")
+                        Text(if (en) "Downloading…" else "Téléchargement automatique…")
                     }
                     downloaded != null -> {
-                        Text("La mise à jour est prête.")
+                        Text(if (en) "The update is ready." else "La mise à jour est prête.")
                         Button(onClick = {
                             val file = downloaded ?: return@Button
                             if (!UpdateManager.canInstallUnknownSources(context)) {
@@ -103,7 +110,7 @@ fun AutoUpdateOverlay() {
                                 UpdateManager.install(context, file)
                             }
                         }) {
-                            Text("Installer la mise à jour")
+                            Text(if (en) "Install update" else "Installer la mise à jour")
                         }
                     }
                     error != null -> {
@@ -121,7 +128,12 @@ fun AutoUpdateOverlay() {
                                     downloading = false
                                 }
                             }
-                        }) { Text("Réessayer") }
+                        }) { Text(if (en) "Retry" else "Réessayer") }
+                    }
+                }
+                if (!update.mandatory) {
+                    TextButton(onClick = { dismissedVersion = update.versionCode }) {
+                        Text(if (en) "Later" else "Plus tard")
                     }
                 }
             }
