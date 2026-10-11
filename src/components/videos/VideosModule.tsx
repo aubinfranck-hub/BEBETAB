@@ -146,8 +146,8 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
 
   const handleAddVideoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Parental moderation is not yet implemented; do not allow arbitrary child-facing URLs.
-    return;
+    // Require parental moderation before any custom video can be published.
+    if (true) return;
     if (!newVideoUrl.trim() || !newVideoTitle.trim()) return;
 
     // Extract YouTube ID
@@ -234,14 +234,12 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
           </div>
 
           <button
-            onClick={() => {
-              soundFx.playPop();
-              setShowAddModal(true);
-            }}
+            disabled
+            title="Ajout de vidéos suspendu en attendant la validation parentale"
             className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-lg flex items-center gap-2 active:scale-95 transition-all"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Ajouter une Vidéo ➕</span>
+            <span>Ajout parental bientôt disponible</span>
           </button>
         </div>
       </div>
