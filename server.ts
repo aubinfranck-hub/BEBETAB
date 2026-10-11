@@ -1,4 +1,5 @@
 import express from "express";
+import { approvedChannels, discoverChannelVideos } from "./src/server/channelDiscovery";
 import path from "path";
 import dotenv from "dotenv";
 import { createServer as createHttpServer } from "http";
@@ -128,6 +129,11 @@ wss.on("connection", async (clientWs) => {
 });
 
 // --- API ROUTES ---
+app.get("/api/education/channels", (_req, res) => res.json({ channels: approvedChannels() }));
+app.get("/api/education/videos", async (_req, res) => {
+  try { res.setHeader("Cache-Control", "public, max-age=900"); res.json({ videos: await discoverChannelVideos() }); }
+  catch { res.status(503).json({ videos: [], error: "Catalogue temporairement indisponible" }); }
+});
 
 // --- AD BROADCAST LIVE SYSTEM ---
 interface AdBroadcast {
