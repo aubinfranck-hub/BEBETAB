@@ -50,7 +50,6 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
     val parentSettings = remember { com.bebetab.data.ParentSettingsStore(context) }
     val language by parentSettings.language.collectAsState(initial = "fr")
     val childName by parentSettings.childName.collectAsState(initial = "Kofi")
-    val childName by parentSettings.childName.collectAsState(initial = "Kofi")
     val scope = rememberCoroutineScope()
     val stars by progressStore.stars.collectAsState(initial = 2450)
     val level = stars / 50 + 1

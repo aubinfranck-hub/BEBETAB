@@ -9,9 +9,17 @@ android {
     val releaseKeyAlias = System.getenv("BEBETAB_KEY_ALIAS")
     val releaseKeyPassword = System.getenv("BEBETAB_KEY_PASSWORD")
 
+    // La signature n'est active que si les 4 variables sont définies ET que le fichier de clé existe
+    // (le workflow définit toujours le chemin, même quand le secret est absent).
+    val hasReleaseSigning = !releaseKeystore.isNullOrBlank() &&
+        !releaseStorePassword.isNullOrBlank() &&
+        !releaseKeyAlias.isNullOrBlank() &&
+        !releaseKeyPassword.isNullOrBlank() &&
+        file(releaseKeystore).exists()
+
     signingConfigs {
         create("release") {
-            if (!releaseKeystore.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() && !releaseKeyAlias.isNullOrBlank() && !releaseKeyPassword.isNullOrBlank()) {
+            if (hasReleaseSigning) {
                 storeFile = file(releaseKeystore)
                 storePassword = releaseStorePassword
                 keyAlias = releaseKeyAlias
@@ -35,6 +43,8 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
+            // Sans cette ligne l'APK de release sort toujours « unsigned », même avec les secrets configurés.
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
         }
     }
 }

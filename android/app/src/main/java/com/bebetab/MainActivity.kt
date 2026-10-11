@@ -84,7 +84,7 @@ private fun BebeTabNavigation() {
             ScreenTimeLock(
                 minutes = minutes,
                 onUnlock = { scope.launch { settings.resetUsage(); locked = false } },
-                onClose = { finishApp(nav) }
+                onClose = { finishApp(context) }
             )
         }
     }
@@ -130,5 +130,13 @@ private fun ScreenTimeLock(
 }
 
 private fun finishApp(context: android.content.Context) {
-    (context as? Activity)?.finish()
+    // LocalContext peut être enveloppé (ContextWrapper) : on remonte jusqu'à l'Activity.
+    var current: android.content.Context? = context
+    while (current is android.content.ContextWrapper) {
+        if (current is Activity) {
+            current.finish()
+            return
+        }
+        current = current.baseContext
+    }
 }
