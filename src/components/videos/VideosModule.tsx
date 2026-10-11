@@ -54,164 +54,8 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
   const [completedQuizzes, setCompletedQuizzes] = useState<Record<string, { score: number; total: number }>>({});
   const [autoTriggerEnabled, setAutoTriggerEnabled] = useState<boolean>(true);
 
-  const initialVideos: (KidsVideo & { views: string; rating: number; tag: string; fantiIntro: string })[] = [
-    {
-      id: "v1",
-      youtubeId: "X23X4S6220s",
-      title: "Mondes des Titounis - Ah les Crocodiles & 30 min de Comptines",
-      category: "comptines",
-      duration: "30 min",
-      thumbnail: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "1.2M",
-      rating: 4.9,
-      tag: "🔥 Top #1 Comptines",
-      fantiIntro: "Chantons ensemble la célèbre chanson des crocodiles avec les Titounis !"
-    },
-    {
-      id: "v2",
-      youtubeId: "6H1D6X_R3yM",
-      title: "Une Souris Verte & les Plus Belles Comptines Mignonnes",
-      category: "comptines",
-      duration: "20 min",
-      thumbnail: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "980K",
-      rating: 4.9,
-      tag: "🎵 Chansons Douces",
-      fantiIntro: "Une petite souris verte qui courrait dans l'herbe ! Viens chanter avec Fanti !"
-    },
-    {
-      id: "v3",
-      youtubeId: "Y7d0S30c23s",
-      title: "L'Alphabet ABC en Chanson avec les Animaux Rigolos",
-      category: "apprentissage",
-      duration: "10 min",
-      thumbnail: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "850K",
-      rating: 4.8,
-      tag: "🔤 ABC Facile",
-      fantiIntro: "Apprends toutes les lettres de A à Z en t'amusant avec les animaux !"
-    },
-    {
-      id: "v4",
-      youtubeId: "mJ943s7K2_k",
-      title: "Apprendre à Compter de 1 à 20 en Chanson",
-      category: "apprentissage",
-      duration: "12 min",
-      thumbnail: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "720K",
-      rating: 4.9,
-      tag: "🔢 Chiffres & Fruits",
-      fantiIntro: "Compte avec moi 1, 2, 3... jusqu'à 20 avec de délicieux fruits !"
-    },
-    {
-      id: "v5",
-      youtubeId: "9I248590132",
-      title: "Voyage dans l'Espace : La Terre, la Lune et les Planètes",
-      category: "sciences",
-      duration: "14 min",
-      thumbnail: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "5-7",
-      views: "920K",
-      rating: 5.0,
-      tag: "🚀 Top Découverte",
-      fantiIntro: "Embarque dans notre fusée spatiale pour explorer Saturne et les étoiles !"
-    },
-    {
-      id: "v6",
-      youtubeId: "34928420942",
-      title: "Le Monde des Dinosaures : T-Rex, Diplodocus et Tricératops",
-      category: "sciences",
-      duration: "18 min",
-      thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "5-7",
-      views: "1.5M",
-      rating: 4.9,
-      tag: "🦕 Incontournable",
-      fantiIntro: "Découvre comment vivaient les géants de la préhistoire !"
-    },
-    {
-      id: "v7",
-      youtubeId: "f3Q5L03m8I8",
-      title: "Les Animaux de la Savane : Lions, Girafes et Éléphants",
-      category: "animaux" as any,
-      duration: "15 min",
-      thumbnail: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "1.1M",
-      rating: 5.0,
-      tag: "🦁 Savane Africaine",
-      fantiIntro: "Viens visiter mon pays d'origine ! Voici la grande savane africaine !"
-    },
-    {
-      id: "v8",
-      youtubeId: "qT7d76B2d2s",
-      title: "Découverte de l'Océan : Dauphins, Tortues et Récifs de Corail",
-      category: "animaux" as any,
-      duration: "16 min",
-      thumbnail: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "5-7",
-      views: "890K",
-      rating: 4.8,
-      tag: "🐬 Monde Sous-Marin",
-      fantiIntro: "Plonge avec les dauphins au milieu du récif de corail féérique !"
-    },
-    {
-      id: "v9",
-      youtubeId: "m3Wf0eS_H0s",
-      title: "L'Âne Trotro : Épisodes rigolos et histoires du soir",
-      category: "dessins_animes",
-      duration: "25 min",
-      thumbnail: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "1.8M",
-      rating: 4.9,
-      tag: "🐴 Dessin Animé",
-      fantiIntro: "Trotro est trop trop rigolo ! Regarde ses bêtises et ses rires !"
-    },
-    {
-      id: "v10",
-      youtubeId: "e5N8Y49Z6Xs",
-      title: "Petit Ours Brun : Les Aventures de l'Enfance",
-      category: "dessins_animes",
-      duration: "22 min",
-      thumbnail: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "2.1M",
-      rating: 5.0,
-      tag: "🐻 Petit Ours Brun",
-      fantiIntro: "Aujourd'hui Petit Ours Brun apprend plein de choses nouvelles à l'école !"
-    },
-    {
-      id: "v11",
-      youtubeId: "dQw4w9WgXcQ",
-      title: "Dessiner des Animaux Faciles : L'Éléphant, le Lion et le Chat",
-      category: "art",
-      duration: "12 min",
-      thumbnail: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "5-7",
-      views: "430K",
-      rating: 4.7,
-      tag: "🎨 Dessin Créatif",
-      fantiIntro: "Prends tes feutres et tes crayons ! Dessine Fanti l'éléphant pas à pas !"
-    },
-    {
-      id: "v12",
-      youtubeId: "1-J8Z28i_Yk",
-      title: "Comptines d'Afrique : Rythmes Joyeux & Danse des Animaux",
-      category: "comptines",
-      duration: "28 min",
-      thumbnail: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80",
-      ageGroup: "2-4",
-      views: "640K",
-      rating: 4.9,
-      tag: "🎵 Musique du Monde",
-      fantiIntro: "Tapons des mains au rythme des djembe et des musiques ensoleillées !"
-    }
-  ];
+  // Never display fabricated or unreviewed YouTube links to children.
+  const initialVideos: (KidsVideo & { views: string; rating: number; tag: string; fantiIntro: string })[] = [];
 
   const [videosList, setVideosList] = useState(initialVideos);
   useEffect(() => {
@@ -228,7 +72,7 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
           views: "Nouveau", rating: 5, tag: "Nouvelle vidéo",
           fantiIntro: "Découvrons cette nouvelle vidéo éducative !"
         }));
-        setVideosList(previous => [...fresh, ...previous.filter(v => !fresh.some((n: any) => n.id === v.id))]);
+        setVideosList(fresh);
       } catch { /* Keep existing videos offline */ }
     };
     void refresh();
@@ -257,7 +101,7 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
   };
 
   const handleFinishVideo = (vid: typeof selectedVideo) => {
-    if (!vid) return;
+    if (!vid || watchedVideos.includes(vid.id)) return;
     soundFx.playVictory();
     confetti({ particleCount: 70, spread: 60 });
 
@@ -302,6 +146,8 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
 
   const handleAddVideoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Parental moderation is not yet implemented; do not allow arbitrary child-facing URLs.
+    return;
     if (!newVideoUrl.trim() || !newVideoTitle.trim()) return;
 
     // Extract YouTube ID
