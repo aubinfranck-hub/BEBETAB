@@ -407,10 +407,11 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
 
               <button
                 onClick={() => handleFinishVideo(selectedVideo)}
+                disabled={watchedVideos.includes(selectedVideo.id)}
                 className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-sm rounded-2xl shadow-xl border border-emerald-300 flex items-center gap-2 active:scale-95 transition-all animate-bounce"
               >
                 <CheckCircle2 className="w-5 h-5" />
-                <span>J'ai terminé ! 🎓 (+15 XP & Déclencher Quiz)</span>
+                <span>{watchedVideos.includes(selectedVideo.id) ? 'Déjà récompensé ✓' : 'J’ai terminé ! 🎓 (+15 XP)'}</span>
               </button>
             </div>
           </div>
