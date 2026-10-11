@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.bebetab.data.*
 import com.bebetab.ui.components.BebeTabFrame
 import com.bebetab.ui.components.FantiMascot
+import com.bebetab.ui.components.ParentCodeEntry
 import com.bebetab.ui.components.rememberClaim
 import com.bebetab.ui.theme.*
 import com.bebetab.ui.screens.WorldMapIllustration
@@ -193,7 +194,6 @@ private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
     val lang=language()
     val uriHandler=LocalUriHandler.current
     var pendingUrl by remember{mutableStateOf<String?>(null)}
-    var code by remember{mutableStateOf("")}
     var filter by remember{mutableStateOf("all")}
     // Chaque filtre porte sa propre clé : plus de liste de clés parallèle qui peut se désynchroniser.
     val filters=if(lang=="en") listOf("all" to "All","cities" to "Cities","nature" to "Nature","animals" to "Animals","monuments" to "Monuments","beaches" to "Beaches","mountains" to "Mountains")
@@ -215,7 +215,7 @@ private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
                 Column(Modifier.fillMaxWidth().weight(1f),verticalArrangement=Arrangement.spacedBy(8.dp)){
                     filtered.chunked(3).forEach{row->
                         Row(Modifier.fillMaxWidth().weight(1f),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-                            row.forEach{cam->LiveAnimalCard(cam,lang,Modifier.weight(1f)){pendingUrl=cam.youtubeUrl?:cam.officialUrl;code=""}}
+                            row.forEach{cam->LiveAnimalCard(cam,lang,Modifier.weight(1f)){pendingUrl=cam.youtubeUrl?:cam.officialUrl}}
                             repeat(3-row.size){Spacer(Modifier.weight(1f))}
                         }
                     }
@@ -229,13 +229,18 @@ private fun LiveScreen(onBack:()->Unit,onSettings:()->Unit){
             title={Text(if(lang=="en")"Parent approval" else "Autorisation parentale")},
             text={
                 Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
-                    Text(if(lang=="en")"This link leaves BébéTab. Enter the parent code to continue." else "Ce lien ouvre un contenu externe. Un parent doit entrer le code pour continuer.")
-                    OutlinedTextField(value=code,onValueChange={code=it.filter(Char::isDigit).take(4)},label={Text(if(lang=="en")"Parent code" else "Code parent")})
+                    Text(
+                        if(lang=="en")"This link leaves BébéTab and opens an external website (for example YouTube) that may show suggestions or comments. A parent must enter the code to continue."
+                        else "Ce lien quitte BébéTab et ouvre un site externe (par exemple YouTube) qui peut afficher des suggestions ou des commentaires. Un parent doit entrer le code pour continuer."
+                    )
+                    ParentCodeEntry(lang,if(lang=="en")"Open" else "Ouvrir"){
+                        val url=pendingUrl
+                        pendingUrl=null
+                        if(url!=null) uriHandler.openUri(url)
+                    }
                 }
             },
-            confirmButton={
-                Button(onClick={if(code=="2580"){val url=pendingUrl!!;pendingUrl=null;uriHandler.openUri(url)}}){Text(if(lang=="en")"Open" else "Ouvrir")}
-            },
+            confirmButton={},
             dismissButton={TextButton(onClick={pendingUrl=null}){Text(if(lang=="en")"Cancel" else "Annuler")}}
         )
     }

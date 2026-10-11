@@ -13,6 +13,11 @@ object BebeAudioEngine {
     private var clickTone: ToneGenerator? = null
 
     fun startMusic() {
+        // La musique existe déjà (mise en pause) : on reprend simplement la lecture.
+        music?.let {
+            try { it.play() } catch (e: IllegalStateException) {}
+            return
+        }
         if (musicJob?.isActive == true) return
         val sampleRate = 22050
         val durationSec = 16
@@ -64,6 +69,11 @@ object BebeAudioEngine {
         musicJob = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).launch {
             awaitCancellation()
         }
+    }
+
+    /** Met la musique en pause (application en arrière-plan ou musique coupée par le parent). */
+    fun pauseMusic() {
+        try { music?.pause() } catch (e: IllegalStateException) {}
     }
 
     fun stopMusic() {
