@@ -81,7 +81,65 @@ export const AdminAdDashboard: React.FC<AdminAdDashboardProps> = ({ onClose }) =
   const [type, setType] = useState<"video" | "image">(PRESET_ADS[0].type);
   const [url, setUrl] = useState(PRESET_ADS[0].url);
   const [duration, setDuration] = useState(PRESET_ADS[0].duration);
-  const [locked, setLocked] = useState(true);
+  // Par défaut l'annonce ne bloque pas l'écran ; si on active le verrou, il ne dure que le temps de l'annonce.
+  const [locked, setLocked] = useState(false);
+
+  // Authentification administrateur : le jeton vit uniquement dans cet onglet (sessionStorage).
+  const [authed, setAuthed] = useState(false);
+  const [tokenInput, setTokenInput] = useState("");
+  const [checkingToken, setCheckingToken] = useState(false);
+  const tokenRef = React.useRef<string>("");
+
+  const authHeaders = (): Record<string, string> => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${tokenRef.current}`,
+  });
+
+  const logout = (text?: string) => {
+    tokenRef.current = "";
+    try {
+      sessionStorage.removeItem("bebe_tab_admin_token");
+    } catch (e) {}
+    setAuthed(false);
+    if (text) setMessage({ text, type: "error" });
+  };
+
+  const verifyToken = async (candidate: string) => {
+    setCheckingToken(true);
+    try {
+      const res = await fetch("/api/ads/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${candidate}` },
+        body: "{}",
+      });
+      if (res.ok) {
+        tokenRef.current = candidate;
+        try {
+          sessionStorage.setItem("bebe_tab_admin_token", candidate);
+        } catch (e) {}
+        setAuthed(true);
+        setMessage(null);
+      } else if (res.status === 503) {
+        setMessage({ text: "La console est désactivée sur le serveur (ADMIN_TOKEN non défini).", type: "error" });
+      } else if (res.status === 429) {
+        setMessage({ text: "Trop de tentatives, réessaie dans quelques minutes.", type: "error" });
+      } else {
+        setMessage({ text: "Jeton administrateur invalide.", type: "error" });
+      }
+    } catch (e) {
+      setMessage({ text: "Erreur de connexion au serveur.", type: "error" });
+    } finally {
+      setCheckingToken(false);
+    }
+  };
+
+  // Reprend la session de l'onglet si un jeton y est déjà enregistré.
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("bebe_tab_admin_token");
+      if (saved) verifyToken(saved);
+    } catch (e) {}
+  }, []);
 
   // Fetch current state periodically
   useEffect(() => {
@@ -112,7 +170,7 @@ export const AdminAdDashboard: React.FC<AdminAdDashboardProps> = ({ onClose }) =
     try {
       const res = await fetch("/api/ads/broadcast", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify({
           title,
           sponsor,
@@ -123,6 +181,7 @@ export const AdminAdDashboard: React.FC<AdminAdDashboardProps> = ({ onClose }) =
         }),
       });
 
+      if (res.status === 401) return logout("Session administrateur expirée : reconnecte-toi.");
       const data = await res.json();
       if (res.ok && data.success) {
         soundFx.playVictory();
@@ -143,12 +202,15 @@ export const AdminAdDashboard: React.FC<AdminAdDashboardProps> = ({ onClose }) =
   // Stop Broadcast
   const handleStopBroadcast = async () => {
     try {
-      const res = await fetch("/api/ads/stop", { method: "POST" });
+      const res = await fetch("/api/ads/stop", { method: "POST", headers: authHeaders(), body: "{}" });
+      if (res.status === 401) return logout("Session administrateur expirée : reconnecte-toi.");
       if (res.ok) {
         soundFx.playTap();
         setActiveAd(null);
         setIsBroadcasting(false);
         setMessage({ text: "🛑 La publicité a été arrêtée sur tous les écrans.", type: "success" });
+      } else {
+        setMessage({ text: "Impossible d'arrêter la publicité.", type: "error" });
       }
     } catch (err) {
       setMessage({ text: "Erreur lors de l'arrêt.", type: "error" });
@@ -202,6 +264,49 @@ export const AdminAdDashboard: React.FC<AdminAdDashboardProps> = ({ onClose }) =
           )}
         </div>
 
+        {/* Message Alert (connexion) */}
+        {!authed && message && (
+          <div className="p-4 rounded-2xl mb-6 font-extrabold text-sm flex items-center gap-2 border bg-rose-950/80 border-rose-500/50 text-rose-200">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+            <span>{message.text}</span>
+          </div>
+        )}
+
+        {/* Connexion administrateur */}
+        {!authed && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (tokenInput.trim()) verifyToken(tokenInput.trim());
+            }}
+            className="max-w-md mx-auto bg-slate-800/60 border border-slate-700 rounded-2xl p-6 space-y-4"
+          >
+            <div className="flex items-center gap-2 text-amber-300 font-black">
+              <Lock className="w-5 h-5" /> Accès réservé à l'administrateur
+            </div>
+            <p className="text-xs text-slate-400 font-semibold">
+              Saisis le jeton administrateur défini sur le serveur (variable ADMIN_TOKEN). Il n'est conservé que dans cet onglet.
+            </p>
+            <input
+              type="password"
+              autoComplete="off"
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value)}
+              placeholder="Jeton administrateur"
+              className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+            <button
+              type="submit"
+              disabled={checkingToken || !tokenInput.trim()}
+              className="w-full py-3 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-black rounded-xl"
+            >
+              {checkingToken ? "Vérification…" : "Se connecter"}
+            </button>
+          </form>
+        )}
+
+        {authed && (
+        <>
         {/* Real-time Status Analytics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-slate-800/80 border-2 border-emerald-500/40 p-4 rounded-2xl flex items-center gap-4 shadow-lg">
@@ -398,7 +503,7 @@ export const AdminAdDashboard: React.FC<AdminAdDashboardProps> = ({ onClose }) =
                         <Lock className="w-3 h-3 text-rose-400" /> Verrouillage Stricte
                       </span>
                       <span className="text-[10px] text-rose-300/80 font-normal block">
-                        Interdit la fermeture de l'app
+                        Bloque l'écran pendant la durée de l'annonce
                       </span>
                     </div>
                   </label>
@@ -460,6 +565,8 @@ export const AdminAdDashboard: React.FC<AdminAdDashboardProps> = ({ onClose }) =
             </div>
           </div>
         </div>
+        </>
+        )}
       </motion.div>
     </div>
   );

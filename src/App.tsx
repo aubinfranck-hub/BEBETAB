@@ -280,7 +280,7 @@ export default function App() {
         </main>
       )}
 
-      {/* Fanti AI Chat Voice Dialog Modal */
+      {/* Fanti AI Chat Voice Dialog Modal */}
       <FantiChatModal
         isOpen={isFantiChatOpen}
         onClose={() => setIsFantiChatOpen(false)}

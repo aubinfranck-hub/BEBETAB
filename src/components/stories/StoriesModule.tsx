@@ -25,7 +25,7 @@ export const StoriesModule: React.FC<StoriesModuleProps> = ({
 }) => {
   const [hero, setHero] = useState("Un petit lapin");
   const [animal, setAnimal] = useState("Fanti l'éléphant");
-  const [setting, setSetting] = useState(user.currentWorld);
+  const [setting, setSetting] = useState<string>(user.currentWorld);
 
   const [isLoading, setIsLoading] = useState(false);
   const [story, setStory] = useState<InteractiveStory | null>(null);

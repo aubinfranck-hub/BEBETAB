@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Lock, Volume2, VolumeX, Sparkles, AlertCircle, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Lock, Volume2, VolumeX, Sparkles, ShieldAlert, X } from "lucide-react";
 import { soundFx } from "../../utils/audio";
 
 interface AdData {
@@ -23,46 +23,108 @@ export const AdBroadcastOverlay: React.FC<AdBroadcastOverlayProps> = ({ onReward
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isFinished, setIsFinished] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [rewardClaimed, setRewardClaimed] = useState<boolean>(false);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Poll or SSE connection to Ad Stream
+  // Les identifiants sont gardés dans des refs : les gestionnaires SSE / sondage vivent toute la
+  // durée du composant et ne doivent jamais relire un état périmé (sinon la pub redémarrait en boucle).
+  const currentIdRef = useRef<string | null>(null);
+  const dismissedIdsRef = useRef<Set<string>>(new Set());
+  const rewardedIdsRef = useRef<Set<string>>(new Set());
+  const onRewardRef = useRef(onRewardUser);
+  onRewardRef.current = onRewardUser;
+
+  const clearTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+  };
+
+  const finishAd = useCallback((ad: AdData) => {
+    clearTimer();
+    setTimeLeft(0);
+    setIsFinished(true);
+    soundFx.playVictory();
+
+    // Une vue et une récompense par annonce, même si le serveur renvoie l'annonce plusieurs fois.
+    if (!rewardedIdsRef.current.has(ad.id)) {
+      rewardedIdsRef.current.add(ad.id);
+      fetch("/api/ads/view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adId: ad.id }),
+      }).catch(() => {});
+      onRewardRef.current?.(10);
+    }
+  }, []);
+
+  const startAd = useCallback(
+    (ad: AdData) => {
+      if (ad.id === currentIdRef.current || dismissedIdsRef.current.has(ad.id)) return;
+      currentIdRef.current = ad.id;
+      soundFx.playVictory();
+      setActiveAd(ad);
+      setIsFinished(false);
+
+      let remaining = ad.duration || 15;
+      setTimeLeft(remaining);
+
+      clearTimer();
+      timerRef.current = setInterval(() => {
+        remaining -= 1;
+        setTimeLeft(Math.max(0, remaining));
+        if (remaining <= 0) finishAd(ad);
+      }, 1000);
+    },
+    [finishAd]
+  );
+
+  const stopAd = useCallback(() => {
+    clearTimer();
+    currentIdRef.current = null;
+    setActiveAd(null);
+    setIsFinished(false);
+  }, []);
+
+  // L'enfant peut toujours continuer une fois l'annonce terminée (ou tout de suite si elle n'est pas verrouillée).
+  const dismissAd = () => {
+    if (activeAd) dismissedIdsRef.current.add(activeAd.id);
+    stopAd();
+  };
+
+  // Flux SSE (une seule connexion) + sondage de secours toutes les 3 s.
   useEffect(() => {
     let eventSource: EventSource | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
 
     const connectSSE = () => {
+      if (cancelled) return;
       try {
         eventSource = new EventSource("/api/ads/stream");
 
         eventSource.addEventListener("initial", (e: MessageEvent) => {
           try {
             const data = JSON.parse(e.data);
-            if (data.activeAd) {
-              handleNewAd(data.activeAd);
-            } else {
-              setActiveAd(null);
-            }
+            if (data.activeAd) startAd(data.activeAd);
+            else if (currentIdRef.current) stopAd();
           } catch (err) {}
         });
 
         eventSource.addEventListener("ad_start", (e: MessageEvent) => {
           try {
-            const ad = JSON.parse(e.data);
-            handleNewAd(ad);
+            startAd(JSON.parse(e.data));
           } catch (err) {}
         });
 
         eventSource.addEventListener("ad_stop", () => {
-          setActiveAd(null);
-          setIsFinished(false);
+          stopAd();
         });
 
         eventSource.onerror = () => {
-          if (eventSource) {
-            eventSource.close();
-          }
+          eventSource?.close();
+          eventSource = null;
+          if (!cancelled) reconnectTimer = setTimeout(connectSSE, 5000);
         };
       } catch (err) {
         console.error("SSE connection error:", err);
@@ -71,79 +133,36 @@ export const AdBroadcastOverlay: React.FC<AdBroadcastOverlayProps> = ({ onReward
 
     connectSSE();
 
-    // Fallback polling every 3s
     const pollInterval = setInterval(async () => {
       try {
         const res = await fetch("/api/ads/current");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.activeAd && (!activeAd || activeAd.id !== data.activeAd.id)) {
-            handleNewAd(data.activeAd);
-          } else if (!data.activeAd && activeAd) {
-            setActiveAd(null);
-            setIsFinished(false);
-          }
-        }
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.activeAd) startAd(data.activeAd);
+        else if (currentIdRef.current) stopAd();
       } catch (e) {}
     }, 3000);
 
     return () => {
-      if (eventSource) eventSource.close();
+      cancelled = true;
+      eventSource?.close();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
       clearInterval(pollInterval);
-      if (timerRef.current) clearInterval(timerRef.current);
+      clearTimer();
     };
-  }, [activeAd]);
+  }, [startAd, stopAd]);
 
-  const handleNewAd = (ad: AdData) => {
-    soundFx.playVictory();
-    setActiveAd(ad);
-    setIsFinished(false);
-    setRewardClaimed(false);
-    setTimeLeft(ad.duration || 15);
-
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          handleAdFinished();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const handleAdFinished = () => {
-    setIsFinished(true);
-    soundFx.playVictory();
-
-    // Record view in backend
-    fetch("/api/ads/view", { method: "POST" }).catch(() => {});
-
-    if (onRewardUser && !rewardClaimed) {
-      onRewardUser(10);
-      setRewardClaimed(true);
-    }
-  };
-
-  // Block ESC key or exit attempts
+  // Pendant une annonce verrouillée (et seulement tant qu'elle dure), on bloque les touches.
+  const lockedNow = !!activeAd && activeAd.locked && !isFinished;
   useEffect(() => {
-    if (!activeAd) return;
-
+    if (!lockedNow) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (activeAd.locked && (!isFinished || activeAd.locked)) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      e.preventDefault();
+      e.stopPropagation();
     };
-
     window.addEventListener("keydown", handleKeyDown, true);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown, true);
-    };
-  }, [activeAd, isFinished]);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [lockedNow]);
 
   if (!activeAd) return null;
 
@@ -157,7 +176,7 @@ export const AdBroadcastOverlay: React.FC<AdBroadcastOverlayProps> = ({ onReward
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="fixed inset-0 z-[9999] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-between p-4 sm:p-6 select-none touch-none pointer-events-auto overflow-hidden text-white"
+        className="fixed inset-0 z-[9999] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-between p-4 sm:p-6 select-none pointer-events-auto overflow-hidden text-white"
         style={{ userSelect: "none" }}
       >
         {/* Top Header Bar */}
@@ -177,12 +196,13 @@ export const AdBroadcastOverlay: React.FC<AdBroadcastOverlayProps> = ({ onReward
             </div>
           </div>
 
-          {/* Locked Status Badge */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600/90 border border-rose-400 text-white rounded-xl text-xs font-black shadow animate-pulse">
-              <Lock className="w-4 h-4" />
-              <span className="hidden sm:inline">Diffusion Verrouillée</span>
-            </div>
+            {lockedNow && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600/90 border border-rose-400 text-white rounded-xl text-xs font-black shadow animate-pulse">
+                <Lock className="w-4 h-4" />
+                <span className="hidden sm:inline">Diffusion Verrouillée</span>
+              </div>
+            )}
 
             {/* Mute button for video */}
             {activeAd.type === "video" && (
@@ -192,8 +212,20 @@ export const AdBroadcastOverlay: React.FC<AdBroadcastOverlayProps> = ({ onReward
                   if (videoRef.current) videoRef.current.muted = !isMuted;
                 }}
                 className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                aria-label={isMuted ? "Activer le son" : "Couper le son"}
               >
                 {isMuted ? <VolumeX className="w-5 h-5 text-rose-300" /> : <Volume2 className="w-5 h-5 text-emerald-300" />}
+              </button>
+            )}
+
+            {/* Une annonce non verrouillée peut toujours être fermée */}
+            {!lockedNow && !isFinished && (
+              <button
+                onClick={dismissAd}
+                className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                aria-label="Fermer la publicité"
+              >
+                <X className="w-5 h-5" />
               </button>
             )}
           </div>
@@ -216,16 +248,14 @@ export const AdBroadcastOverlay: React.FC<AdBroadcastOverlayProps> = ({ onReward
               autoPlay
               playsInline
               muted={isMuted}
-              onEnded={() => {
-                setTimeLeft(0);
-                handleAdFinished();
-              }}
+              onEnded={() => finishAd(activeAd)}
               className="w-full h-full object-contain bg-black"
             />
           ) : (
             <img
               src={activeAd.url}
               alt={activeAd.title}
+              referrerPolicy="no-referrer"
               className="w-full h-full object-contain bg-black/80"
             />
           )}
@@ -254,19 +284,24 @@ export const AdBroadcastOverlay: React.FC<AdBroadcastOverlayProps> = ({ onReward
               <p className="text-base text-emerald-300 font-extrabold mb-4">
                 Bravo ! Tu as gagné +10 Étoiles Magiques ⭐ pour avoir regardé l'annonce.
               </p>
-              <p className="text-xs text-slate-400 italic">
-                L'administrateur va bientôt libérer l'écran...
-              </p>
+              <button
+                onClick={dismissAd}
+                className="px-8 py-3 bg-gradient-to-r from-emerald-400 to-green-500 text-slate-900 font-black rounded-2xl shadow-xl border-2 border-white active:scale-95 transition-transform"
+              >
+                Continuer ▶
+              </button>
             </motion.div>
           )}
         </div>
 
-        {/* Footer Mandatory Banner */}
+        {/* Footer Banner */}
         <div className="w-full max-w-4xl bg-rose-950/80 border-2 border-rose-500/50 rounded-2xl p-3 flex items-center justify-between text-xs sm:text-sm font-extrabold text-rose-200 backdrop-blur shadow-lg">
           <div className="flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 animate-bounce" />
+            <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0" />
             <span>
-              🔒 Mode Diffusion Intégrale : Impossible de fermer ou de sortir pendant la publicité.
+              {lockedNow
+                ? "🔒 Un instant : cette annonce se termine dans quelques secondes, puis tu pourras continuer."
+                : "Tu peux fermer cette annonce quand tu veux."}
             </span>
           </div>
 

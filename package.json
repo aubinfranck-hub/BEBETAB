@@ -9,6 +9,7 @@
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
+    "test": "node --import tsx --test server/*.test.ts",
     "android:build": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
     "android:open": "npx cap open android"
   },
@@ -31,6 +32,8 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/node": "^22.14.0",
     "@types/ws": "^8.18.1",
     "autoprefixer": "^10.4.21",

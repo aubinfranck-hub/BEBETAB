@@ -20,6 +20,28 @@ export const GeminiLiveVoice: React.FC<GeminiLiveVoiceProps> = ({
   const [isMuted, setIsMuted] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
 
+  // Consentement parental : la voix de l'enfant est transmise à un service d'IA (Google Gemini).
+  const CONSENT_KEY = "bebe_tab_voice_consent_v1";
+  const [consent, setConsent] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(CONSENT_KEY) === "yes";
+    } catch (e) {
+      return false;
+    }
+  });
+  const [consentChecked, setConsentChecked] = useState(false);
+  const grantConsent = () => {
+    try {
+      localStorage.setItem(CONSENT_KEY, "yes");
+    } catch (e) {}
+    setConsent(true);
+  };
+
+  // Le traitement audio est créé une seule fois au démarrage : il doit lire l'état « micro coupé »
+  // dans une ref (sinon il garde la valeur du démarrage et le bouton ne coupe rien).
+  const isMutedRef = useRef(false);
+  isMutedRef.current = isMuted;
+
   const wsRef = useRef<WebSocket | null>(null);
   const inputAudioCtxRef = useRef<AudioContext | null>(null);
   const outputAudioCtxRef = useRef<AudioContext | null>(null);
@@ -117,8 +139,26 @@ export const GeminiLiveVoice: React.FC<GeminiLiveVoiceProps> = ({
     setAudioLevel(0);
   };
 
+  // Libère le micro et les contextes audio (sans toucher à l'état affiché).
+  const cleanupMedia = () => {
+    if (processorRef.current) {
+      processorRef.current.onaudioprocess = null;
+      processorRef.current.disconnect();
+      processorRef.current = null;
+    }
+    if (inputAudioCtxRef.current) {
+      inputAudioCtxRef.current.close();
+      inputAudioCtxRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+  };
+
   // Start Gemini Live Call
   const startLiveSession = async () => {
+    if (!consent) return;
     try {
       setStatus("connecting");
       setErrorMessage(null);
@@ -183,17 +223,19 @@ export const GeminiLiveVoice: React.FC<GeminiLiveVoiceProps> = ({
       };
 
       ws.onerror = () => {
+        cleanupMedia();
         setErrorMessage("Erreur de connexion WebSocket au serveur Gemini Live.");
         setStatus("error");
       };
 
       ws.onclose = () => {
-        setStatus("disconnected");
+        cleanupMedia();
+        setStatus((prev) => (prev === "error" ? prev : "disconnected"));
       };
 
       // Handle microphone audio processing
       processor.onaudioprocess = (e) => {
-        if (wsRef.current?.readyState === WebSocket.OPEN && !isMuted) {
+        if (wsRef.current?.readyState === WebSocket.OPEN && !isMutedRef.current) {
           const channelData = e.inputBuffer.getChannelData(0);
           const base64PCM = floatTo16BitPCMBase64(channelData);
           wsRef.current.send(JSON.stringify({ audio: base64PCM }));
@@ -201,6 +243,7 @@ export const GeminiLiveVoice: React.FC<GeminiLiveVoiceProps> = ({
       };
     } catch (err: any) {
       console.error("Failed to access microphone or connect:", err);
+      cleanupMedia();
       setErrorMessage(
         err.name === "NotAllowedError"
           ? "Accès au microphone refusé. Veuillez autoriser le micro."
@@ -213,21 +256,10 @@ export const GeminiLiveVoice: React.FC<GeminiLiveVoiceProps> = ({
   // Disconnect & cleanup
   const stopLiveSession = () => {
     stopPlayback();
-    if (processorRef.current) {
-      processorRef.current.disconnect();
-      processorRef.current = null;
-    }
-    if (inputAudioCtxRef.current) {
-      inputAudioCtxRef.current.close();
-      inputAudioCtxRef.current = null;
-    }
+    cleanupMedia();
     if (outputAudioCtxRef.current) {
       outputAudioCtxRef.current.close();
       outputAudioCtxRef.current = null;
-    }
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      mediaStreamRef.current = null;
     }
     if (wsRef.current) {
       wsRef.current.close();
@@ -241,6 +273,47 @@ export const GeminiLiveVoice: React.FC<GeminiLiveVoiceProps> = ({
       stopLiveSession();
     };
   }, []);
+
+  if (!consent) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center p-4 text-white">
+        <div className="w-full max-w-md bg-gradient-to-b from-indigo-900 via-purple-900 to-slate-900 rounded-3xl p-6 border-4 border-yellow-300 shadow-2xl space-y-4">
+          <h3 className="text-xl font-black text-yellow-300">Autorisation d'un parent</h3>
+          <p className="text-sm text-blue-100 font-semibold leading-relaxed">
+            Pour parler avec Lia, la voix de l'enfant est envoyée en direct, via notre serveur, à un service
+            d'intelligence artificielle de Google (Gemini) qui prépare la réponse. L'application n'enregistre
+            pas la conversation. Le micro n'est actif que pendant l'appel.
+          </p>
+          <label className="flex items-start gap-3 text-sm font-bold text-white cursor-pointer">
+            <input
+              type="checkbox"
+              checked={consentChecked}
+              onChange={(e) => setConsentChecked(e.target.checked)}
+              className="mt-1 w-5 h-5"
+            />
+            <span>Je suis le parent ou le tuteur légal et j'autorise l'appel vocal avec Lia.</span>
+          </label>
+          <div className="flex gap-3">
+            <button
+              onClick={grantConsent}
+              disabled={!consentChecked}
+              className="flex-1 px-4 py-3 bg-emerald-400 disabled:opacity-40 text-slate-900 font-black rounded-2xl border-2 border-white"
+            >
+              Autoriser
+            </button>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-black rounded-2xl border-2 border-white/40"
+              >
+                Plus tard
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col items-center justify-center p-4 text-white">

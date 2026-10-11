@@ -30,18 +30,46 @@ export const ParentsPortal: React.FC<ParentsPortalProps> = ({
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
 
-  // Security Challenge (e.g. 7 + 8 = 15)
-  const mathAnswer = "15";
+  // Question « pour adultes » tirée au hasard à chaque ouverture et après chaque erreur.
+  // (Barrière de confort côté navigateur : elle ne remplace pas une vraie authentification.)
+  const newChallenge = () => {
+    const a = 12 + Math.floor(Math.random() * 8); // 12 à 19
+    const b = 3 + Math.floor(Math.random() * 7); // 3 à 9
+    return { a, b, answer: String(a * b) };
+  };
+  const [challenge, setChallenge] = useState(newChallenge);
+  const [failures, setFailures] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(0);
+  const [now, setNow] = useState(Date.now());
+
+  // Compte à rebours du blocage (3 erreurs = 30 secondes d'attente).
+  React.useEffect(() => {
+    if (lockedUntil <= Date.now()) return;
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, [lockedUntil]);
+  const secondsLeft = Math.max(0, Math.ceil((lockedUntil - now) / 1000));
 
   const handlePinSubmit = () => {
-    if (pinInput.trim() === mathAnswer || pinInput.trim() === "1234") {
+    if (secondsLeft > 0) return;
+    if (pinInput.trim() === challenge.answer) {
       soundFx.playVictory();
       setIsUnlocked(true);
       setPinError(false);
+      setFailures(0);
     } else {
       soundFx.playTap();
       setPinError(true);
       setPinInput("");
+      setChallenge(newChallenge());
+      const next = failures + 1;
+      if (next >= 3) {
+        setFailures(0);
+        setNow(Date.now());
+        setLockedUntil(Date.now() + 30_000);
+      } else {
+        setFailures(next);
+      }
     }
   };
 
@@ -68,33 +96,42 @@ export const ParentsPortal: React.FC<ParentsPortalProps> = ({
                 Espace Contrôle Parental
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-1">
-                Résolvez cette addition pour vérifier que vous êtes un adulte :
+                Résolvez ce calcul pour vérifier que vous êtes un adulte :
               </p>
             </div>
 
             <div className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 max-w-xs mx-auto space-y-4">
               <span className="text-3xl font-black text-slate-800 tracking-wider">
-                7 + 8 = ?
+                {challenge.a} × {challenge.b} = ?
               </span>
 
               <input
                 type="text"
+                inputMode="numeric"
+                autoComplete="off"
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handlePinSubmit()}
-                placeholder="Réponse (ex: 15)"
-                className="w-full text-center text-xl font-black p-3 bg-white border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-rose-200 focus:outline-none"
+                disabled={secondsLeft > 0}
+                placeholder="Votre réponse"
+                className="w-full text-center text-xl font-black p-3 bg-white border-2 border-slate-300 rounded-xl focus:ring-4 focus:ring-rose-200 focus:outline-none disabled:opacity-50"
               />
 
-              {pinError && (
+              {pinError && secondsLeft === 0 && (
                 <p className="text-xs font-bold text-rose-600">
-                  Réponse incorrecte ! La réponse est 15.
+                  Réponse incorrecte. Une nouvelle question vous est proposée.
+                </p>
+              )}
+              {secondsLeft > 0 && (
+                <p className="text-xs font-bold text-rose-600">
+                  Trop d'erreurs. Réessayez dans {secondsLeft} s.
                 </p>
               )}
 
               <button
                 onClick={handlePinSubmit}
-                className="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-black rounded-xl shadow-md transition-all active:scale-95"
+                disabled={secondsLeft > 0}
+                className="w-full py-3 bg-rose-500 hover:bg-rose-600 disabled:opacity-50 text-white font-black rounded-xl shadow-md transition-all active:scale-95"
               >
                 Déverrouiller l'espace parents
               </button>
