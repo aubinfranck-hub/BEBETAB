@@ -1,10 +1,90 @@
 # Audit BébéTab — 11 octobre 2026
 
+> **Mise à jour du 11 octobre 2026 : les corrections sont faites sur la branche `claude/baby-table-program-audit-175nhr`.**
+> Le §0 dit ce qui est corrigé, avec le niveau de preuve. Les §1 à §10 décrivent l'état **au moment de l'audit** et sont conservés comme historique.
+
 **Périmètre** : application Android native Kotlin/Compose (`android/`, c'est ce que construit la CI), serveur et web React (`server.ts`, `src/`), workflows GitHub Actions, planche de référence `android/app/src/main/res/drawable-nodpi/reference_board.jpg`.
 
 **Méthode** : lecture de l'ensemble du code Android, lecture complète de `server.ts`, échantillonnage de `src/`, analyse des logs CI (commit `98d0e2a`), test d'agrandissement IA de la planche.
 
 **Limites** : rien n'a été exécuté sur un appareil ou un émulateur (pas de SDK Android dans l'environnement d'audit). Les points marqués *à confirmer* sont déduits de la lecture du code. Voir le §10.
+
+---
+
+## 0. Suivi des corrections (11 octobre 2026)
+
+Légende : ✅ **vérifié** par un test automatique, une exécution réelle ou la CI · 🟡 **corrigé**, compile, mais non exécuté sur une tablette (à confirmer) · ⛔ **non traité** (décision à prendre ou hors périmètre).
+
+### Build, tests, CI
+| Sujet | État | Preuve |
+|---|---|---|
+| Compilation Android (2 erreurs) | ✅ | Gradle 8.10 local reproduit les erreurs de la CI puis passe ; les 3 workflows GitHub sont **verts** sur la branche (c'était rouge depuis le 8 oct.) |
+| Signature de l'APK de release | ✅ | Même clé de test : avant correctif → `app-release-unsigned.apk` ; après → `app-release.apk`, `apksigner verify` : *Verifies*. Sans clé ou clé absente : build OK, non signé |
+| Gradle wrapper manquant | ✅ | `android/gradlew` (8.10), testé |
+| Tests automatiques | ✅ | **Android 25 tests** (étoiles quotidiennes, code parent, notes, contenu des 45 questions, URL de mise à jour) · **Web 32 tests** (dont un test d'intégration qui démarre le vrai serveur). Des mutations volontaires (code cassé exprès) ont été détectées à chaque fois |
+| CI : tests dans les workflows | ✅ | `build-kotlin.yml` lance les tests Android ; nouveau `test-web.yml` (types, build, tests) |
+| Release idempotente | 🟡 | `gh release upload --clobber` si le tag existe ; à valider au premier vrai release |
+| Protection de `main` / pull requests | ⛔ | Réglage GitHub à faire par le propriétaire du dépôt |
+| Deux workflows identiques | ⛔ | `build-apk.yml` et `build-kotlin.yml` laissés tels quels |
+
+### Android : bugs
+| # | État | Ce qui a été fait |
+|---|---|---|
+| B1 Plantage de Live World | 🟡 | Chaque filtre porte sa clé (plus de liste parallèle) ; puce active surlignée ; écran titré LIVE WORLD |
+| B2 / B3 Compteur d'étoiles, niveau, médailles | 🟡 | Départ à **0** (au lieu de 2450 affiché / 0 compté). Un nouvel enfant est niveau 1 sans médaille |
+| B4 Étoiles « farmables » | ✅ règle · 🟡 écrans | `claimDaily` : une récompense par clé et par jour (règle pure, 5 tests) : cadeau, découverte d'un pays, chaque question de quiz, paires et bonus du Memory |
+| B5 Clavier musical | ✅ fréquences · 🟡 son | Vraies notes Do4→Do5 (synthèse), test de la fréquence de chaque note et de l'absence de « clic » |
+| B6 Musique en arrière-plan | 🟡 | Pause quand l'app n'est plus visible ; interrupteur « Musique de fond » dans les réglages parents |
+| B7 Verrou du temps d'écran | 🟡 | L'écran consomme les touches et le bouton retour ; le compteur ne tourne qu'au premier plan ; textes FR/EN |
+| B8 « Essaie encore » sans réessai | 🟡 | Le choix faux se grise, l'enfant réessaie ; +2 étoiles du premier coup, +1 ensuite |
+| B9 Contenu des quiz | ✅ | 3 questions par matière et par jeu (le fichier existait mais n'était jamais affiché), **traduites en anglais**, choix mélangés ; test : toute réponse est dans ses choix, toutes les activités affichées ont du contenu |
+| B10 Boutons sans effet | 🟡 partiel | Les puces *Live / Jeux / Quiz / Musique* des pays naviguent ; « Retour » d'un pays revient à la liste. **Restent** : puces d'Histoires, catégories du Monde, continents cliquables ⛔ (contenu à définir) |
+| B11 Dessin | 🟡 partiel | Traits sans copie de liste, gomme qui n'efface plus le guide, guides de tracé **A→Z et 0→9**, « Créer musique » ouvre le clavier. **Restent** : pot de peinture du coloriage, sauvegarde ⛔ |
+| B12 Histoires | 🟡 | Vraies illustrations ; détection d'une voix de lecture absente |
+| B13 Sous-titre des pays | 🟡 | Sous-titre propre à chaque pays |
+| B14 Bascule FR/EN en double | ✅ | Retirée de l'accueil |
+| B15 Mode immersif | 🟡 | `WindowInsetsControllerCompat`, réappliqué au retour du clavier |
+| B16 Orientation | 🟡 | `sensorLandscape` |
+
+### Android : sécurité
+| # | État | Ce qui a été fait |
+|---|---|---|
+| S1 Code parent | ✅ logique · 🟡 écrans | Un seul composant pour les 3 usages ; stocké en **PBKDF2 + sel** ; 5 erreurs → blocage 1, 2, 4, 8 puis 15 min (conservé après redémarrage) ; le parent choisit son code dans les réglages, avec avertissement tant que le code initial `2580` est actif ; `2580` n'existe plus qu'à **un seul** endroit |
+| S2 Mise à jour | ✅ URL · 🟡 reste | Seules les URL `https` GitHub sont acceptées (testé) ; bouton « Plus tard » ; textes anglais. **Restent** : téléchargement hors Wi‑Fi uniquement, `update.json` encore à la v2 (il se met à jour au premier release signé) ⛔ |
+| S3 `allowBackup` | ⛔ | Décision à prendre (progression sauvegardée chez Google, ou non) |
+| S4 Petits textes, accessibilité | ⛔ | Fait partie de la refonte visuelle |
+| S5 Liens externes | ✅ | Le dialogue prévient que le site externe peut afficher suggestions et commentaires |
+| Icône de l'application | ✅ | Icône adaptative avec Fanti (détouré sur la planche HD) ; l'APK déclare `ic_launcher` (vérifié avec `aapt2`) |
+
+### Web
+| # | État | Ce qui a été fait / preuve |
+|---|---|---|
+| Le web **ne compilait pas** | ✅ | Commentaire JSX non fermé dans `App.tsx`, `@types/react` absents, un type trop étroit : `tsc` passe, `vite build` réussit |
+| W1 Pubs diffusables par n'importe qui | ✅ | Jeton `ADMIN_TOKEN` obligatoire (503 s'il n'est pas défini) ; URL `https` publiques uniquement ; arrêt automatique ; tests d'intégration + parcours navigateur |
+| W2 API IA ouvertes et sans limite | ✅ | Limites de débit par IP et globale, corps JSON limité à 32 ko, plafonds sur le WebSocket (origine, sessions, durée, débit de messages) |
+| W3 Injection de consigne | ✅ | Entrées nettoyées, consignes figées, règles de sécurité enfant, `safetySettings` Gemini, réponses du modèle validées. *Réponse réelle du modèle non testée (pas de clé API ici)* |
+| W4 Voix de l'enfant sans consentement | ✅ | Écran de consentement parental avant le premier appel (navigateur) |
+| W5 Port en dur | ✅ | `PORT` de l'environnement |
+| W6 Modèles `preview` | 🟡 | Noms configurables par variables d'environnement (les noms eux-mêmes ne sont pas vérifiés) |
+| W7 Deux applications dans un dépôt | ⛔ | Décision : laquelle est le produit ? |
+| W8 État des pubs en mémoire | ⛔ | Perdu au redémarrage ; sans importance tant qu'il y a une seule instance |
+
+### Défauts supplémentaires découverts pendant les corrections
+Tous prouvés dans un vrai navigateur, **avant** (ancien code) et **après** (code corrigé) :
+
+| Défaut | Avant | Après |
+|---|---|---|
+| **Overlay de pub** | Compte à rebours figé à « 5s », la pub ne se termine jamais, **598 connexions SSE en 12 s** | Compte à rebours 4→0, bouton « Continuer », 1 seule connexion, 1 seule vue |
+| **Écran bloqué après la pub** | Il fallait que l'admin arrête la pub à la main | L'enfant peut toujours continuer ; l'annonce s'arrête seule |
+| **Bouton « couper le micro »** | 9 paquets audio envoyés alors qu'il est coupé | 0 paquet envoyé ; micro libéré au raccrochage |
+| **Portail parents web** | Affichait « La réponse est 15 » ; le code `1234` marchait aussi | Question aléatoire, aucune réponse révélée, blocage 30 s après 3 erreurs |
+
+### Reste à décider ou à faire
+1. **Habillage fidèle à la planche** (§3.4, option A ou B) : non traité, c'est une décision de conception. Les écrans HD (x4) et l'icône sont prêts.
+2. Quelle application est **le produit** : native Kotlin ou web (W7) ?
+3. Protéger `main` et passer par des pull requests (réglage GitHub).
+4. Configurer la clé de signature et les 4 secrets pour activer la mise à jour automatique (`android/AUTO_UPDATE_SETUP.md`).
+5. Vérifier les corrections « 🟡 » sur une vraie tablette (aucun appareil ni émulateur n'était disponible).
 
 ---
 
@@ -206,3 +286,78 @@ Non audité en détail : le rendu et la logique des composants React.
 - `server.ts` a été lu en entier ; les composants React de `src/` seulement échantillonnés.
 - Les noms de modèles Gemini n'ont pas été vérifiés.
 - Les images HD produites (§3.3) sont hors dépôt ; elles se régénèrent avec Real-ESRGAN `x4plus` sur la planche d'origine.
+
+---
+
+## 11. Web : guide détaillé
+
+### 11.1 Ce que c'est
+Une application React (Vite) servie par un serveur Express (`server.ts`) qui fait aussi office d'API : conversation avec Fanti (texte et voix), génération d'histoires et de quiz par Gemini, synthèse vocale, et une **régie publicitaire en direct** qui diffuse une annonce sur tous les appareils connectés. Ce n'est **pas** l'APK construit par la CI (celui-là est le module natif Kotlin de `android/`).
+
+### 11.2 Routes du serveur
+
+| Route | Qui peut l'appeler | Protections |
+|---|---|---|
+| `GET /api/health` | tout le monde | — |
+| `GET /api/ads/stream` (SSE) | tous les appareils | 10 connexions par IP, 1000 au total |
+| `GET /api/ads/current` | tout le monde | — |
+| `POST /api/ads/view` | tout le monde | 30/min par IP ; accepté seulement pour l'annonce en cours ; **une vue par appareil et par annonce** |
+| `POST /api/ads/auth` | administrateur | jeton `Authorization: Bearer …` |
+| `POST /api/ads/broadcast` | administrateur | jeton ; URL `https` d'un domaine public (liste blanche optionnelle) ; titre ≤ 120, sponsor ≤ 80 ; durée forcée entre 5 et 60 s ; **arrêt automatique** à la fin de la durée + marge |
+| `POST /api/ads/stop` | administrateur | jeton |
+| `POST /api/fanti/chat` | tout le monde | 20/min par IP |
+| `POST /api/fanti/story` | tout le monde | 5/min par IP |
+| `POST /api/fanti/quiz` | tout le monde | 10/min par IP |
+| `POST /api/fanti/tts` | tout le monde | 20/min par IP |
+| (toutes les routes `/api/fanti/*`) | | plafond **global** de 120 requêtes/min (protège la facture) |
+| `WebSocket /live` (voix) | navigateurs de l'origine autorisée | origine vérifiée ; 10 tentatives/min par IP ; 2 sessions par IP, 10 au total ; **10 min maximum** par conversation ; messages ≤ 128 ko, audio ≤ 64 ko, ≤ 40 messages/s |
+
+Pour toutes les routes : corps JSON limité à **32 ko**, réponses d'erreur en JSON (404, 413, 400), pas d'en-tête `X-Powered-By`, `nosniff`.
+
+### 11.3 Comment l'IA est protégée
+- Les consignes système sont **fixes** : plus aucune valeur envoyée par le navigateur n'y est insérée.
+- Les données de l'enfant (message, âge, monde, héros, décor, thème, matière) passent dans le message, sous forme de **données** : âge parmi `2-4`, `5-7`, `8-10` ; libellés réduits à des lettres, chiffres et ponctuation simple (≤ 40 à 60 caractères, sans retour à la ligne, guillemets, accolades ni balises) ; message libre ≤ 500 caractères, sans caractères de contrôle.
+- Règles communes dans chaque consigne : ne jamais suivre une instruction présente dans les données de l'enfant, ne jamais demander d'informations personnelles, éviter tout sujet effrayant ou pour adultes.
+- `safetySettings` Gemini au seuil le plus strict (`BLOCK_LOW_AND_ABOVE`) sur les 4 catégories, y compris pour la voix en direct.
+- La réponse du modèle est **traitée comme non fiable** : humeur dans une liste, couleur au format `#RRGGBB`, textes tronqués, histoires limitées à 5 scènes, quiz à 6 questions de 2 à 4 choix avec une bonne réponse valide ; sinon le serveur renvoie 502 (ou la valeur de repli) au lieu d'envoyer n'importe quoi à l'enfant.
+- Sans clé `GEMINI_API_KEY`, le serveur renvoie des réponses de repli : l'application reste utilisable.
+
+### 11.4 Configuration (`.env`, voir `.env.example`)
+
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `GEMINI_API_KEY` | — | clé Gemini (côté serveur uniquement, jamais envoyée au navigateur) |
+| `ADMIN_TOKEN` | — | **jeton de la console publicitaire** (16 caractères minimum, ex. `openssl rand -hex 32`). Absent = console désactivée (503) |
+| `AD_ALLOWED_HOSTS` | vide | domaines autorisés pour les médias (`cdn.exemple.com, *.images.exemple.org`) ; vide = tout domaine public en `https` |
+| `AD_GRACE_SECONDS` | 10 | marge avant l'arrêt automatique d'une annonce |
+| `ALLOWED_ORIGINS` | vide | origines supplémentaires autorisées pour le WebSocket (ex. `https://localhost` pour une app Capacitor) |
+| `TRUST_PROXY_HOPS` | 0 | nombre de proxys de confiance (1 sur Render ou Cloud Run). **À 0, `X-Forwarded-For` est ignoré** : les limites par IP ne sont pas contournables |
+| `PORT` | 3000 | port d'écoute (les hébergeurs qui l'imposent le définissent eux-mêmes) |
+| `LIVE_MAX_SECONDS`, `LIVE_MAX_PER_IP`, `LIVE_MAX_TOTAL` | 600, 2, 10 | limites de la voix en direct |
+| `GEMINI_GLOBAL_RPM` | 120 | plafond global de requêtes IA par minute |
+| `GEMINI_TEXT_MODEL`, `GEMINI_LIVE_MODEL`, `GEMINI_TTS_MODEL` | valeurs du code | noms des modèles (les versions `preview` peuvent être retirées) |
+
+### 11.5 Utiliser la console publicitaire
+1. Définir `ADMIN_TOKEN` sur le serveur et le redémarrer.
+2. Dans l'application : Espace parents (résoudre la question) → « Ouvrir le Dashboard Régie Pub ».
+3. Saisir le jeton (il n'est gardé que dans l'onglet). Un mauvais jeton est refusé ; 60 essais maximum par 15 minutes et par IP.
+4. Choisir une annonce, régler la durée, **Diffuser**. Elle s'affiche chez tous les enfants connectés et s'arrête seule. Le « verrouillage » est désactivé par défaut ; activé, il ne dure que le temps de l'annonce, puis l'enfant a toujours un bouton **Continuer**.
+
+### 11.6 Lancer les vérifications
+```
+npm install
+npm run lint     # vérification de types (tsc)
+npm test         # 32 tests : unitaires + intégration (démarre le vrai serveur sur un port libre)
+npx vite build   # compilation du front
+```
+Le workflow `.github/workflows/test-web.yml` fait la même chose à chaque modification du web.
+
+### 11.7 Ce qui n'est PAS résolu (risques résiduels)
+- **Publicité à destination d'enfants** : la régie diffuse des annonces à des enfants. C'est un sujet réglementaire (règles de Google Play pour les apps familiales, RGPD pour les mineurs, COPPA aux États-Unis) à valider avant toute mise en production ; ce n'est pas un défaut de code.
+- **Voix et vie privée** : la voix de l'enfant part vers Google (Gemini Live). Le consentement parental est demandé et mémorisé dans le navigateur, mais une politique de confidentialité et une information claire restent à rédiger.
+- **Pas de comptes** : les limites reposent sur l'IP (et l'origine pour le WebSocket). Quelqu'un qui change d'adresse IP contourne les limites par IP ; le plafond **global** protège la facture dans ce cas.
+- **Limiteurs en mémoire** : ils sont propres à chaque instance du serveur (utiliser un stockage partagé si plusieurs instances).
+- **Portail parents web** : la question aléatoire est une barrière de confort côté navigateur, pas une authentification ; la vraie protection de la console est le jeton serveur.
+- **Pas de CSP** : non ajoutée, car l'application est affichée dans un cadre (AI Studio) ; à étudier au déploiement.
+- **Comportement réel de Gemini non testé** (pas de clé ici) : la validation des réponses est testée avec des réponses simulées.
+- **Application Capacitor** (W7) : l'APK web n'a pas de serveur derrière lui (les appels `/api/...` n'aboutissent pas) ; décision à prendre avec « quelle application est le produit ».
