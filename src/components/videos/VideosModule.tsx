@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { UserProfile, KidsVideo } from "../../types";
 import { soundFx, speakText } from "../../utils/audio";
 import confetti from "canvas-confetti";
@@ -47,6 +47,24 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
   const [newVideoTitle, setNewVideoTitle] = useState<string>("");
   const [newVideoCat, setNewVideoCat] = useState<string>("comptines");
   const [watchedVideos, setWatchedVideos] = useState<string[]>([]);
+  const watchedRef = useRef<Set<string>>(new Set());
+  const profileKey = `bebetab:videos:${encodeURIComponent(user.name)}:${user.ageGroup}`;
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(profileKey) || "{}");
+      const watched = Array.isArray(stored.watched) ? stored.watched.filter((v: unknown) => typeof v === "string") : [];
+      watchedRef.current = new Set(watched);
+      setWatchedVideos(watched);
+      setFavorites(Array.isArray(stored.favorites) ? stored.favorites.filter((v: unknown) => typeof v === "string") : []);
+    } catch {
+      watchedRef.current = new Set();
+      setWatchedVideos([]);
+      setFavorites([]);
+    }
+  }, [profileKey]);
+  const persistVideoState = (watched: string[], liked: string[]) => {
+    try { localStorage.setItem(profileKey, JSON.stringify({ watched, favorites: liked })); } catch { /* storage unavailable */ }
+  };
   
   // Interactive Quiz States
   const [showQuizModal, setShowQuizModal] = useState<boolean>(false);
@@ -95,19 +113,21 @@ export const VideosModule: React.FC<VideosModuleProps> = ({
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     soundFx.playPop();
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setFavorites((prev) => {
+      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
+      persistVideoState([...watchedRef.current], next);
+      return next;
+    });
   };
 
   const handleFinishVideo = (vid: typeof selectedVideo) => {
-    if (!vid || watchedVideos.includes(vid.id)) return;
+    if (!vid || watchedRef.current.has(vid.id)) return;
+    watchedRef.current.add(vid.id);
+    const nextWatched = [...watchedRef.current];
+    setWatchedVideos(nextWatched);
+    persistVideoState(nextWatched, favorites);
     soundFx.playVictory();
     confetti({ particleCount: 70, spread: 60 });
-
-    if (!watchedVideos.includes(vid.id)) {
-      setWatchedVideos((prev) => [...prev, vid.id]);
-    }
 
     if (onAwardXP) {
       onAwardXP(15, 3);
