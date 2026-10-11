@@ -56,7 +56,7 @@ jobs:
       - name: Check signing
         id: signing
         run: |
-          if [ -f android/app/build/outputs/apk/release/app-release.apk ]; then
+          if [ -f android/app/build/outputs/apk/release/app-release.apk ] && [ -n "${{ secrets.BEBETAB_KEYSTORE_BASE64 }}" ] && [ -n "${{ secrets.BEBETAB_KEYSTORE_PASSWORD }}" ] && [ -n "${{ secrets.BEBETAB_KEY_ALIAS }}" ] && [ -n "${{ secrets.BEBETAB_KEY_PASSWORD }}" ]; then
             echo "signed=true" >> "$GITHUB_OUTPUT"
           else
             echo "signed=false" >> "$GITHUB_OUTPUT"
@@ -72,9 +72,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version_name }}
         run: |
-          gh release create "v$VERSION" bebetab-release.apk \
-            --title "BébéTab v$VERSION" \
-            --notes "Mise à jour automatique de BébéTab."
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release upload "v$VERSION" bebetab-release.apk --clobber
+          else
+            gh release create "v$VERSION" bebetab-release.apk \
+              --title "BébéTab v$VERSION" \
+              --notes "Mise à jour automatique de BébéTab."
+          fi
 
       - name: Calculate SHA-256
         if: steps.signing.outputs.signed == 'true'
