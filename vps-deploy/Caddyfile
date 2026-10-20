@@ -1,0 +1,15 @@
+# HTTPS automatique (Let's Encrypt). Les noms viennent de /opt/stack/.env (TECH_HOST / SKIN_HOST).
+{$TECH_HOST} {
+	encode gzip
+	handle /api/* {
+		reverse_proxy ta-api:4000
+	}
+	handle {
+		reverse_proxy ta-web:80
+	}
+}
+
+{$SKIN_HOST} {
+	encode gzip
+	reverse_proxy sk-app:3000
+}

@@ -1,0 +1,122 @@
+# TECH-ASSIST + SkinDiag sur le VPS Contabo. RustDesk (hbbs/hbbr) n'est PAS dans ce fichier :
+# il tourne déjà sur le serveur et n'est jamais touché. Seuls 80/443 sont publiés ici.
+name: stack
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      TECH_HOST: ${TECH_HOST}
+      SKIN_HOST: ${SKIN_HOST}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [ta-web, ta-api, sk-app]
+
+  # ---------- TECH-ASSIST ----------
+  ta-db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: techassist
+      POSTGRES_USER: techassist
+      POSTGRES_PASSWORD: ${TA_DB_PASSWORD}
+    volumes:
+      - ta_pg:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U techassist -d techassist"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ta-api:
+    build:
+      context: ./tech-assist
+      dockerfile: infra/hetzner/Dockerfile.api
+    restart: unless-stopped
+    env_file: [./tech-assist.env]
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      # Même schéma que sur Render (tech_assist) : le dump de Render se restaure tel quel.
+      DATABASE_URL: "postgresql://techassist:${TA_DB_PASSWORD}@ta-db:5432/techassist?options=-csearch_path%3Dtech_assist"
+      CORS_ORIGIN: "https://${TECH_HOST}"
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_SECRETS_KEY: ${SESSION_SECRETS_KEY}
+      RUSTDESK_ID_SERVER: ${PUBLIC_IP}
+      RUSTDESK_RELAY_SERVER: ${PUBLIC_IP}
+      RUSTDESK_PUBLIC_KEY: ${RUSTDESK_PUBLIC_KEY}
+    depends_on:
+      ta-db:
+        condition: service_healthy
+
+  ta-web:
+    build:
+      context: ./tech-assist
+      dockerfile: infra/hetzner/Dockerfile.web
+      args:
+        VITE_API_BASE_URL: ""
+    restart: unless-stopped
+
+  # ---------- SkinDiag ----------
+  # SkinDiag force SSL vers la base (ssl: { rejectUnauthorized: false } dans server.ts) :
+  # la base locale doit donc parler SSL (certificat auto-signé généré par deploy.sh).
+  sk-db:
+    image: postgres:16
+    restart: unless-stopped
+    command:
+      - postgres
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/certs/server.crt
+      - -c
+      - ssl_key_file=/certs/server.key
+    environment:
+      POSTGRES_DB: skindiag
+      POSTGRES_USER: skindiag
+      POSTGRES_PASSWORD: ${SK_DB_PASSWORD}
+    volumes:
+      - sk_pg:/var/lib/postgresql/data
+      - ./certs/sk-db:/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skindiag -d skindiag"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  sk-app:
+    build:
+      context: ./skindiag
+      dockerfile_inline: |
+        FROM node:20-bookworm-slim
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm install --no-audit --no-fund
+        COPY . .
+        RUN npm run build
+        ENV NODE_ENV=production
+        EXPOSE 3000
+        CMD ["npm", "start"]
+    restart: unless-stopped
+    env_file: [./skindiag.env]
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: "postgresql://skindiag:${SK_DB_PASSWORD}@sk-db:5432/skindiag"
+      APP_URL: "https://${SKIN_HOST}"
+    depends_on:
+      sk-db:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:
+  ta_pg:
+  sk_pg:
