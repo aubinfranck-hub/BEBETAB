@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+# Sorties de rendu et fichiers générés
+output/*
+!output/.gitkeep
+src/generated/
+
+# Médias lourds : à stocker sur le VPS / stockage objet, pas dans git
+public/**/*.mp4
+public/**/*.mov
+public/**/*.webm
+public/**/*.mp3
+public/**/*.wav
+public/**/*.m4a

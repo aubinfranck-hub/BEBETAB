@@ -1,0 +1,16 @@
+{
+  "_note": "Palette et wordmark PAR DÉFAUT : à remplacer par la charte réelle de DiagAssist (couleurs, logo dans public/brands/diagassist/).",
+  "id": "diagassist",
+  "name": "DiagAssist",
+  "watermark": "DiagAssist",
+  "logo": null,
+  "colors": {
+    "background": "#0B1220",
+    "surface": "#141E33",
+    "primary": "#FF6B1A",
+    "accent": "#19E3A1",
+    "warning": "#FFB020",
+    "text": "#FFFFFF",
+    "textMuted": "#9FB0CC"
+  }
+}

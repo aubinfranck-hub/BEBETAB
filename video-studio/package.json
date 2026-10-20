@@ -1,0 +1,33 @@
+{
+  "name": "bebetab-video-studio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Studio vidéo programmable (Revideo + FFmpeg + ElevenLabs) pour les publicités DiagAssist / TechAssist",
+  "scripts": {
+    "start": "DISABLE_TELEMETRY=true npm run assets:scan && DISABLE_TELEMETRY=true revideo editor --projectFile ./src/project.tsx",
+    "assets:scan": "tsx scripts/scan-assets.ts",
+    "shots": "tsx scripts/export-shots.ts",
+    "voice": "tsx scripts/voice-elevenlabs.ts",
+    "typecheck": "tsc --noEmit",
+    "render": "npm run assets:scan && tsx scripts/render.ts",
+    "finalize": "tsx scripts/finalize.ts",
+    "build:ad": "npm run render && npm run finalize",
+    "browser": "puppeteer browsers install chrome"
+  },
+  "dependencies": {
+    "@fontsource/montserrat": "^5.1.0",
+    "@revideo/2d": "0.11.0",
+    "@revideo/core": "0.11.0",
+    "@revideo/renderer": "0.11.0",
+    "dotenv": "^16.4.5",
+    "puppeteer": "^25.3.0"
+  },
+  "devDependencies": {
+    "@revideo/cli": "0.11.0",
+    "@revideo/ui": "0.11.0",
+    "@types/node": "^22.14.0",
+    "tsx": "^4.21.0",
+    "typescript": "5.5.4",
+    "vite": "^4.5"
+  }
+}
