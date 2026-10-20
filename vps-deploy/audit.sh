@@ -57,7 +57,7 @@ main() {
   fi
   if [ -s /root/.ssh/authorized_keys ]; then
     k=$(grep -cE '^(ssh|ecdsa|sk-)' /root/.ssh/authorized_keys || true)
-    info "Clés SSH autorisées pour root: ${k} (commentaires: $(grep -E '^(ssh|ecdsa|sk-)' /root/.ssh/authorized_keys | awk '{print $NF}' | tr '\n' ' '))"
+    info "Clés SSH autorisées pour root: ${k} (commentaires: $(grep -E '^(ssh|ecdsa|sk-)' /root/.ssh/authorized_keys | tr -d '\r' | awk '{print $NF}' | tr '\n' ' '))"
     warn "Vérifiez que vous reconnaissez chacune de ces clés"
   else
     info "Aucune clé SSH pour root"
@@ -100,7 +100,10 @@ main() {
     if [ "$port" = "$ssh_port" ]; then info "public: $key (SSH)"; continue; fi
     case "$port" in
       80|443|21115|21116|21117|21118|21119) info "public: $key (${pname:-?})" ;;
-      5432|3306|6379|27017|9200|11211|2375|3000|4000|5000|8080) crit "Port $key exposé à Internet (${pname:-?}) : ne devrait pas l'être" ;;
+      8000) warn "Port $key ouvert (${pname:-?}) : si c'est l'interface Coolify, elle est en HTTP clair et donne le contrôle du serveur : à mettre derrière un nom de domaine HTTPS + double authentification" ;;
+      6001|6002) info "public: $key (${pname:-?}) : temps réel Coolify (normal si Coolify est installé)" ;;
+      8080) warn "Port $key ouvert (${pname:-?}) : souvent le tableau de bord Traefik du proxy Coolify, à fermer s'il est accessible sans mot de passe" ;;
+      5432|3306|6379|27017|9200|11211|2375|3000|4000|5000) crit "Port $key exposé à Internet (${pname:-?}) : ne devrait pas l'être" ;;
       *) warn "Port inattendu ouvert à Internet: $key (${pname:-?})" ;;
     esac
   done < <(ss -H -tulnp 2>/dev/null | awk '{print $1, $5, $7}')
@@ -110,13 +113,13 @@ main() {
   if have docker && docker info >/dev/null 2>&1; then
     info "Docker $(docker version --format '{{.Server.Version}}' 2>/dev/null)"
     docker ps --format 'conteneur: {{.Names}} | {{.Image}} | {{.Status}}' 2>/dev/null | while IFS= read -r l; do info "$l"; done
-    bad="$(docker ps --filter health=unhealthy --filter status=restarting --format '{{.Names}}' 2>/dev/null | tr '\n' ' ')"
+    bad="$( (docker ps --filter health=unhealthy --format '{{.Names}}'; docker ps --filter status=restarting --format '{{.Names}}') 2>/dev/null | sort -u | tr '\n' ' ')"
     if [ -n "$bad" ]; then crit "Conteneurs en échec: $bad"; else ok "Aucun conteneur en échec ou en redémarrage"; fi
     ex="$(docker ps -a --filter status=exited --format '{{.Names}}' 2>/dev/null | tr '\n' ' ')"
     if [ -n "$ex" ]; then warn "Conteneurs arrêtés: $ex"; fi
     unp="$(docker ps --format '{{.Names}}={{.Image}}' 2>/dev/null | grep -E '=[^:]+$|:latest$' | tr '\n' ' ')"
     if [ -n "$unp" ]; then warn "Images non épinglées (':latest') : une mise à jour imprévue est possible: $unp"; fi
-    priv="$(docker ps -q 2>/dev/null | xargs -r docker inspect --format '{{.Name}} {{.HostConfig.Privileged}}' 2>/dev/null | awk '$2=="true"{print $1}' | tr '\n' ' ')"
+    priv="$(docker ps -q 2>/dev/null | xargs -r docker inspect --format '{{.Name}} {{.HostConfig.Privileged}}' 2>/dev/null | awk '$2=="true"{print $1}' | grep -v 'buildx_buildkit' | tr '\n' ' ')"
     if [ -n "$priv" ]; then crit "Conteneurs en mode privilégié: $priv"; else ok "Aucun conteneur privilégié"; fi
     if grep -q 'max-size' /etc/docker/daemon.json 2>/dev/null; then ok "Rotation des journaux Docker configurée"
     else warn "Pas de rotation des journaux Docker (/etc/docker/daemon.json) : risque de disque plein à terme"; fi
@@ -144,7 +147,7 @@ main() {
       m="$(stat -c %a "$rd/id_ed25519")"
       info "Dossier de données: $rd"
       if [ "$m" = "600" ] || [ "$m" = "400" ]; then ok "Clé privée RustDesk présente (permissions $m)"; else warn "Clé privée RustDesk lisible par d'autres (permissions $m, devrait être 600)"; fi
-      copies="$(find / -xdev \( -name 'id_ed25519' -o -name 'id_ed25519.pub' \) \( -path '*rustdesk*' -o -path '*backup*' \) -not -path "$rd/*" 2>/dev/null | head -3)"
+      copies="$(find /opt /root /home /srv /mnt /var/backups -xdev \( -name 'id_ed25519' -o -name 'id_ed25519.pub' \) \( -path '*rustdesk*' -o -path '*backup*' \) -not -path "$rd/*" 2>/dev/null | head -3)"
       if [ -z "$copies" ]; then warn "Aucune copie de la clé RustDesk détectée : si le serveur est perdu, TOUS les clients devront être reconfigurés. Copiez $rd/id_ed25519* hors du serveur."
       else ok "Copie de la clé RustDesk détectée"; fi
     else
