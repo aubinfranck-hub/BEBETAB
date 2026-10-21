@@ -1,9 +1,16 @@
 {
   "extends": "@revideo/2d/tsconfig.project.json",
-  "include": ["src", "scripts"],
+  "include": [
+    "src",
+    "scripts",
+    "tests"
+  ],
   "compilerOptions": {
     "noEmit": true,
     "skipLibCheck": true,
-    "types": ["node", "vite/client"]
+    "types": [
+      "node",
+      "vite/client"
+    ]
   }
 }

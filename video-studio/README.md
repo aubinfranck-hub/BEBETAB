@@ -53,6 +53,12 @@ provisoire (`XX XX`, `À COMPLÉTER`), pour ne jamais exporter une pub avec des 
 6. Déposer les clips sous le nom attendu (`public/scan-express/clips/s01-hook.mp4`…). Le recadrage 9:16 « cover »
    est automatique ; privilégier des clips déjà en 9:16 et d'au moins la durée de la scène.
 
+## Génération des plans : FIMGA / Figma Weave
+
+Le pipeline Node est **indépendant du générateur** : il lit des MP4 dans `public/<id>/clips/`. Si le générateur est
+Figma Weave, le compte Figma doit d'abord être lié à Weave (<https://app.weavy.ai/settings?section=profile>).
+Chaque génération consomme des crédits : à lancer après validation de la bible visuelle (voir ci-dessus).
+
 ## Structure
 
 ```
@@ -63,6 +69,7 @@ campaigns/<id>/SHOTS.md         (généré par npm run shots) feuille de plans
 public/<id>/{clips,voice,music,references}/   médias (vidéos/audio non versionnés)
 src/scenes/                     clip.tsx, obd.tsx, cta.tsx, ad.tsx (enchaînement)
 scripts/                        render, finalize, voice, shots, scan-assets
+tests/                          npm test (node:test)
 ```
 
 La durée totale des scènes doit égaler `format.durationSeconds` (45 s) : le rendu s'arrête avec une erreur sinon.
@@ -94,13 +101,19 @@ Pour l'éditeur (`npm start`), la campagne ouverte est `DEFAULT_CAMPAIGN` dans `
 - Installation, `npm run typecheck`.
 - Rendu complet 1080×1920, 30 fps, 45,00 s avec des clips factices (portrait, paysage, sans piste audio) : ≈ 36 s
   de rendu, 0 erreur console ; export FFmpeg validé par ffprobe (H.264 High, yuv420p, AAC 48 kHz stéréo).
+- `npm test` (22 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
+  validité de la campagne livrée, et `scripts/voice-elevenlabs.ts` de bout en bout contre un **faux serveur** qui
+  reproduit le format documenté de [`/with-timestamps`](https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps)
+  (cache par scène, `--force`, reprise après un échec en cours de route, erreur claire sans clé).
 - Garde-fous : rendu final refusé sans clips/avec textes provisoires ; échec en quelques secondes avec un message
   clair si le navigateur ne décode pas le H.264.
 - Mixage sur signaux de test : normalisation ≈ −14 LUFS ; sidechain mesuré (musique baissée sous la voix).
 
 ## Ce qui n'a PAS été vérifié
 
-- L'appel ElevenLabs (`scripts/voice-elevenlabs.ts`) : aucune clé disponible, jamais exécuté.
+- Aucune requête réelle vers ElevenLabs (pas de clé) : le format de réponse suit la documentation et le script est
+  testé contre un faux serveur, mais l'authentification, les quotas et la voix choisie restent à confirmer au premier
+  vrai appel (`npm run voice`).
 - Aucun vrai clip FIMGA, aucune vraie voix, aucune vraie musique : l'aspect final, le ducking réglé sur de la
   parole réelle et la lisibilité des sous-titres sur de vraies images restent à valider.
 - Les textes de `campaign.json` (voix off, titres, tagline) et les données OBD (code P0300) sont **provisoires** ;

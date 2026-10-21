@@ -100,3 +100,20 @@ export function expandShotPrompt(campaign: Campaign, scene: SceneDef): string {
     return replacement;
   });
 }
+
+const GROUP_SIZE = 3;
+
+/** Regroupe les mots par paquets de 3 max, en coupant après la ponctuation. */
+export function groupWords(words: WordTiming[]): WordTiming[][] {
+  const groups: WordTiming[][] = [];
+  let current: WordTiming[] = [];
+  for (const word of words) {
+    current.push(word);
+    if (current.length >= GROUP_SIZE || /[.!?,;:]$/.test(word.text)) {
+      groups.push(current);
+      current = [];
+    }
+  }
+  if (current.length > 0) groups.push(current);
+  return groups;
+}

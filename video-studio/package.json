@@ -12,7 +12,8 @@
     "render": "npm run assets:scan && tsx scripts/render.ts",
     "finalize": "tsx scripts/finalize.ts",
     "build:ad": "npm run render && npm run finalize",
-    "browser": "puppeteer browsers install chrome"
+    "browser": "puppeteer browsers install chrome",
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@fontsource/montserrat": "^5.1.0",

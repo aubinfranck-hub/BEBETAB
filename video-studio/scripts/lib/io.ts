@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type {Brand, Campaign, CampaignVoice} from '../../src/types';
 
-export const ROOT = path.resolve(__dirname, '..', '..');
+// VIDEO_STUDIO_ROOT permet aux tests de travailler dans un dossier temporaire.
+export const ROOT = process.env.VIDEO_STUDIO_ROOT ?? path.resolve(__dirname, '..', '..');
 export const PUBLIC_DIR = path.join(ROOT, 'public');
 
 export function readJson<T>(file: string, fallback?: T): T {

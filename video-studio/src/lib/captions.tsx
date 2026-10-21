@@ -3,23 +3,7 @@ import {createRef, waitFor} from '@revideo/core';
 import type {ThreadGenerator} from '@revideo/core';
 import type {Brand, WordTiming} from '../types';
 import {CAPTION_Y, FONT} from './theme';
-
-const GROUP_SIZE = 3;
-
-/** Regroupe les mots par paquets de 3 max, en coupant après la ponctuation. */
-export function groupWords(words: WordTiming[]): WordTiming[][] {
-  const groups: WordTiming[][] = [];
-  let current: WordTiming[] = [];
-  for (const word of words) {
-    current.push(word);
-    if (current.length >= GROUP_SIZE || /[.!?,;:]$/.test(word.text)) {
-      groups.push(current);
-      current = [];
-    }
-  }
-  if (current.length > 0) groups.push(current);
-  return groups;
-}
+import {groupWords} from './timeline';
 
 /** Sous-titres style Reels/TikTok : 3 mots à l'écran, le mot prononcé passe en couleur d'accent. */
 export function* runCaptions(parent: Layout, words: WordTiming[], brand: Brand): ThreadGenerator {

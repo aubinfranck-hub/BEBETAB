@@ -10,35 +10,11 @@ import crypto from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import type {CampaignVoice, WordTiming} from '../src/types';
+import type {CampaignVoice} from '../src/types';
+import {type Alignment, wordsFromAlignment} from '../src/lib/alignment';
 import {FADE} from '../src/lib/theme';
 import {mergePunctuation} from '../src/lib/timeline';
 import {PUBLIC_DIR, campaignId, hasFlag, loadCampaign, loadVoice, voicePath} from './lib/io';
-
-interface Alignment {
-  characters: string[];
-  character_start_times_seconds: number[];
-  character_end_times_seconds: number[];
-}
-
-function wordsFromAlignment(alignment: Alignment): WordTiming[] {
-  const words: WordTiming[] = [];
-  let text = '';
-  let start = 0;
-  let end = 0;
-  alignment.characters.forEach((char, index) => {
-    if (/\s/.test(char)) {
-      if (text) words.push({text, start, end});
-      text = '';
-      return;
-    }
-    if (!text) start = alignment.character_start_times_seconds[index];
-    text += char;
-    end = alignment.character_end_times_seconds[index];
-  });
-  if (text) words.push({text, start, end});
-  return words;
-}
 
 function audioDuration(file: string, fallback: number): number {
   const probe = spawnSync(
@@ -54,6 +30,7 @@ async function main() {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   const voiceId = process.env.ELEVENLABS_VOICE_ID;
   const modelId = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
+  const baseUrl = process.env.ELEVENLABS_BASE_URL || 'https://api.elevenlabs.io';
   if (!apiKey || !voiceId) {
     console.error('ELEVENLABS_API_KEY et ELEVENLABS_VOICE_ID sont requis (voir .env.example).');
     process.exit(1);
@@ -83,7 +60,7 @@ async function main() {
 
     console.log(`+ ${scene.id} : génération…`);
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`,
+      `${baseUrl}/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`,
       {
         method: 'POST',
         headers: {'xi-api-key': apiKey, 'Content-Type': 'application/json'},
@@ -104,6 +81,8 @@ async function main() {
     const alignedEnd = words.length ? words[words.length - 1].end : 0;
     const duration = audioDuration(file, alignedEnd);
     next[scene.id] = {audio: relAudio, duration, words, hash};
+    // Écrit après chaque scène : un échec plus loin ne fait pas perdre (ni refacturer) les scènes déjà faites
+    fs.writeFileSync(voicePath(id), JSON.stringify({...previous, ...next}, null, 2) + '\n');
 
     if (duration > scene.duration - FADE) {
       console.warn(
