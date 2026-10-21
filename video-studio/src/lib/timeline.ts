@@ -117,3 +117,22 @@ export function groupWords(words: WordTiming[]): WordTiming[][] {
   if (current.length > 0) groups.push(current);
   return groups;
 }
+
+const VIDEO_EXTENSIONS = ['mp4', 'mov', 'webm'];
+const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp'];
+export const IMAGE_PATTERN = /\.(png|jpe?g|webp)$/i;
+
+/**
+ * Un plan peut être fourni en vidéo OU en image fixe sous le même nom de base
+ * (clips/s01-hook.mp4, .mov, .webm, .png, .jpg, .jpeg, .webp). La vidéo l'emporte si les deux existent.
+ * Retourne le chemin relatif à public/ ("<campagne>/clips/s01-hook.png") ou null.
+ */
+export function resolveClip(files: string[], campaignId: string, clip: string): string | null {
+  const base = clip.replace(/\.[^./]+$/, '');
+  const present = new Set(files);
+  for (const extension of [...VIDEO_EXTENSIONS, ...IMAGE_EXTENSIONS]) {
+    const candidate = `${campaignId}/${base}.${extension}`;
+    if (present.has(candidate)) return candidate;
+  }
+  return null;
+}

@@ -15,7 +15,7 @@ import path from 'node:path';
 import puppeteer from 'puppeteer';
 import {renderVideo} from '@revideo/renderer';
 import type {AssetManifest} from '../src/types';
-import {buildTimeline, findPlaceholders} from '../src/lib/timeline';
+import {IMAGE_PATTERN, buildTimeline, findPlaceholders, resolveClip} from '../src/lib/timeline';
 import {ROOT, campaignId, hasFlag, loadCampaign, readJson} from './lib/io';
 
 /**
@@ -51,8 +51,8 @@ async function main() {
     media: {},
   });
   const missingClips = campaign.scenes
-    .filter(scene => scene.kind === 'clip' && scene.clip && !assets.media[`${id}/${scene.clip}`])
-    .map(scene => `public/${id}/${scene.clip}`);
+    .filter(scene => scene.kind === 'clip' && scene.clip && !resolveClip(Object.keys(assets.media), id, scene.clip))
+    .map(scene => `public/${id}/${scene.clip} (ou une image .png/.jpg/.webp du même nom)`);
   const placeholders = findPlaceholders(campaign);
 
   if (missingClips.length || placeholders.length) {
@@ -69,7 +69,7 @@ async function main() {
 
   const range = process.env.RANGE?.split(',').map(Number);
   const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
-  if (Object.keys(assets.media).length > 0) await assertBrowserPlaysH264(asRoot ? ['--no-sandbox'] : []);
+  if (Object.keys(assets.media).some(file => !IMAGE_PATTERN.test(file))) await assertBrowserPlaysH264(asRoot ? ['--no-sandbox'] : []);
 
   // Garde-fou : un rendu qui ne progresse plus ne doit pas bloquer indéfiniment un serveur.
   const timeoutMinutes = Number(process.env.RENDER_TIMEOUT_MIN || 45);

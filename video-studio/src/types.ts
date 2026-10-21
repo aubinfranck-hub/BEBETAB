@@ -61,7 +61,7 @@ export interface SceneDef {
   kind: SceneKind;
   /** Durée en secondes ; la somme doit égaler format.durationSeconds. */
   duration: number;
-  /** Chemin relatif à public/<campagne>/ */
+  /** Nom de base du plan sous public/<campagne>/ ; vidéo (.mp4/.mov/.webm) ou image fixe (.png/.jpg/.webp) acceptées. */
   clip?: string;
   /** Point de départ dans le clip, en secondes. */
   clipStart?: number;

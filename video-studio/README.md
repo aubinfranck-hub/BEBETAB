@@ -50,13 +50,15 @@ provisoire (`XX XX`, `À COMPLÉTER`), pour ne jamais exporter une pub avec des 
    (`ffmpeg -sseof -0.1 -i clip.mp4 -frames:v 1 last.png`).
 5. **Jamais de texte généré** dans l'image (les générateurs déforment les lettres) : les titres, sous-titres, logo
    et contact sont ajoutés par Revideo.
-6. Déposer les clips sous le nom attendu (`public/scan-express/clips/s01-hook.mp4`…). Le recadrage 9:16 « cover »
-   est automatique ; privilégier des clips déjà en 9:16 et d'au moins la durée de la scène.
+6. Déposer les plans sous le nom attendu (`public/scan-express/clips/s01-hook.mp4`…). **Vidéo ou image fixe** : le même
+   nom avec `.png`, `.jpg` ou `.webp` fonctionne aussi (zoom progressif ajouté) ; la vidéo l'emporte si les deux existent.
+   Le recadrage 9:16 « cover » est automatique ; privilégier des vidéos d'au moins la durée de la scène.
+   Le protocole pour générer avec ChatGPT est dans `campaigns/scan-express/SHOTS.md`.
 
-## Génération des plans : FIMGA / Figma Weave
+## Génération des plans (ChatGPT, Figma Weave, autre)
 
-Le pipeline Node est **indépendant du générateur** : il lit des MP4 dans `public/<id>/clips/`. Si le générateur est
-Figma Weave, le compte Figma doit d'abord être lié à Weave (<https://app.weavy.ai/settings?section=profile>).
+Le pipeline Node est **indépendant du générateur** : il lit des vidéos ou des images dans `public/<id>/clips/`. Si le
+générateur est Figma Weave, le compte Figma doit d'abord être lié à Weave (<https://app.weavy.ai/settings?section=profile>).
 Chaque génération consomme des crédits : à lancer après validation de la bible visuelle (voir ci-dessus).
 
 ## Structure
@@ -101,10 +103,12 @@ Pour l'éditeur (`npm start`), la campagne ouverte est `DEFAULT_CAMPAIGN` dans `
 - Installation, `npm run typecheck`.
 - Rendu complet 1080×1920, 30 fps, 45,00 s avec des clips factices (portrait, paysage, sans piste audio) : ≈ 36 s
   de rendu, 0 erreur console ; export FFmpeg validé par ffprobe (H.264 High, yuv420p, AAC 48 kHz stéréo).
-- `npm test` (22 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
+- `npm test` (26 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
   validité de la campagne livrée, et `scripts/voice-elevenlabs.ts` de bout en bout contre un **faux serveur** qui
   reproduit le format documenté de [`/with-timestamps`](https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps)
   (cache par scène, `--force`, reprise après un échec en cours de route, erreur claire sans clé).
+- Plans en image fixe (portrait 1024×1536, paysage 1536×1024, carré) mélangés à une vidéo : recadrage plein écran,
+  zoom, 0 erreur de rendu.
 - Garde-fous : rendu final refusé sans clips/avec textes provisoires ; échec en quelques secondes avec un message
   clair si le navigateur ne décode pas le H.264.
 - Mixage sur signaux de test : normalisation ≈ −14 LUFS ; sidechain mesuré (musique baissée sous la voix).

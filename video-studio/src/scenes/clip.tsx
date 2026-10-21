@@ -1,8 +1,9 @@
-import {Gradient, Layout, Rect, Txt, Video} from '@revideo/2d';
+import {Gradient, Img, Layout, Rect, Txt, Video} from '@revideo/2d';
 import {all, createRef, easeOutCubic, linear, waitFor} from '@revideo/core';
 import type {ThreadGenerator} from '@revideo/core';
 import {runCaptions} from '../lib/captions';
 import {FADE, FONT} from '../lib/theme';
+import {IMAGE_PATTERN, resolveClip} from '../lib/timeline';
 import {SegmentCtx, Watermark} from './context';
 
 /** Carte affichée quand le clip FIMGA n'existe pas encore (rendu --draft uniquement). */
@@ -53,13 +54,23 @@ export function* clipScene(layer: Layout, ctx: SegmentCtx): ThreadGenerator {
   const subheadline = createRef<Txt>();
   const captions = createRef<Layout>();
 
-  const clipPath = scene.clip ? `${campaign.id}/${scene.clip}` : null;
+  const clipPath = scene.clip ? resolveClip(assets.files, campaign.id, scene.clip) : null;
   const info = clipPath ? assets.media[clipPath] : undefined;
+  const isImage = clipPath !== null && IMAGE_PATTERN.test(clipPath);
 
   layer.add(
     <>
       <Layout ref={holder} size={[width, height]}>
-        {clipPath && info ? (
+        {clipPath && info && isImage ? (
+          <Img
+            src={`/${clipPath}`}
+            // Recadrage "cover" 9:16 depuis les dimensions lues par ffprobe
+            size={() => {
+              const cover = Math.max(width / info.width, height / info.height);
+              return [info.width * cover, info.height * cover];
+            }}
+          />
+        ) : clipPath && info ? (
           <Video
             ref={video}
             src={`/${clipPath}`}
@@ -154,8 +165,8 @@ export function* clipScene(layer: Layout, ctx: SegmentCtx): ThreadGenerator {
   };
 
   yield* all(
-    // Léger zoom continu pour donner de la vie à un plan statique
-    holder().scale(1.07, total, linear),
+    // Zoom continu : discret sur un clip vidéo, plus marqué sur une image fixe pour donner du mouvement
+    holder().scale(isImage ? 1.14 : 1.07, total, linear),
     intro(),
     runCaptions(captions(), words, brand),
     waitFor(total),

@@ -8,7 +8,7 @@ import path from 'node:path';
 import type {AssetManifest, MediaInfo} from '../src/types';
 import {PUBLIC_DIR, ROOT} from './lib/io';
 
-const VIDEO_EXT = new Set(['.mp4', '.mov', '.webm']);
+const MEDIA_EXT = new Set(['.mp4', '.mov', '.webm', '.png', '.jpg', '.jpeg', '.webp']);
 
 function walk(dir: string, base = ''): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -35,13 +35,13 @@ function probe(file: string): MediaInfo | null {
   const data = JSON.parse(result.stdout);
   const stream = data.streams?.[0];
   if (!stream) return null;
-  return {width: stream.width, height: stream.height, duration: Number(data.format?.duration ?? 0)};
+  return {width: stream.width, height: stream.height, duration: Number(data.format?.duration) || 0};
 }
 
 const files = walk(PUBLIC_DIR).sort();
 const media: Record<string, MediaInfo> = {};
 for (const rel of files) {
-  if (!VIDEO_EXT.has(path.extname(rel).toLowerCase())) continue;
+  if (!MEDIA_EXT.has(path.extname(rel).toLowerCase())) continue;
   const info = probe(path.join(PUBLIC_DIR, rel));
   if (info) media[rel] = info;
   else console.warn(`ffprobe n'a pas pu lire ${rel} (ffprobe installé ? fichier valide ?)`);
@@ -51,4 +51,4 @@ const manifest: AssetManifest = {files, media};
 const out = path.join(ROOT, 'src', 'generated', 'assets.json');
 fs.mkdirSync(path.dirname(out), {recursive: true});
 fs.writeFileSync(out, JSON.stringify(manifest, null, 2) + '\n');
-console.log(`assets.json : ${files.length} fichier(s), ${Object.keys(media).length} vidéo(s) analysée(s)`);
+console.log(`assets.json : ${files.length} fichier(s), ${Object.keys(media).length} média(s) analysé(s)`);

@@ -10,6 +10,7 @@ import {
   findPlaceholders,
   groupWords,
   mergePunctuation,
+  resolveClip,
 } from '../src/lib/timeline';
 import type {Campaign} from '../src/types';
 
@@ -156,5 +157,32 @@ describe('wordsFromAlignment (format documenté ElevenLabs)', () => {
       character_end_times_seconds: spaced.map((_, i) => i + 1),
     });
     assert.deepEqual(words.map(word => word.text), ['a', 'b']);
+  });
+});
+
+describe('resolveClip (vidéo ou image fixe sous le même nom)', () => {
+  const files = [
+    'scan-express/clips/a.png',
+    'scan-express/clips/b.mp4',
+    'scan-express/clips/b.png',
+    'scan-express/clips/c.JPG',
+    'autre/clips/d.mp4',
+  ];
+
+  it('trouve une image quand seule une image existe, même si la campagne cite un .mp4', () => {
+    assert.equal(resolveClip(files, 'scan-express', 'clips/a.mp4'), 'scan-express/clips/a.png');
+  });
+
+  it("préfère la vidéo à l'image du même nom", () => {
+    assert.equal(resolveClip(files, 'scan-express', 'clips/b.mp4'), 'scan-express/clips/b.mp4');
+  });
+
+  it("ne sort pas du dossier de la campagne et renvoie null si rien n'existe", () => {
+    assert.equal(resolveClip(files, 'scan-express', 'clips/d.mp4'), null);
+    assert.equal(resolveClip(files, 'scan-express', 'clips/zzz.mp4'), null);
+  });
+
+  it('ignore la casse inattendue des extensions plutôt que de deviner (null)', () => {
+    assert.equal(resolveClip(files, 'scan-express', 'clips/c.mp4'), null);
   });
 });

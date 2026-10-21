@@ -31,11 +31,25 @@ a compact black handheld OBD-II diagnostic scanner with a small color screen, sh
 
 cinematic realistic photography, 35mm lens, shallow depth of field, natural skin tones, vertical 9:16 framing, no text, no captions, no logos, no watermark, no extra people
 
-## 2. Plans à générer
+## 2. Fournir un plan : vidéo ou image fixe
+
+Chaque plan est lu sous `public/scan-express/clips/<nom>` avec **n'importe laquelle** de ces extensions : `.mp4` `.mov` `.webm` (vidéo) ou `.png` `.jpg` `.jpeg` `.webp` (image fixe). Si les deux existent, la vidéo gagne. Une image fixe reçoit un zoom progressif pour donner du mouvement.
+
+### Générer avec ChatGPT (images)
+
+1. Travailler dans **une seule conversation** : y générer d'abord les fiches de référence, les valider, puis ne plus en sortir.
+2. Pour chaque plan, **joindre les images de référence** listées (véhicule, acteurs, décor) et écrire explicitement « même personnage / même véhicule que les images jointes ».
+3. Coller le prompt du plan tel quel (les blocs d'identité sont déjà injectés). Demander **sujet centré** et de la marge sur les côtés : une image 1024×1536 (2:3) est recadrée en 9:16 et perd environ 16 % de sa largeur (8 % de chaque côté).
+4. Aucun texte, logo ni sous-titre dans l'image : ils sont ajoutés au montage.
+5. Enregistrer sous le nom exact du plan (ex. `s01-hook.png`) dans `public/scan-express/clips/`, puis `npm run render -- --draft`.
+
+Aucun générateur ne garantit l'identité parfaite d'un plan à l'autre : comparer les plans côte à côte et refaire celui qui dérive.
+
+## 3. Plans à générer
 
 ### s01-hook — 4 s
 
-- Fichier attendu : `public/scan-express/clips/s01-hook.mp4`
+- Fichier attendu : `public/scan-express/clips/s01-hook.mp4` (ou même nom en .png/.jpg/.webp)
 - Références à joindre : `REF-CLIENT-01`, `REF-VEHICLE-01`
 - Intention : Gros plan du tableau de bord : le voyant moteur s'allume, puis la cliente inquiète au volant.
 - Caméra : slow push-in from the dashboard check-engine light to the driver's worried face
@@ -46,7 +60,7 @@ Inside a silver-grey compact sedan (2015-2018 model, West African market spec), 
 
 ### s02-probleme — 8 s
 
-- Fichier attendu : `public/scan-express/clips/s02-probleme.mp4`
+- Fichier attendu : `public/scan-express/clips/s02-probleme.mp4` (ou même nom en .png/.jpg/.webp)
 - Références à joindre : `REF-CLIENT-01`, `REF-VEHICLE-01`, `REF-LOC-GARAGE-01`
 - Intention : La cliente devant le capot ouvert de sa voiture, dans le garage, ne sachant pas quoi faire.
 - Caméra : medium shot, slight handheld, then slow dolly-in on the open hood
@@ -57,7 +71,7 @@ In a small open-air auto repair garage in Abidjan, concrete floor, corrugated me
 
 ### s03-solution — 8 s
 
-- Fichier attendu : `public/scan-express/clips/s03-solution.mp4`
+- Fichier attendu : `public/scan-express/clips/s03-solution.mp4` (ou même nom en .png/.jpg/.webp)
 - Références à joindre : `REF-MECHANIC-01`, `REF-SCANNER-01`, `REF-VEHICLE-01`, `REF-LOC-GARAGE-01`
 - Intention : Le mécanicien branche le scanner OBD sur la prise du véhicule (gros plan mains puis plan moyen).
 - Caméra : close-up on hands plugging the scanner into the OBD port under the dashboard, then pull back to a medium shot of the mechanic
@@ -68,7 +82,7 @@ In a small open-air auto repair garage in Abidjan, concrete floor, corrugated me
 
 ### s05-resultat — 8 s
 
-- Fichier attendu : `public/scan-express/clips/s05-resultat.mp4`
+- Fichier attendu : `public/scan-express/clips/s05-resultat.mp4` (ou même nom en .png/.jpg/.webp)
 - Références à joindre : `REF-MECHANIC-01`, `REF-CLIENT-01`, `REF-VEHICLE-01`, `REF-LOC-GARAGE-01`
 - Intention : Le mécanicien montre le résultat sur une tablette à la cliente, qui hoche la tête, rassurée.
 - Caméra : over-the-shoulder medium shot, gentle push-in on the client's relieved smile
