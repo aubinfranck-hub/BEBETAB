@@ -6,7 +6,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import {SPEECH_FILL_LIMIT, buildTimeline, estimateSpeechSeconds} from '../src/lib/timeline';
+import {SPEECH_FILL_LIMIT, buildTimeline, estimateSpeechSeconds, findPlaceholders} from '../src/lib/timeline';
 import {FADE} from '../src/lib/theme';
 import {ROOT, campaignId, loadCampaign} from './lib/io';
 
@@ -45,7 +45,9 @@ const lines = [
   '',
   '## À valider avant diffusion',
   '',
-  '- **Contact** : le numéro/lien est encore un marqueur (`XX XX`) ; le rendu final reste bloqué tant qu\'il n\'est pas renseigné.',
+  ...(findPlaceholders(campaign).length > 0
+    ? [`- **Textes provisoires** : ${findPlaceholders(campaign).join(', ')} contient encore un marqueur ; le rendu final reste bloqué.`]
+    : ['- **Contact** : vérifier que le numéro affiché est le bon et qu\'il est joignable (appel, WhatsApp ?).']),
   '- **Promesses commerciales** : aucun prix, délai chiffré ni garantie n\'est cité (pas de « rapide » dans la voix : le nom « Express » le suggère déjà). À vous d\'ajouter ce que vous pouvez tenir.',
   '- **« Notre intelligence artificielle »** : à garder seulement si l\'analyse IA fait bien partie du service livré.',
   '- **Cas OBD (P0300, bougie ou bobine)** : exemple illustratif ; le faire valider par un technicien.',

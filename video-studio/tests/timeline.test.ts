@@ -59,8 +59,12 @@ describe('findPlaceholders', () => {
     assert.deepEqual(found.sort(), ['cta.contact', 'list[0]']);
   });
 
-  it('la campagne livrée bloque le rendu final uniquement sur le contact', () => {
-    assert.deepEqual(findPlaceholders(realCampaign), ['cta.contact']);
+  it('la campagne livrée ne contient plus de texte provisoire', () => {
+    assert.deepEqual(findPlaceholders(realCampaign), []);
+  });
+
+  it('le contact est un numéro ivoirien au format international (+225 puis 10 chiffres)', () => {
+    assert.match(realCampaign.cta.contact, /^\+225 (\d{2} ){4}\d{2}$/);
   });
 });
 

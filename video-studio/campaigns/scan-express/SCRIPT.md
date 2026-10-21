@@ -14,11 +14,11 @@ L'estimation (≈ 150 mots/min + pauses, ±20 %) sert à repérer un texte trop 
 | s05-resultat | 0:32–0:40 | Vous repartez avec un diagnostic clair, et vous décidez en toute confiance. | UN DIAGNOSTIC CLAIR | Le mécanicien montre le résultat sur une tablette à la cliente, qui hoche la tête, rassurée. | 5.3 s / 7.7 s ✅ |
 | s06-cta | 0:40–0:45 | SCAN EXPRESS, par DiagAssist. Contactez-nous dès maintenant. |  | Carte finale (code) | 3.5 s / 4.7 s ✅ |
 
-Contact affiché : +225 XX XX XX XX XX · Tagline : « Comprenez enfin ce qui se passe sous le capot. »
+Contact affiché : +225 07 07 31 27 97 · Tagline : « Comprenez enfin ce qui se passe sous le capot. »
 
 ## À valider avant diffusion
 
-- **Contact** : le numéro/lien est encore un marqueur (`XX XX`) ; le rendu final reste bloqué tant qu'il n'est pas renseigné.
+- **Contact** : vérifier que le numéro affiché est le bon et qu'il est joignable (appel, WhatsApp ?).
 - **Promesses commerciales** : aucun prix, délai chiffré ni garantie n'est cité (pas de « rapide » dans la voix : le nom « Express » le suggère déjà). À vous d'ajouter ce que vous pouvez tenir.
 - **« Notre intelligence artificielle »** : à garder seulement si l'analyse IA fait bien partie du service livré.
 - **Cas OBD (P0300, bougie ou bobine)** : exemple illustratif ; le faire valider par un technicien.

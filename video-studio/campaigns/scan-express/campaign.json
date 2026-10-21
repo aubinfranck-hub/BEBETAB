@@ -1,5 +1,5 @@
 {
-  "_note": "Script v1 rédigé pour SCAN EXPRESS (45 s). Aucun prix, délai chiffré ni garantie n'est cité volontairement. Le contact reste à renseigner (marqueur 'XX XX' = rendu final bloqué). Voir SCRIPT.md.",
+  "_note": "Script v1 rédigé pour SCAN EXPRESS (45 s). Aucun prix, délai chiffré ni garantie n'est cité volontairement. Les champs contenant 'XX XX' ou 'À COMPLÉTER' bloquent le rendu final (npm run render sans --draft). Voir SCRIPT.md.",
   "id": "scan-express",
   "brand": "diagassist",
   "product": "SCAN EXPRESS",
@@ -20,7 +20,7 @@
   "cta": {
     "tagline": "Comprenez enfin ce qui se passe sous le capot.",
     "contactLabel": "Contactez-nous",
-    "contact": "+225 XX XX XX XX XX"
+    "contact": "+225 07 07 31 27 97"
   },
   "bible": {
     "_note": "Références visuelles FIXES. Chaque bloc 'identity' est collé À L'IDENTIQUE dans tous les prompts de plans ({{VEHICLE}}, {{MECHANIC}}, ...). Valider/modifier ici avant de générer quoi que ce soit.",
