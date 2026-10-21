@@ -5,12 +5,14 @@ import {describe, it} from 'node:test';
 import {wordsFromAlignment} from '../src/lib/alignment';
 import {
   buildTimeline,
+  estimateSpeechSeconds,
   estimateWords,
   expandShotPrompt,
   findPlaceholders,
   groupWords,
   mergePunctuation,
   resolveClip,
+  SPEECH_FILL_LIMIT,
 } from '../src/lib/timeline';
 import type {Campaign} from '../src/types';
 
@@ -184,5 +186,28 @@ describe('resolveClip (vidéo ou image fixe sous le même nom)', () => {
 
   it('ignore la casse inattendue des extensions plutôt que de deviner (null)', () => {
     assert.equal(resolveClip(files, 'scan-express', 'clips/c.mp4'), null);
+  });
+});
+
+describe('estimateSpeechSeconds', () => {
+  it('compte les mots et les pauses de ponctuation', () => {
+    assert.ok(Math.abs(estimateSpeechSeconds('Un deux trois quatre cinq.') - 2.3) < 1e-9);
+    assert.ok(Math.abs(estimateSpeechSeconds('Un, deux ? Trois') - (3 / 2.5 + 0.3 + 0.15)) < 1e-9);
+  });
+
+  it("ignore les signes isolés et ne plante pas sur un texte vide", () => {
+    assert.equal(estimateSpeechSeconds(''), 0);
+    assert.ok(Math.abs(estimateSpeechSeconds('allumé ?') - (1 / 2.5 + 0.3)) < 1e-9);
+  });
+
+  it('la voix off de chaque scène de scan-express tient dans sa scène avec 10 % de marge (fondu inclus)', () => {
+    for (const scene of realCampaign.scenes.filter(item => item.voiceover)) {
+      const speech = estimateSpeechSeconds(scene.voiceover!);
+      const allowed = (scene.duration - 0.3) * SPEECH_FILL_LIMIT;
+      assert.ok(
+        speech <= allowed,
+        `${scene.id} : voix estimée ${speech.toFixed(1)} s > ${allowed.toFixed(1)} s autorisées`,
+      );
+    }
   });
 });

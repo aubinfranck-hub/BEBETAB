@@ -136,3 +136,18 @@ export function resolveClip(files: string[], campaignId: string, clip: string): 
   }
   return null;
 }
+
+/**
+ * Durée parlée estimée d'une voix off en français (≈ 150 mots/min + pauses de ponctuation).
+ * Estimation à ±20 % : sert à repérer un texte trop long AVANT de payer la synthèse vocale ;
+ * la vraie durée vient de `npm run voice`.
+ */
+/** Part de la durée disponible qu'une voix estimée peut occuper (l'estimation est à ±20 %). */
+export const SPEECH_FILL_LIMIT = 0.9;
+
+export function estimateSpeechSeconds(text: string): number {
+  const words = text.split(/\s+/).filter(token => /[\p{L}\p{N}]/u.test(token)).length;
+  const strongPauses = (text.match(/[.!?…]/g) ?? []).length;
+  const softPauses = (text.match(/[,;:]/g) ?? []).length;
+  return words / 2.5 + strongPauses * 0.3 + softPauses * 0.15;
+}

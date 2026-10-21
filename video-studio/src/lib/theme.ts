@@ -9,3 +9,12 @@ export const FADE = 0.3;
  */
 export const SAFE_TOP = -740;
 export const CAPTION_Y = 380;
+
+/**
+ * Taille de police telle que la ligne la plus longue tienne dans maxWidth.
+ * Montserrat Black en capitales mesure environ 0,7 em par caractère (estimation prudente).
+ */
+export function fitFontSize(lines: string[], maxWidth: number, baseSize: number, emPerChar = 0.7): number {
+  const longest = Math.max(1, ...lines.map(line => line.length));
+  return Math.min(baseSize, Math.floor(maxWidth / (longest * emPerChar)));
+}

@@ -1,10 +1,15 @@
 {
-  "_note": "MODÈLE DE DÉPART. Les textes (voix off, titres, contact, tagline) sont PROVISOIRES : remplacer par le script validé de 45 s. Les champs contenant 'XX XX' ou 'À COMPLÉTER' bloquent le rendu final (npm run render sans --draft).",
+  "_note": "Script v1 rédigé pour SCAN EXPRESS (45 s). Aucun prix, délai chiffré ni garantie n'est cité volontairement. Le contact reste à renseigner (marqueur 'XX XX' = rendu final bloqué). Voir SCRIPT.md.",
   "id": "scan-express",
   "brand": "diagassist",
   "product": "SCAN EXPRESS",
   "title": "SCAN EXPRESS by DiagAssist — 45 s",
-  "format": { "width": 1080, "height": 1920, "fps": 30, "durationSeconds": 45 },
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationSeconds": 45
+  },
   "audio": {
     "music": "music/afro-urbain.mp3",
     "musicVolume": 0.22,
@@ -48,10 +53,13 @@
       "duration": 4,
       "clip": "clips/s01-hook.mp4",
       "headline": "VOYANT MOTEUR\nALLUMÉ ?",
-      "voiceover": "Voyant moteur allumé ? Ne roulez pas dans le doute.",
+      "voiceover": "Voyant moteur allumé ? Ne paniquez pas.",
       "shot": {
         "description": "Gros plan du tableau de bord : le voyant moteur s'allume, puis la cliente inquiète au volant.",
-        "references": ["REF-CLIENT-01", "REF-VEHICLE-01"],
+        "references": [
+          "REF-CLIENT-01",
+          "REF-VEHICLE-01"
+        ],
         "camera": "slow push-in from the dashboard check-engine light to the driver's worried face",
         "prompt": "Inside {{VEHICLE}}, {{CLIENT}} sits at the wheel on a busy Abidjan street. The orange check-engine warning light glows on the dashboard; she looks at it, worried. {{STYLE}}"
       }
@@ -61,11 +69,15 @@
       "kind": "clip",
       "duration": 8,
       "clip": "clips/s02-probleme.mp4",
-      "headline": "PANNES.\nFACTURES.",
-      "voiceover": "Chaque jour, des conducteurs roulent avec un défaut qu'ils ne comprennent pas. Pannes, factures : le risque grandit.",
+      "headline": "UN VOYANT.\nMILLE QUESTIONS.",
+      "voiceover": "On ne sait jamais ce que ça cache. On stresse, et on craint la facture.",
       "shot": {
         "description": "La cliente devant le capot ouvert de sa voiture, dans le garage, ne sachant pas quoi faire.",
-        "references": ["REF-CLIENT-01", "REF-VEHICLE-01", "REF-LOC-GARAGE-01"],
+        "references": [
+          "REF-CLIENT-01",
+          "REF-VEHICLE-01",
+          "REF-LOC-GARAGE-01"
+        ],
         "camera": "medium shot, slight handheld, then slow dolly-in on the open hood",
         "prompt": "In {{LOCATION}}, {{CLIENT}} stands in front of {{VEHICLE}} with its hood open, looking at the engine, unsure and worried. {{STYLE}}"
       }
@@ -77,10 +89,15 @@
       "clip": "clips/s03-solution.mp4",
       "headline": "SCAN EXPRESS",
       "subheadline": "by DiagAssist",
-      "voiceover": "Avec SCAN EXPRESS de DiagAssist, un technicien branche un scanner de diagnostic sur votre véhicule.",
+      "voiceover": "Avec SCAN EXPRESS de DiagAssist, un technicien branche un scanner OBD sur votre véhicule.",
       "shot": {
         "description": "Le mécanicien branche le scanner OBD sur la prise du véhicule (gros plan mains puis plan moyen).",
-        "references": ["REF-MECHANIC-01", "REF-SCANNER-01", "REF-VEHICLE-01", "REF-LOC-GARAGE-01"],
+        "references": [
+          "REF-MECHANIC-01",
+          "REF-SCANNER-01",
+          "REF-VEHICLE-01",
+          "REF-LOC-GARAGE-01"
+        ],
         "camera": "close-up on hands plugging the scanner into the OBD port under the dashboard, then pull back to a medium shot of the mechanic",
         "prompt": "In {{LOCATION}}, {{MECHANIC}} leans into {{VEHICLE}} and plugs {{SCANNER}} into the OBD-II port under the steering wheel. {{STYLE}}"
       }
@@ -89,7 +106,7 @@
       "id": "s04-diagnostic",
       "kind": "obd",
       "duration": 12,
-      "voiceover": "Le scanner lit les codes défaut du calculateur. L'analyse IA identifie la cause probable, et vous savez enfin ce qui se passe sous le capot.",
+      "voiceover": "Le scanner lit les codes défaut. Notre intelligence artificielle analyse, et vous explique la cause probable. Fini le mystère sous le capot.",
       "obd": {
         "_note": "Données de DÉMONSTRATION (illustration). Remplacer par un cas réaliste validé par un technicien.",
         "title": "DIAGNOSTIC OBD-II",
@@ -113,10 +130,15 @@
       "duration": 8,
       "clip": "clips/s05-resultat.mp4",
       "headline": "UN DIAGNOSTIC\nCLAIR",
-      "voiceover": "Vous repartez avec un diagnostic clair, et vous décidez en connaissance de cause.",
+      "voiceover": "Vous repartez avec un diagnostic clair, et vous décidez en toute confiance.",
       "shot": {
         "description": "Le mécanicien montre le résultat sur une tablette à la cliente, qui hoche la tête, rassurée.",
-        "references": ["REF-MECHANIC-01", "REF-CLIENT-01", "REF-VEHICLE-01", "REF-LOC-GARAGE-01"],
+        "references": [
+          "REF-MECHANIC-01",
+          "REF-CLIENT-01",
+          "REF-VEHICLE-01",
+          "REF-LOC-GARAGE-01"
+        ],
         "camera": "over-the-shoulder medium shot, gentle push-in on the client's relieved smile",
         "prompt": "In {{LOCATION}}, {{MECHANIC}} shows a tablet to {{CLIENT}} next to {{VEHICLE}}; she nods, reassured and smiling. {{STYLE}}"
       }
@@ -125,7 +147,7 @@
       "id": "s06-cta",
       "kind": "cta",
       "duration": 5,
-      "voiceover": "SCAN EXPRESS, par DiagAssist. Contactez-nous maintenant."
+      "voiceover": "SCAN EXPRESS, par DiagAssist. Contactez-nous dès maintenant."
     }
   ]
 }

@@ -2,7 +2,7 @@ import {Gradient, Img, Layout, Rect, Txt, Video} from '@revideo/2d';
 import {all, createRef, easeOutCubic, linear, waitFor} from '@revideo/core';
 import type {ThreadGenerator} from '@revideo/core';
 import {runCaptions} from '../lib/captions';
-import {FADE, FONT} from '../lib/theme';
+import {FADE, FONT, fitFontSize} from '../lib/theme';
 import {IMAGE_PATTERN, resolveClip} from '../lib/timeline';
 import {SegmentCtx, Watermark} from './context';
 
@@ -50,13 +50,15 @@ export function* clipScene(layer: Layout, ctx: SegmentCtx): ThreadGenerator {
 
   const holder = createRef<Layout>();
   const video = createRef<Video>();
-  const headline = createRef<Txt>();
+  const headline = createRef<Layout>();
   const subheadline = createRef<Txt>();
   const captions = createRef<Layout>();
 
   const clipPath = scene.clip ? resolveClip(assets.files, campaign.id, scene.clip) : null;
   const info = clipPath ? assets.media[clipPath] : undefined;
   const isImage = clipPath !== null && IMAGE_PATTERN.test(clipPath);
+  const headlineLines = (scene.headline ?? '').split('\n').filter(Boolean);
+  const headlineSize = fitFontSize(headlineLines, 940, 92);
 
   layer.add(
     <>
@@ -119,23 +121,22 @@ export function* clipScene(layer: Layout, ctx: SegmentCtx): ThreadGenerator {
         }
       />
       <Watermark ctx={ctx} />
-      <Txt
-        ref={headline}
-        text={scene.headline ?? ''}
-        y={-470}
-        width={940}
-        textWrap
-        textAlign="center"
-        lineHeight={104}
-        fontFamily={FONT}
-        fontWeight={900}
-        fontSize={92}
-        fill={brand.colors.text}
-        stroke="#000000"
-        lineWidth={14}
-        strokeFirst
-        opacity={0}
-      />
+      {/* Une ligne par Txt : Revideo ne respecte pas "\n" dans un Txt avec textWrap */}
+      <Layout ref={headline} layout direction="column" alignItems="center" y={-470} opacity={0}>
+        {headlineLines.map(line => (
+          <Txt
+            text={line}
+            fontFamily={FONT}
+            fontWeight={900}
+            fontSize={headlineSize}
+            lineHeight={headlineSize * 1.12}
+            fill={brand.colors.text}
+            stroke="#000000"
+            lineWidth={14}
+            strokeFirst
+          />
+        ))}
+      </Layout>
       <Txt
         ref={subheadline}
         text={scene.subheadline ?? ''}

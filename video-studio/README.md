@@ -23,6 +23,7 @@ npm install
 npm run browser            # une seule fois : Chrome for Testing (nécessaire pour décoder le H.264)
 cp .env.example .env       # puis renseigner ELEVENLABS_API_KEY et ELEVENLABS_VOICE_ID
 
+npm run script             # génère campaigns/scan-express/SCRIPT.md (minutage, voix off, durée parlée estimée)
 npm run shots              # génère campaigns/scan-express/SHOTS.md (références + prompts de plans)
 # … produire les références et les clips, les déposer dans public/scan-express/ (voir plus bas)
 npm run voice              # voix off + sous-titres calés sur la voix
@@ -67,12 +68,17 @@ Chaque génération consomme des crédits : à lancer après validation de la bi
 brands/<marque>.json            couleurs, nom, logo (public/brands/<marque>/)
 campaigns/<id>/campaign.json    scènes, durées, voix off, titres, bible visuelle, audio
 campaigns/<id>/voice.json       (généré par npm run voice) timestamps mot par mot
+campaigns/<id>/SCRIPT.md        (généré par npm run script) script lisible + durées estimées
 campaigns/<id>/SHOTS.md         (généré par npm run shots) feuille de plans
 public/<id>/{clips,voice,music,references}/   médias (vidéos/audio non versionnés)
 src/scenes/                     clip.tsx, obd.tsx, cta.tsx, ad.tsx (enchaînement)
 scripts/                        render, finalize, voice, shots, scan-assets
 tests/                          npm test (node:test)
 ```
+
+Un titre peut contenir `\n` : chaque ligne est affichée séparément et la police est réduite si la plus longue dépasse la zone de sécurité.
+`npm run script` estime la durée parlée de chaque voix off et signale celles qui laissent moins de 10 % de marge,
+avant de payer la synthèse vocale (estimation à ±20 % ; la vraie durée vient de `npm run voice`).
 
 La durée totale des scènes doit égaler `format.durationSeconds` (45 s) : le rendu s'arrête avec une erreur sinon.
 
@@ -103,7 +109,7 @@ Pour l'éditeur (`npm start`), la campagne ouverte est `DEFAULT_CAMPAIGN` dans `
 - Installation, `npm run typecheck`.
 - Rendu complet 1080×1920, 30 fps, 45,00 s avec des clips factices (portrait, paysage, sans piste audio) : ≈ 36 s
   de rendu, 0 erreur console ; export FFmpeg validé par ffprobe (H.264 High, yuv420p, AAC 48 kHz stéréo).
-- `npm test` (26 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
+- `npm test` (29 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
   validité de la campagne livrée, et `scripts/voice-elevenlabs.ts` de bout en bout contre un **faux serveur** qui
   reproduit le format documenté de [`/with-timestamps`](https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps)
   (cache par scène, `--force`, reprise après un échec en cours de route, erreur claire sans clé).
