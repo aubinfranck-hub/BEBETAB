@@ -23,12 +23,13 @@ npm install
 npm run browser            # une seule fois : Chrome for Testing (nécessaire pour décoder le H.264)
 cp .env.example .env       # puis renseigner ELEVENLABS_API_KEY et ELEVENLABS_VOICE_ID
 
+npm run check              # ce qui bloque encore le rendu final (outils, Chrome, plans, voix, musique, textes)
 npm run script             # génère campaigns/scan-express/SCRIPT.md (minutage, voix off, durée parlée estimée)
 npm run shots              # génère campaigns/scan-express/SHOTS.md (références + prompts de plans)
 # … produire les références et les clips, les déposer dans public/scan-express/ (voir plus bas)
 npm run voice              # voix off + sous-titres calés sur la voix
 npm start                  # éditeur Revideo (aperçu, sans son)
-npm run build:ad           # rendu + export -> output/scan-express_1080x1920.mp4
+npm run build:ad           # check + rendu + export -> output/scan-express_1080x1920.mp4
 ```
 
 Brouillon avant d'avoir tous les clips : `npm run render -- --draft` (les plans manquants sont remplacés par une
@@ -104,6 +105,15 @@ Pour l'éditeur (`npm start`), la campagne ouverte est `DEFAULT_CAMPAIGN` dans `
 - ElevenLabs ne garantit pas une « voix ivoirienne » : choisir une voix de la bibliothèque avec accent adapté,
   ou un clone vocal d'un comédien qui a donné son accord, puis renseigner `ELEVENLABS_VOICE_ID`.
 
+## Sur un serveur (VPS)
+
+- Prérequis : Node 22, FFmpeg ≥ 4.4 avec `libx264` (`npm run check` vérifie ces fonctions), puis `npm install` et `npm run browser`.
+- Si Chrome ne démarre pas faute de bibliothèques système, lister celles qui manquent :
+  `ldd "$(node -e "require('puppeteer').executablePath().then(console.log)")" | grep "not found"` et les installer avec le gestionnaire
+  de paquets de la machine. Cette liste n'a pas été testée sur votre serveur.
+- Exécuté en root (cas fréquent en conteneur), le rendu ajoute automatiquement `--no-sandbox` à Chrome.
+- `npm run check` avant chaque `npm run build:ad` : il échoue en une seconde au lieu d'un rendu inutile.
+
 ## Mise en route ElevenLabs (sans navigateur automatisé)
 
 1. Dans votre compte ElevenLabs, créer une **clé d'API** (réglages du compte, section clés d'API). Si vous la restreignez,
@@ -125,7 +135,7 @@ réponses suit la documentation ([voix](https://elevenlabs.io/docs/api-reference
 - Installation, `npm run typecheck`.
 - Rendu complet 1080×1920, 30 fps, 45,00 s avec des clips factices (portrait, paysage, sans piste audio) : ≈ 36 s
   de rendu, 0 erreur console ; export FFmpeg validé par ffprobe (H.264 High, yuv420p, AAC 48 kHz stéréo).
-- `npm test` (36 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
+- `npm test` (39 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
   validité de la campagne livrée, et `scripts/voice-elevenlabs.ts` de bout en bout contre un **faux serveur** qui
   reproduit le format documenté de [`/with-timestamps`](https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps)
   (cache par scène, `--force`, reprise après un échec en cours de route, erreur claire sans clé).

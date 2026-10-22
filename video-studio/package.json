@@ -11,11 +11,12 @@
     "typecheck": "tsc --noEmit",
     "render": "npm run assets:scan && tsx scripts/render.ts",
     "finalize": "tsx scripts/finalize.ts",
-    "build:ad": "npm run render && npm run finalize",
+    "build:ad": "npm run check && npm run render && npm run finalize",
     "browser": "puppeteer browsers install chrome",
     "test": "tsx --test tests/*.test.ts",
     "script": "tsx scripts/export-script.ts",
-    "elevenlabs": "tsx scripts/elevenlabs-info.ts"
+    "elevenlabs": "tsx scripts/elevenlabs-info.ts",
+    "check": "tsx scripts/check.ts"
   },
   "dependencies": {
     "@fontsource/montserrat": "^5.1.0",
