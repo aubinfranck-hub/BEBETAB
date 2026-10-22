@@ -14,7 +14,8 @@
     "build:ad": "npm run render && npm run finalize",
     "browser": "puppeteer browsers install chrome",
     "test": "tsx --test tests/*.test.ts",
-    "script": "tsx scripts/export-script.ts"
+    "script": "tsx scripts/export-script.ts",
+    "elevenlabs": "tsx scripts/elevenlabs-info.ts"
   },
   "dependencies": {
     "@fontsource/montserrat": "^5.1.0",

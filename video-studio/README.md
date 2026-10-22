@@ -104,12 +104,28 @@ Pour l'éditeur (`npm start`), la campagne ouverte est `DEFAULT_CAMPAIGN` dans `
 - ElevenLabs ne garantit pas une « voix ivoirienne » : choisir une voix de la bibliothèque avec accent adapté,
   ou un clone vocal d'un comédien qui a donné son accord, puis renseigner `ELEVENLABS_VOICE_ID`.
 
+## Mise en route ElevenLabs (sans navigateur automatisé)
+
+1. Dans votre compte ElevenLabs, créer une **clé d'API** (réglages du compte, section clés d'API). Si vous la restreignez,
+   autoriser la synthèse vocale **et** la lecture des voix et de l'abonnement, sinon les commandes ci-dessous répondent 401.
+2. Choisir une voix : dans la bibliothèque de voix du site (filtrer langue française et accent), l'ajouter à « mes voix »,
+   ou créer un clone vocal d'un comédien qui a donné son accord.
+3. `npm run elevenlabs -- voices --fr` liste les voix **de votre compte** avec leur identifiant, leurs labels et un lien d'écoute
+   (`npm run elevenlabs -- voices <mot-clé>` pour chercher).
+4. Copier `.env.example` en `.env` et renseigner `ELEVENLABS_API_KEY` et `ELEVENLABS_VOICE_ID`.
+   `.env` est ignoré par git : ne jamais le committer, ne jamais coller la clé dans un chat.
+5. `npm run elevenlabs -- usage` affiche vos caractères restants et le besoin de la campagne, puis `npm run voice`.
+
+Ces commandes ne génèrent rien et ne consomment aucun crédit. Elles sont testées contre un faux serveur : le format des
+réponses suit la documentation ([voix](https://elevenlabs.io/docs/api-reference/voices/search),
+[abonnement](https://elevenlabs.io/docs/api-reference/user/subscription/get)) mais n'a pas été confronté à un vrai compte.
+
 ## Ce qui a été vérifié (conteneur de développement, sans vrais médias)
 
 - Installation, `npm run typecheck`.
 - Rendu complet 1080×1920, 30 fps, 45,00 s avec des clips factices (portrait, paysage, sans piste audio) : ≈ 36 s
   de rendu, 0 erreur console ; export FFmpeg validé par ffprobe (H.264 High, yuv420p, AAC 48 kHz stéréo).
-- `npm test` (29 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
+- `npm test` (36 tests) : durées/timeline, marqueurs provisoires, injection de la bible dans les prompts, sous-titres,
   validité de la campagne livrée, et `scripts/voice-elevenlabs.ts` de bout en bout contre un **faux serveur** qui
   reproduit le format documenté de [`/with-timestamps`](https://elevenlabs.io/docs/api-reference/text-to-speech/convert-with-timestamps)
   (cache par scène, `--force`, reprise après un échec en cours de route, erreur claire sans clé).
