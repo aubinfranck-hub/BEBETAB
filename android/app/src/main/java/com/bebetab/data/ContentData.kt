@@ -14,7 +14,7 @@ object ContentData {
  )
  val subjects=listOf(
   ActivityContent("letters",Bilingual("Lettres","Letters"),"🔤",Bilingual("Reconnaître les lettres et leurs sons.","Recognize letters and their sounds.")),
-  ActivityContent("numbers",Bilingual("Nombres","Numbers"),"🔢",Bilingual("Compter de 1 à 9.","Count from 1 to 9.")),
+  ActivityContent("maths-ce1",Bilingual("Maths CE1","CE1 Math"),"🧮",Bilingual("Nombres, calculs et petits problèmes.","Numbers, calculations and word problems.")),
   ActivityContent("science",Bilingual("Sciences","Science"),"🔬",Bilingual("Découvrir comment fonctionne le monde.","Discover how the world works.")),
   ActivityContent("world",Bilingual("Monde","World"),"🌍",Bilingual("Découvrir pays et continents.","Discover countries and continents.")),
   ActivityContent("animals",Bilingual("Animaux","Animals"),"🦁",Bilingual("Reconnaître les animaux.","Recognize animals.")),
