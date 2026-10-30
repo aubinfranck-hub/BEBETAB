@@ -20,7 +20,8 @@ object ContentData {
   ActivityContent("animals",Bilingual("Animaux","Animals"),"🦁",Bilingual("Reconnaître les animaux.","Recognize animals.")),
   ActivityContent("space",Bilingual("Espace","Space"),"🚀",Bilingual("Explorer les planètes et les étoiles.","Explore planets and stars.")),
   ActivityContent("art",Bilingual("Art","Art"),"🎨",Bilingual("Créer et observer.","Create and observe.")),
-  ActivityContent("languages",Bilingual("Langues","Languages"),"🗣️",Bilingual("Découvrir des mots en français et anglais.","Discover French and English words."))
+  ActivityContent("languages",Bilingual("Langues","Languages"),"🗣️",Bilingual("Découvrir des mots en français et anglais.","Discover French and English words.")),
+  ActivityContent("mathsce1",Bilingual("Maths CE1","Maths 2nd grade"),"🧮",Bilingual("Calculs, tables et problèmes.","Sums, tables and problems."))
  )
  val games=listOf(
   ActivityContent("puzzle",Bilingual("Puzzles","Puzzles"),"🧩",Bilingual("Assemble les bonnes pièces.","Put the right pieces together.")),

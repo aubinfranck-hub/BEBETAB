@@ -31,7 +31,7 @@ private fun currentLanguage(): String {
 
 private val learnColors = listOf(
     Color(0xFFFF6D3D), Color(0xFF9C27B0), Color(0xFF26A9E0), Color(0xFF21B573),
-    Color(0xFF55B83E), Color(0xFF6350D9), Color(0xFFFFA726), Color(0xFFE91E63)
+    Color(0xFF55B83E), Color(0xFF6350D9), Color(0xFFFFA726), Color(0xFFE91E63), Color(0xFF00897B)
 )
 private val gameColors = listOf(
     Color(0xFF64C94C), Color(0xFF5866E8), Color(0xFF28A9D8), Color(0xFFFFA326),
@@ -131,6 +131,7 @@ private fun ActivityDetail(id:String, language:String, onBack:()->Unit, onStars:
     when(id){
         "letters" -> QuizLettres(onStars,language)
         "numbers" -> QuizNombres(onStars,language)
+        "mathsce1" -> com.bebetab.ui.games.MathsCE1(onStars,language)
         "art" -> DrawGame(language, if(language=="en")"Art studio" else "Atelier d’art")
         else -> MiniQuiz(id,language,onStars,onBack)
     }
@@ -156,13 +157,14 @@ fun LearnActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
             Row(Modifier.fillMaxSize().padding(8.dp),horizontalArrangement=Arrangement.spacedBy(16.dp)){
                 FantiPane(if(language=="en")"Learn, discover and have fun!" else "Apprendre, découvrir et s’amuser !")
                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(12.dp)){
-                    listOf(ContentData.subjects.take(4),ContentData.subjects.drop(4)).forEachIndexed{row,items->
+                    ContentData.subjects.chunked(5).forEachIndexed{row,items->
                         Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
                             items.forEachIndexed{index,item->
                                 Box(Modifier.weight(1f).fillMaxHeight()){
-                                    ActivityTile(item.title.text(language),item.description.text(language).take(30),item.emoji,learnColors[row*4+index]){selected=item.id}
+                                    ActivityTile(item.title.text(language),item.description.text(language).take(30),item.emoji,learnColors[row*5+index]){selected=item.id}
                                 }
                             }
+                            repeat(5-items.size){Spacer(Modifier.weight(1f))}
                         }
                     }
                 }
