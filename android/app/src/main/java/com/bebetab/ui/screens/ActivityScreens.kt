@@ -133,6 +133,8 @@ private fun ActivityDetail(id:String, language:String, onBack:()->Unit, onStars:
         "numbers" -> QuizNombres(onStars,language)
         "maths-ce1" -> MathsCe1Screen(language,onStars)
         "programme-ci" -> IvorianCurriculumScreen(language,onStars)
+        "science" -> ScienceLearningScreen(language,onStars)
+        "programme-ci" -> IvorianCurriculumScreen(language,onStars)
         "art" -> DrawGame(language, if(language=="en")"Art studio" else "Atelier d’art")
         else -> MiniQuiz(id,language,onStars,onBack)
     }
