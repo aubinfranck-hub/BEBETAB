@@ -17,3 +17,13 @@ Fanti est l’éléphanteau gris-bleu du projet. Les illustrations montrant l’
 - [Dossier complet des créations BEBETAB dans Drive](https://drive.google.com/drive/folders/1w_6X18XZGjLAwLIiVlEBXGEMqCBwd5qB)
 
 Ces images sont les références d’interface pour les prochains écrans natifs. Le contenu interactif et les textes restent rendus par l’application.
+
+## Nouvelles illustrations intégrées au dépôt — 31 octobre 2026
+
+Les illustrations suivantes sont enregistrées dans `design/illustrations/` en JPEG optimisé, en conservant leur définition paysage native d’environ 1672 × 940 pixels :
+
+- [Espace parents](illustrations/espace-parents.jpg)
+- [Histoire du soir : Fanti sous le baobab](illustrations/fanti-histoire-du-soir.jpg)
+- [Écran Sciences avec Fanti](illustrations/fanti-sciences.jpg)
+
+Les PNG originaux haute qualité restent dans le dossier Drive BEBETAB. Les fichiers du dépôt servent de références visuelles légères pour le développement et la revue de la PR.
