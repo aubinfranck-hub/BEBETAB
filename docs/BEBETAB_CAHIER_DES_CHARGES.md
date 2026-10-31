@@ -105,8 +105,8 @@ De gauche à droite : bouton retour (←) bleu rond, titre de l'écran avec son 
 - Total d'étoiles, niveau, médailles à débloquer (10, 50, 100, 250 étoiles).
 
 ### 5.10 Programme scolaire ivoirien : CP1 à CM2
-- Le contenu suit le programme éducatif ivoirien publié par la Direction de la Pédagogie et de la Formation Continue (DPFC).
-- CP1 et CP2 : Français, Mathématiques, EDHC, EPS et AEC.
+- Le contenu s’appuie sur les programmes éducatifs et guides d’exécution par classe publiés par la Direction de la Pédagogie et de la Formation Continue (DPFC).
+- CP1 et CP2 : les guides de référence disponibles couvrent Français, Mathématiques, EDHC, EPS et AEC. La DPFC référence aussi une expérimentation de nouveaux programmes pour les classes pilotes CP1/CP2 en 2025-2026 ; vérifier l’édition et le statut de l’école cible avant de présenter ces contenus comme universels.
 - CE1, CE2, CM1 et CM2 : Français, Mathématiques, EDHC, EPS, AEC, Histoire-Géographie et Sciences et Technologie.
 - Chaque cours comprend une notion expliquée simplement, un exemple ancré dans le quotidien ivoirien et un exercice avec correction bienveillante.
 - Progression graduelle du CP1 au CM2. Les leçons du curriculum sont en français ; les commandes de l’application restent disponibles en français et en anglais.
