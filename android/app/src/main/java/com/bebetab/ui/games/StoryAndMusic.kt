@@ -67,29 +67,44 @@ fun StoryReader(language:String="fr", storyIndex:Int=0){
         onDispose{engine.stop();engine.shutdown()}
     }
     var page by remember(storyIndex){mutableIntStateOf(0)}
+    var subtitles by remember{mutableStateOf(true)}
     val pages=if(language=="en") story.pagesEn else story.pagesFr
+    val title=if(language=="en")story.titleEn else story.titleFr
     Column(
-        Modifier.fillMaxSize().padding(18.dp),
+        Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment=Alignment.CenterHorizontally,
-        verticalArrangement=Arrangement.spacedBy(12.dp)
+        verticalArrangement=Arrangement.spacedBy(10.dp)
     ){
-        Text(if(language=="en")story.titleEn else story.titleFr,fontSize=28.sp,fontWeight=FontWeight.Black)
-        Text(when(storyIndex){0->"🌳 🐘 🦁";1->"🏜️ 🐘 🏺";else->"🚀 🐘 🪐"},fontSize=62.sp)
+        Text(if(language=="en")"BEDTIME STORY" else "HISTOIRE DU SOIR",fontSize=23.sp,fontWeight=FontWeight.Black)
+        com.bebetab.ui.components.Artwork("assistant",Modifier.fillMaxWidth().height(112.dp))
         Surface(
             Modifier.fillMaxWidth().weight(1f),
             shape=RoundedCornerShape(22.dp),
             color=MaterialTheme.colorScheme.surface
         ){
-            Box(Modifier.fillMaxSize().padding(20.dp),contentAlignment=Alignment.Center){
-                Text(pages[page],fontSize=21.sp,fontWeight=FontWeight.Bold)
+            Column(Modifier.fillMaxSize().padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp),horizontalAlignment=Alignment.CenterHorizontally){
+                Text(title,fontSize=23.sp,fontWeight=FontWeight.Black,textAlign=androidx.compose.ui.text.style.TextAlign.Center)
+                Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                    Text(if(language=="en")"Subtitles" else "Sous-titres",fontWeight=FontWeight.SemiBold)
+                    Switch(checked=subtitles,onCheckedChange={subtitles=it})
+                }
+                if(subtitles){
+                    Text(pages[page],fontSize=20.sp,fontWeight=FontWeight.Bold,textAlign=androidx.compose.ui.text.style.TextAlign.Center)
+                }else{
+                    Text(if(language=="en")"Turn on subtitles to read along." else "Active les sous-titres pour lire en même temps.",fontSize=16.sp,textAlign=androidx.compose.ui.text.style.TextAlign.Center)
+                }
+                LinearProgressIndicator(progress={ (page+1).toFloat()/pages.size },modifier=Modifier.fillMaxWidth())
             }
         }
         Row(horizontalArrangement=Arrangement.spacedBy(10.dp),verticalAlignment=Alignment.CenterVertically){
-            Button(enabled=page>0,onClick={page--}){Text("◀")}
-            Button(onClick={tts?.speak(pages[page],TextToSpeech.QUEUE_FLUSH,Bundle(),"page-" + page)}){Text("🔊 "+if(language=="en")"Read" else "Lire")}
-            Button(enabled=page<pages.lastIndex,onClick={page++}){Text("▶")}
-            Text((page+1).toString()+"/"+pages.size,fontWeight=FontWeight.ExtraBold)
+            OutlinedButton(enabled=page>0,onClick={page--}){Text(if(language=="en")"Previous" else "Précédent")}
+            Button(
+                onClick={tts?.speak(pages[page],TextToSpeech.QUEUE_FLUSH,Bundle(),"page-"+page)},
+                colors=ButtonDefaults.buttonColors(containerColor=androidx.compose.ui.graphics.Color(0xFFFF8F00))
+            ){Text(if(language=="en")"Listen" else "Écouter")}
+            Button(enabled=page<pages.lastIndex,onClick={page++}){Text(if(language=="en")"Next" else "Suivant")}
         }
+        Text((page+1).toString()+"/"+pages.size,fontWeight=FontWeight.ExtraBold)
     }
 }
 
