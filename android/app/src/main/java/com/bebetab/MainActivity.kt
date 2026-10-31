@@ -67,9 +67,11 @@ private fun BebeTabNavigation() {
 
     Box(Modifier.fillMaxSize()) {
         NavHost(nav, startDestination = "home", modifier = Modifier.fillMaxSize()) {
-            composable("home") { HomeScreen { nav.navigate(it) } }
-            composable("world") { ReferenceScreen("world", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
-            composable("france") { ReferenceScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
+            composable("home") { com.bebetab.ui.screens.FullArtScreen("home", null, { nav.navigate("settings") }) { nav.navigate(it) } }
+            composable("world") { com.bebetab.ui.screens.FullArtScreen("world", { nav.popBackStack() }, { nav.navigate("settings") }) { nav.navigate(it) } }
+            composable("world_explore") { ReferenceScreen("world", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
+            composable("france") { com.bebetab.ui.screens.FullArtScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }) { nav.navigate(it) } }
+            composable("france_explore") { ReferenceScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
             composable("live") { ReferenceScreen("live", { nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("learn") { LearnActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("play") { PlayActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
