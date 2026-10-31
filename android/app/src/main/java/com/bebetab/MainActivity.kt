@@ -72,7 +72,8 @@ private fun BebeTabNavigation() {
             composable("world_explore") { ReferenceScreen("world", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
             composable("france") { com.bebetab.ui.screens.FullArtScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }) { nav.navigate(it) } }
             composable("france_explore") { ReferenceScreen("france", { nav.popBackStack() }, { nav.navigate("settings") }, { nav.navigate(it) }) }
-            composable("live") { ReferenceScreen("live", { nav.popBackStack() }, { nav.navigate("settings") }) }
+            composable("live") { com.bebetab.ui.screens.FullArtScreen("live", { nav.popBackStack() }, { nav.navigate("settings") }) { nav.navigate("live_explore") } }
+            composable("live_explore") { ReferenceScreen("live", { nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("learn") { LearnActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("play") { PlayActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }
             composable("stories") { StoryActivityScreen({ nav.popBackStack() }, { nav.navigate("settings") }) }

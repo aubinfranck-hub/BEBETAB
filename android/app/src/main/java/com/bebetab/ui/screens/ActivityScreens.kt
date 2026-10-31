@@ -143,6 +143,7 @@ fun LearnActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
     val scope=rememberCoroutineScope()
     val store=remember{ProgressStore(context)}
     var selected by remember{mutableStateOf<String?>(null)}
+    if(selected==null){FullArtScreen("learn",onBack,onSettings){selected=it};return}
     BebeTabFrame(if(language=="en")"LEARN" else "APPRENDRE",onBack,onSettings){
         if(selected!=null){
             Column(Modifier.fillMaxSize().padding(10.dp)){
@@ -178,6 +179,7 @@ fun PlayActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
     val scope=rememberCoroutineScope()
     val store=remember{ProgressStore(context)}
     var selected by remember{mutableStateOf<String?>(null)}
+    if(selected==null){FullArtScreen("play",onBack,onSettings){selected=it};return}
     BebeTabFrame(if(language=="en")"PLAY" else "JOUER",onBack,onSettings){
         if(selected!=null){
             Column(Modifier.fillMaxSize().padding(10.dp)){
@@ -214,6 +216,7 @@ fun StoryActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
     val language=currentLanguage()
     var storyIndex by remember{mutableIntStateOf(0)}
     var openReader by remember{mutableStateOf(false)}
+    if(!openReader){FullArtScreen("stories",onBack,onSettings){storyIndex=it.removePrefix("story").toIntOrNull()?:0;openReader=true};return}
     BebeTabFrame(if(language=="en")"STORIES" else "HISTOIRES",onBack,onSettings){
         if(openReader){
             Column(Modifier.fillMaxSize().padding(10.dp)){
@@ -256,6 +259,10 @@ fun MusicActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
 fun DrawActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
     val language=currentLanguage()
     var mode by remember{mutableStateOf<String?>(null)}
+    if(mode==null){FullArtScreen("draw",onBack,onSettings){id->
+        val en=language=="en"
+        mode=when(id){"free"->if(en)"Free drawing" else "Dessin libre";"color"->if(en)"Coloring" else "Coloriage";"letters"->if(en)"Trace letters" else "Tracer lettres";"numbers"->if(en)"Trace numbers" else "Tracer chiffres";"shapes"->if(en)"Shapes" else "Formes";else->if(en)"Create music" else "Créer musique"}
+    };return}
     BebeTabFrame(if(language=="en")"DRAW" else "DESSINER",onBack,onSettings){
         if(mode!=null){
             Column(Modifier.fillMaxSize().padding(10.dp)){
