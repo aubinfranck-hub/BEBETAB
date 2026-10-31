@@ -132,6 +132,7 @@ private fun ActivityDetail(id:String, language:String, onBack:()->Unit, onStars:
         "letters" -> QuizLettres(onStars,language)
         "numbers" -> QuizNombres(onStars,language)
         "maths-ce1" -> MathsCe1Screen(language,onStars)
+        "programme-ci" -> IvorianCurriculumScreen(language,onStars)
         "art" -> DrawGame(language, if(language=="en")"Art studio" else "Atelier d’art")
         else -> MiniQuiz(id,language,onStars,onBack)
     }
@@ -156,12 +157,28 @@ fun LearnActivityScreen(onBack:()->Unit,onSettings:()->Unit={}) {
         }else{
             Row(Modifier.fillMaxSize().padding(8.dp),horizontalArrangement=Arrangement.spacedBy(16.dp)){
                 FantiPane(if(language=="en")"Learn, discover and have fun!" else "Apprendre, découvrir et s’amuser !")
-                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(12.dp)){
-                    listOf(ContentData.subjects.take(4),ContentData.subjects.drop(4)).forEachIndexed{row,items->
-                        Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
-                            items.forEachIndexed{index,item->
-                                Box(Modifier.weight(1f).fillMaxHeight()){
-                                    ActivityTile(item.title.text(language),item.description.text(language).take(30),item.emoji,learnColors[row*4+index]){selected=item.id}
+                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(10.dp)){
+                    Card(
+                        onClick={selected="programme-ci"},
+                        colors=CardDefaults.cardColors(containerColor=Color(0xFFEAF5FF)),
+                        modifier=Modifier.fillMaxWidth()
+                    ){
+                        Row(Modifier.fillMaxWidth().padding(horizontal=16.dp,vertical=10.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)){
+                            Text("📘",fontSize=28.sp)
+                            Column(Modifier.weight(1f)){
+                                Text(if(language=="en")"Ivorian school programme" else "Programme scolaire ivoirien",fontWeight=FontWeight.Bold,color=Color(0xFF173E69))
+                                Text(if(language=="en")"Courses from CP1 to CM2" else "Cours du CP1 au CM2",fontSize=13.sp,color=Color(0xFF526477))
+                            }
+                            Text("›",fontSize=26.sp,color=Color(0xFF315F9B))
+                        }
+                    }
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(12.dp)){
+                        listOf(ContentData.subjects.take(4),ContentData.subjects.drop(4)).forEachIndexed{row,items->
+                            Row(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(12.dp)){
+                                items.forEachIndexed{index,item->
+                                    Box(Modifier.weight(1f).fillMaxHeight()){
+                                        ActivityTile(item.title.text(language),item.description.text(language).take(30),item.emoji,learnColors[row*4+index]){selected=item.id}
+                                    }
                                 }
                             }
                         }
