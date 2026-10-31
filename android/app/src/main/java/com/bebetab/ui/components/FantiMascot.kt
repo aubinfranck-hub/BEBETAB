@@ -13,6 +13,7 @@ import com.bebetab.ui.theme.OutlineBlue
 import com.bebetab.ui.theme.Yellow
 
 @Composable
+// Canonical mascot: Fanti is the gray-blue elephant; old chameleon artwork is obsolete.
 fun FantiMascot(modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val gray = Color(0xFFB9C0C8)
