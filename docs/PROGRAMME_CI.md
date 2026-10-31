@@ -12,6 +12,8 @@ Le périmètre pédagogique s’appuie sur les programmes éducatifs et guides d
 - CM1 : https://dpfc-ci.net/wp-content/uploads/dpfc_fichiers/Programmes/prg_primaires/CM1.pdf
 - CM2 : https://dpfc-ci.net/wp-content/uploads/dpfc_fichiers/Programmes/prg_primaires/CM2.pdf
 
+La DPFC référence aussi une circulaire d’expérimentation de nouveaux programmes pour des écoles pilotes CP1/CP2 en 2025-2026 (https://dpfc-ci.net/textes-officiels-2-3-2/). Le premier lot de BEBETAB utilise les guides par classe listés ci-dessus ; avant diffusion à une école, confirmer l’édition et le programme effectivement appliqués par cette école.
+
 Les programmes définissent les apprentissages par compétences, thèmes, leçons, situations et habiletés. Le code BEBETAB organise les contenus par classe et matière ; les textes de cours doivent être vérifiés avec les guides correspondants avant chaque élargissement.
 
 ## Classes et disciplines
