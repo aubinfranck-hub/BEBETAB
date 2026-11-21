@@ -1,3 +1,4 @@
+import { MockupFlow } from "./components/MockupFlow";
 import React, { useState, useEffect } from 'react';
 import { UserProfile, MascotOutfit } from './types';
 import { LearningModule } from './components/learning/LearningModule';
@@ -143,7 +144,7 @@ export default function App(){
    case 'defis':return <DailyChallengesModule {...props} onNavigate={screen=>navigate({screen})}/>;
    case 'mondes':return <WorldsModule {...props} onChangeWorld={world=>setUser(p=>({...p,currentWorld:world}))}/>;
    case 'recompenses':return <RewardsModule user={user} onBack={back} onEquipOutfit={outfit=>setUser(p=>p.unlockedOutfits.includes(outfit)?({...p,currentOutfit:outfit}):p)} onUnlockOutfit={(outfit:MascotOutfit,cost:number)=>setUser(p=>p.stars>=cost&&!p.unlockedOutfits.includes(outfit)?({...p,stars:p.stars-cost,unlockedOutfits:[...p.unlockedOutfits,outfit],currentOutfit:outfit}):p)}/>;
-   default:return <HomeHub user={user} onNavigate={navigate} onAssistant={()=>setIsFantiChatOpen(true)}/>;
+   default:return <MockupFlow/>;
   }
  };
  const content=route.screen==='home'?<HomeHub user={user} onNavigate={navigate} onAssistant={()=>setIsFantiChatOpen(true)}/>:route.screen==='world'?<WorldHub user={user} onNavigate={navigate}/>:route.screen==='country'?<CountryHub key={route.country} route={route} user={user} onNavigate={navigate}/>:hubCards[route.screen]&&!route.activity?<ActivityHub route={route} user={user} onNavigate={navigate}/>:<ActivityBoundary key={destinationHash(route)} onBack={back}><div className="activity-module"><div className="module-art-banner"><Art name={screenMeta[route.screen]?.art||'worlds'}/><strong>{screenMeta[route.screen]?.title}</strong><button onClick={back}>← Retour</button></div>{module()}</div></ActivityBoundary>;
