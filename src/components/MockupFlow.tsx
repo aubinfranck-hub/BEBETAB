@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BebeTabTicker } from "./BebeTabTicker";
 
 // Écrans de BébéTab tels que dessinés dans les maquettes : image plein écran + zones cliquables.
-type Zone = { l: number; t: number; w: number; h: number; go?: string; toast?: string; nom?: string };
+type Zone = { l: number; t: number; w: number; h: number; go?: string; toast?: string; nom?: string; video?: boolean };
+type Video = { id: string; title: string; thumbnail: string };
 type Ecran = { img: string; zones: Zone[] };
 
 const ECRANS: Record<string, Ecran> = {
@@ -12,7 +13,7 @@ const ECRANS: Record<string, Ecran> = {
     { l: 93.4, t: 1.9, w: 5.3, h: 7.4, go: "parents" },
     { l: 66.5, t: 11.5, w: 32.2, h: 28.1, go: "bientot", nom: "Live World" },
     { l: 35.9, t: 57.4, w: 27.4, h: 14.9, go: "monde" },
-    { l: 67, t: 44.5, w: 7.8, h: 14.5, toast: "Vidéo du jour" },
+    { l: 67, t: 44.5, w: 7.8, h: 14.5, video: true, nom: "Vidéos" },
     { l: 75.5, t: 44.5, w: 7.8, h: 14.5, go: "bientot", nom: "Jeux du jour" },
     { l: 83.1, t: 44.5, w: 7.8, h: 14.5, go: "histoire" },
     { l: 90.6, t: 44.5, w: 7.8, h: 14.5, toast: "Chanson du jour" },
@@ -56,7 +57,43 @@ const ECRANS: Record<string, Ecran> = {
   ]},
 };
 
+// Lecteur de vidéos : liste depuis /api/education/videos, lecture via YouTube sans cookies.
+const VideoPlayer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [videos, setVideos] = useState<Video[] | null>(null);
+  const [choisie, setChoisie] = useState<string>("");
+  useEffect(() => {
+    fetch("/api/education/videos")
+      .then(r => r.json())
+      .then(d => setVideos(Array.isArray(d.videos) ? d.videos : []))
+      .catch(() => setVideos([]));
+  }, []);
+  return (
+    <div className="fixed inset-0 z-40 bg-black/80 flex flex-col p-4 overflow-auto">
+      <div className="flex justify-between items-center mb-3">
+        <div className="text-white text-2xl font-black">Vidéos du jour</div>
+        <button onClick={onClose} className="px-5 py-2 rounded-full bg-white text-blue-700 font-black">Fermer</button>
+      </div>
+      {choisie && (
+        <div className="relative w-full max-w-4xl mx-auto mb-4" style={{ aspectRatio: "16 / 9" }}>
+          <iframe className="absolute inset-0 w-full h-full rounded-2xl" src={"https://www.youtube-nocookie.com/embed/" + choisie + "?autoplay=1&rel=0"} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen title="Vidéo" />
+        </div>
+      )}
+      {videos === null && <div className="text-white text-center">Chargement…</div>}
+      {videos && videos.length === 0 && <div className="text-white text-center">Aucune vidéo disponible pour le moment.</div>}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-5xl mx-auto w-full">
+        {(videos || []).slice(0, 24).map(v => (
+          <button key={v.id} onClick={() => setChoisie(v.id)} className="text-left bg-white rounded-2xl overflow-hidden shadow">
+            <img src={v.thumbnail} alt="" className="w-full aspect-video object-cover" />
+            <div className="p-2 text-sm font-bold text-blue-900 line-clamp-2">{v.title}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const MockupFlow: React.FC = () => {
+  const [lecteur, setLecteur] = useState<boolean>(false);
   const [courant, setCourant] = useState<string>("accueil");
   const [historique, setHistorique] = useState<string[]>([]);
   const [toast, setToast] = useState<string>("");
@@ -80,6 +117,7 @@ export const MockupFlow: React.FC = () => {
     setBientot("");
   };
   const activer = (z: Zone) => {
+    if (z.video) { setLecteur(true); return; }
     if (z.toast) {
       setToast(z.toast);
       window.setTimeout(() => setToast(""), 1800);
@@ -114,6 +152,7 @@ export const MockupFlow: React.FC = () => {
           )}
         </div>
       )}
+      {lecteur && <VideoPlayer onClose={() => setLecteur(false)} />}
       {toast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-30 px-6 py-3 rounded-full bg-white text-blue-800 font-black shadow-lg">{toast}</div>
       )}
