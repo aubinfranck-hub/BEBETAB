@@ -1,6 +1,7 @@
 import React from "react";
 import { ActiveScreen, UserProfile } from "../types";
 import { ArrowLeft, Settings, Star, Gift, Search } from "lucide-react";
+import { BebeTabTicker } from "./BebeTabTicker";
 
 const titles:Record<string,[string,string,string]>={
  apprendre:["📖","APPRENDRE","Choisis une matière et commence à apprendre !"],
@@ -42,6 +43,7 @@ export const BebeTabFrame:React.FC<Props>=({screen,user,onBack,onOpenParents,chi
        </div>
      </div>
    </header>
-   <main className="relative z-10 max-w-[1536px] mx-auto px-3 sm:px-6 py-3">{children}</main>
+   <main className="relative z-10 max-w-[1536px] mx-auto px-3 sm:px-6 py-3 pb-16">{children}</main>
+   <BebeTabTicker/>
  </div>
 };

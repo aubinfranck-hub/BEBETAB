@@ -1,0 +1,16 @@
+{
+  "name": "BEBETAB WORLD",
+  "short_name": "BébéTab",
+  "description": "Le monde dans tes mains : vidéos et découvertes pour les enfants",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#7FD3FF",
+  "theme_color": "#18b6e8",
+  "lang": "fr",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

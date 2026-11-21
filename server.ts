@@ -1,5 +1,8 @@
 import express from "express";
-import { approvedChannels, discoverChannelVideos } from "./src/server/channelDiscovery";
+import { approvedChannels, discoverChannelVideos, clearVideoCache } from "./src/server/channelDiscovery";
+import { readAds, writeAds, activeAds, isValidAd, TickerAd } from "./src/server/adStore";
+import { readChannels, writeChannels, isValidChannel, parseChannelId, ChannelSource } from "./src/server/channelStore";
+import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { createServer as createHttpServer } from "http";
@@ -133,6 +136,81 @@ app.get("/api/education/channels", (_req, res) => res.json({ channels: approvedC
 app.get("/api/education/videos", async (_req, res) => {
   try { res.setHeader("Cache-Control", "public, max-age=900"); res.json({ videos: await discoverChannelVideos() }); }
   catch { res.status(503).json({ videos: [], error: "Catalogue temporairement indisponible" }); }
+});
+
+// --- PANEL ADMIN : chaînes YouTube affichées dans l'application ---
+const ADMIN_TOKEN = process.env.BEBETAB_ADMIN_TOKEN || "";
+const requireAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!ADMIN_TOKEN) return res.status(503).json({ error: "Panel désactivé : BEBETAB_ADMIN_TOKEN non défini" });
+  if ((req.headers.authorization || "") !== `Bearer ${ADMIN_TOKEN}`) return res.status(401).json({ error: "Accès refusé" });
+  next();
+};
+app.get("/panel", (_req, res) => {
+  const file = path.join(process.cwd(), "panel", "index.html");
+  if (!fs.existsSync(file)) return res.status(404).send("Panel introuvable");
+  res.sendFile(file);
+});
+app.get("/api/admin/channels", requireAdmin, (_req, res) => res.json({ channels: readChannels() }));
+app.post("/api/admin/channels", requireAdmin, (req, res) => {
+  const id = parseChannelId(String(req.body?.channel || req.body?.id || ""));
+  if (!id) return res.status(400).json({ error: "Identifiant de chaîne invalide (il doit commencer par UC)" });
+  const candidate: ChannelSource = { id, name: String(req.body?.name || "").trim(), category: String(req.body?.category || "").trim(), enabled: true };
+  if (!isValidChannel(candidate)) return res.status(400).json({ error: "Nom ou catégorie invalide" });
+  const list = readChannels();
+  if (list.some(c => c.id === id)) return res.status(409).json({ error: "Cette chaîne est déjà ajoutée" });
+  list.push(candidate);
+  writeChannels(list);
+  clearVideoCache();
+  res.status(201).json({ channels: list });
+});
+app.patch("/api/admin/channels/:id", requireAdmin, (req, res) => {
+  const list = readChannels();
+  const target = list.find(c => c.id === req.params.id);
+  if (!target) return res.status(404).json({ error: "Chaîne introuvable" });
+  if (typeof req.body?.enabled !== "boolean") return res.status(400).json({ error: "Champ enabled attendu" });
+  target.enabled = req.body.enabled;
+  writeChannels(list);
+  clearVideoCache();
+  res.json({ channels: list });
+});
+app.delete("/api/admin/channels/:id", requireAdmin, (req, res) => {
+  const list = readChannels().filter(c => c.id !== req.params.id);
+  writeChannels(list);
+  clearVideoCache();
+  res.json({ channels: list });
+});
+
+// Bandeau du bas : pubs et projets de l'équipe, publics en lecture seule
+app.get("/api/ticker", (_req, res) => { res.setHeader("Cache-Control", "no-store"); res.json({ ads: activeAds() }); });
+app.get("/api/admin/ads", requireAdmin, (_req, res) => res.json({ ads: readAds() }));
+app.post("/api/admin/ads", requireAdmin, (req, res) => {
+  const candidate: TickerAd = {
+    id: `ad_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+    text: String(req.body?.text || "").trim(),
+    link: req.body?.link ? String(req.body.link).trim() : undefined,
+    enabled: true,
+    startsAt: req.body?.startsAt ? new Date(req.body.startsAt).toISOString() : undefined,
+    endsAt: req.body?.endsAt ? new Date(req.body.endsAt).toISOString() : undefined,
+  };
+  if (!isValidAd(candidate)) return res.status(400).json({ error: "Texte (140 caractères max), lien https ou dates invalides" });
+  const list = readAds();
+  list.push(candidate);
+  writeAds(list);
+  res.status(201).json({ ads: list });
+});
+app.patch("/api/admin/ads/:id", requireAdmin, (req, res) => {
+  const list = readAds();
+  const target = list.find(a => a.id === req.params.id);
+  if (!target) return res.status(404).json({ error: "Pub introuvable" });
+  if (typeof req.body?.enabled !== "boolean") return res.status(400).json({ error: "Champ enabled attendu" });
+  target.enabled = req.body.enabled;
+  writeAds(list);
+  res.json({ ads: list });
+});
+app.delete("/api/admin/ads/:id", requireAdmin, (req, res) => {
+  const list = readAds().filter(a => a.id !== req.params.id);
+  writeAds(list);
+  res.json({ ads: list });
 });
 
 // --- AD BROADCAST LIVE SYSTEM ---

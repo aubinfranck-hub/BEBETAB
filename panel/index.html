@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BébéTab — Panel des chaînes</title>
+<style>
+  body{font-family:"Segoe UI",Arial,sans-serif;background:#eaf7ff;margin:0;padding:24px;color:#0d2b45}
+  h1{margin:0 0 6px;font-size:28px;color:#1e88e5}
+  p.sub{margin:0 0 20px;color:#456}
+  .carte{background:#fff;border-radius:18px;padding:20px;box-shadow:0 4px 14px rgba(0,0,0,.08);margin-bottom:18px}
+  label{display:block;font-weight:700;margin:10px 0 4px}
+  input,select{width:100%;padding:12px;border:2px solid #bcd;border-radius:12px;font-size:16px;box-sizing:border-box}
+  button{background:#ff8f00;color:#fff;border:0;border-radius:14px;padding:12px 18px;font-size:16px;font-weight:800;cursor:pointer;margin-top:12px}
+  button.danger{background:#e53935}
+  button.neutre{background:#039be5}
+  table{width:100%;border-collapse:collapse;font-size:16px}
+  td,th{padding:10px;border-bottom:1px solid #e3eef6;text-align:left}
+  .msg{margin-top:10px;font-weight:700}
+  .msg.err{color:#e53935}.msg.ok{color:#2e7d32}
+  .on{color:#2e7d32;font-weight:800}.off{color:#90a4ae;font-weight:800}
+  .actions button{margin:0 6px 0 0;padding:8px 12px;font-size:14px}
+</style>
+</head>
+<body>
+<h1>Panel des chaînes BébéTab</h1>
+<p class="sub">Les chaînes activées ici alimentent les écrans de l'application (tablettes et télé). Les enfants n'ont pas besoin d'aller sur YouTube.</p>
+
+<div class="carte">
+  <label for="token">Code d'accès du panel</label>
+  <input id="token" type="password" autocomplete="off" placeholder="Code défini dans BEBETAB_ADMIN_TOKEN">
+  <button id="connexion" class="neutre">Ouvrir le panel</button>
+  <div id="msg-connexion" class="msg"></div>
+</div>
+
+<div id="zone" class="carte" style="display:none">
+  <h2 style="margin-top:0">Ajouter une chaîne</h2>
+  <label for="chaine">Lien ou identifiant de la chaîne YouTube</label>
+  <input id="chaine" placeholder="https://www.youtube.com/channel/UC… ou UC…">
+  <label for="nom">Nom affiché aux enfants</label>
+  <input id="nom" placeholder="Ex. Comptines de la savane">
+  <label for="categorie">Rubrique</label>
+  <select id="categorie">
+    <option value="comptines">Comptines</option>
+    <option value="apprentissage">Apprentissage</option>
+    <option value="dessins_animes">Dessins animés</option>
+    <option value="sciences">Sciences</option>
+    <option value="art">Art</option>
+  </select>
+  <button id="ajouter">Ajouter la chaîne</button>
+  <div id="msg-ajout" class="msg"></div>
+
+  <h2>Chaînes enregistrées</h2>
+  <table>
+    <thead><tr><th>Nom</th><th>Rubrique</th><th>Identifiant</th><th>État</th><th></th></tr></thead>
+    <tbody id="liste"></tbody>
+  </table>
+</div>
+
+<div id="zone-pubs" class="carte" style="display:none">
+  <h2 style="margin-top:0">Pubs et projets du bandeau</h2>
+  <p class="sub">Ces phrases défilent en bas de l'écran. Lien facultatif (https uniquement). Dates facultatives.</p>
+  <label for="pub-texte">Texte (140 caractères max)</label>
+  <input id="pub-texte" maxlength="140" placeholder="Ex. Découvre TEMPO, le temps d'attendre devient un plaisir">
+  <label for="pub-lien">Lien (facultatif)</label>
+  <input id="pub-lien" placeholder="https://...">
+  <label for="pub-debut">Affichée à partir du (facultatif)</label>
+  <input id="pub-debut" type="datetime-local">
+  <label for="pub-fin">Retirée après le (facultatif)</label>
+  <input id="pub-fin" type="datetime-local">
+  <button id="ajouter-pub">Ajouter au bandeau</button>
+  <div id="msg-pub" class="msg"></div>
+  <h2>Pubs enregistrées</h2>
+  <table>
+    <thead><tr><th>Texte</th><th>Lien</th><th>Période</th><th>État</th><th></th></tr></thead>
+    <tbody id="liste-pubs"></tbody>
+  </table>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let jeton = sessionStorage.getItem('bebetab-panel') || '';
+  const entetes = () => ({ 'Content-Type': 'application/json', Authorization: 'Bearer ' + jeton });
+  const dire = (el, texte, ok) => { el.textContent = texte; el.className = 'msg ' + (ok ? 'ok' : 'err'); };
+  const echappe = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function afficher(chaines) {
+    $('liste').innerHTML = chaines.length ? chaines.map(c => `
+      <tr>
+        <td>${echappe(c.name)}</td>
+        <td>${echappe(c.category)}</td>
+        <td><code>${echappe(c.id)}</code></td>
+        <td class="${c.enabled ? 'on' : 'off'}">${c.enabled ? 'Active' : 'Désactivée'}</td>
+        <td class="actions">
+          <button class="neutre" onclick="basculer('${c.id}', ${!c.enabled})">${c.enabled ? 'Désactiver' : 'Activer'}</button>
+          <button class="danger" onclick="supprimer('${c.id}')">Supprimer</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="5">Aucune chaîne pour le moment.</td></tr>';
+  }
+
+  async function charger() {
+    const r = await fetch('/api/admin/channels', { headers: entetes() });
+    if (r.status === 401) { dire($('msg-connexion'), 'Code d\'accès incorrect.', false); return false; }
+    if (!r.ok) { dire($('msg-connexion'), 'Panel indisponible pour le moment.', false); return false; }
+    const d = await r.json(); afficher(d.channels); return true;
+  }
+
+  $('connexion').onclick = async () => {
+    jeton = $('token').value.trim(); sessionStorage.setItem('bebetab-panel', jeton);
+    if (await charger()) { $('zone').style.display = 'block'; $('zone-pubs').style.display = 'block'; await chargerPubs(); dire($('msg-connexion'), 'Connecté.', true); }
+  };
+
+  $('ajouter').onclick = async () => {
+    const r = await fetch('/api/admin/channels', { method: 'POST', headers: entetes(),
+      body: JSON.stringify({ channel: $('chaine').value, name: $('nom').value, category: $('categorie').value }) });
+    const d = await r.json();
+    if (!r.ok) return dire($('msg-ajout'), d.error || 'Erreur', false);
+    afficher(d.channels); $('chaine').value = ''; $('nom').value = ''; dire($('msg-ajout'), 'Chaîne ajoutée.', true);
+  };
+
+  window.basculer = async (id, enabled) => {
+    const r = await fetch('/api/admin/channels/' + encodeURIComponent(id), { method: 'PATCH', headers: entetes(), body: JSON.stringify({ enabled }) });
+    const d = await r.json(); if (r.ok) afficher(d.channels);
+  };
+  window.supprimer = async id => {
+    if (!confirm('Supprimer cette chaîne ?')) return;
+    const r = await fetch('/api/admin/channels/' + encodeURIComponent(id), { method: 'DELETE', headers: entetes() });
+    const d = await r.json(); if (r.ok) afficher(d.channels);
+  };
+
+
+  function afficherPubs(pubs) {
+    $('liste-pubs').innerHTML = pubs.length ? pubs.map(p => `
+      <tr>
+        <td>${echappe(p.text)}</td>
+        <td>${p.link ? echappe(p.link) : '—'}</td>
+        <td>${p.startsAt || p.endsAt ? echappe((p.startsAt || '…') + ' → ' + (p.endsAt || '…')) : 'Toujours'}</td>
+        <td class="${p.enabled ? 'on' : 'off'}">${p.enabled ? 'Active' : 'Désactivée'}</td>
+        <td class="actions">
+          <button class="neutre" onclick="basculerPub('${p.id}', ${!p.enabled})">${p.enabled ? 'Désactiver' : 'Activer'}</button>
+          <button class="danger" onclick="supprimerPub('${p.id}')">Supprimer</button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="5">Aucune pub pour le moment.</td></tr>';
+  }
+  async function chargerPubs() {
+    const r = await fetch('/api/admin/ads', { headers: entetes() });
+    if (r.ok) afficherPubs((await r.json()).ads);
+  }
+  $('ajouter-pub').onclick = async () => {
+    const debut = $('pub-debut').value, fin = $('pub-fin').value;
+    const r = await fetch('/api/admin/ads', { method: 'POST', headers: entetes(),
+      body: JSON.stringify({ text: $('pub-texte').value, link: $('pub-lien').value || undefined,
+        startsAt: debut || undefined, endsAt: fin || undefined }) });
+    const d = await r.json();
+    if (!r.ok) return dire($('msg-pub'), d.error || 'Erreur', false);
+    afficherPubs(d.ads); $('pub-texte').value = ''; $('pub-lien').value = ''; dire($('msg-pub'), 'Pub ajoutée au bandeau.', true);
+  };
+  window.basculerPub = async (id, enabled) => {
+    const r = await fetch('/api/admin/ads/' + encodeURIComponent(id), { method: 'PATCH', headers: entetes(), body: JSON.stringify({ enabled }) });
+    const d = await r.json(); if (r.ok) afficherPubs(d.ads);
+  };
+  window.supprimerPub = async id => {
+    if (!confirm('Supprimer cette pub ?')) return;
+    const r = await fetch('/api/admin/ads/' + encodeURIComponent(id), { method: 'DELETE', headers: entetes() });
+    const d = await r.json(); if (r.ok) afficherPubs(d.ads);
+  };
+
+  if (jeton) { $('token').value = jeton; $('connexion').click(); }
+</script>
+</body>
+</html>

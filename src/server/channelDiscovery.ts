@@ -1,16 +1,18 @@
-export interface ChannelSource { id: string; name: string; category: string; enabled: boolean }
+import { readChannels, ChannelSource, isValidChannel } from "./channelStore";
+
+export type { ChannelSource };
 export interface ChannelVideo { id: string; channelId: string; title: string; publishedAt: string; thumbnail: string; category: string }
-const CHANNELS: ChannelSource[] = [];
-// Only server-side configured, explicitly approved channels may be queried.
-// Add verified YouTube channel IDs using BEBETAB_CHANNELS_JSON.
+
+// Seules les chaînes activées dans le panel parent sont interrogées.
 export function approvedChannels(): ChannelSource[] {
-  try {
-    const parsed: unknown = JSON.parse(process.env.BEBETAB_CHANNELS_JSON || "[]");
-    if (!Array.isArray(parsed)) return CHANNELS;
-    return parsed.filter((c): c is ChannelSource => Boolean(c && typeof c.id === "string" && /^UC[\w-]{22}$/.test(c.id) && typeof c.name === "string" && typeof c.category === "string" && c.enabled === true));
-  } catch { return CHANNELS; }
+  return readChannels().filter(c => isValidChannel(c) && c.enabled === true);
 }
+
 let cache: { expires: number; videos: ChannelVideo[] } | undefined;
+
+// Le cache est vidé quand le panel modifie les chaînes.
+export function clearVideoCache(): void { cache = undefined; }
+
 export async function discoverChannelVideos(): Promise<ChannelVideo[]> {
   if (cache && cache.expires > Date.now()) return cache.videos;
   const key = process.env.YOUTUBE_API_KEY;

@@ -10,3 +10,6 @@ coverage/
 android/.gradle/
 android/local.properties
 design/check-*.png
+
+# Données locales du panel (chaînes YouTube)
+data/
