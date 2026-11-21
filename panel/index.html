@@ -57,6 +57,24 @@
   </table>
 </div>
 
+<div id="zone-videos" class="carte" style="display:none">
+  <h2 style="margin-top:0">Vidéos ajoutées à la main</h2>
+  <p class="sub">Colle le lien d'une vidéo YouTube. Elle s'ajoute en tête du catalogue, sans clé API.</p>
+  <label for="video-lien">Lien YouTube</label>
+  <input id="video-lien" placeholder="https://www.youtube.com/watch?v=...">
+  <label for="video-titre">Titre (facultatif)</label>
+  <input id="video-titre" maxlength="140" placeholder="Ex. La chanson des animaux">
+  <label for="video-rubrique">Rubrique</label>
+  <select id="video-rubrique"><option value="comptines">Comptines</option><option value="dessins_animes">Dessins animés</option><option value="apprentissage">Apprentissage</option></select>
+  <button id="ajouter-video">Ajouter la vidéo</button>
+  <div id="msg-video" class="msg"></div>
+  <h2>Vidéos ajoutées</h2>
+  <table>
+    <thead><tr><th>Titre</th><th>Rubrique</th><th>Identifiant</th><th></th></tr></thead>
+    <tbody id="liste-videos"></tbody>
+  </table>
+</div>
+
 <div id="zone-pubs" class="carte" style="display:none">
   <h2 style="margin-top:0">Pubs et projets du bandeau</h2>
   <p class="sub">Ces phrases défilent en bas de l'écran. Lien facultatif (https uniquement). Dates facultatives.</p>
@@ -107,7 +125,7 @@
 
   $('connexion').onclick = async () => {
     jeton = $('token').value.trim(); sessionStorage.setItem('bebetab-panel', jeton);
-    if (await charger()) { $('zone').style.display = 'block'; $('zone-pubs').style.display = 'block'; await chargerPubs(); dire($('msg-connexion'), 'Connecté.', true); }
+    if (await charger()) { $('zone').style.display = 'block'; $('zone-pubs').style.display = 'block'; $('zone-videos').style.display = 'block'; await chargerPubs(); await chargerVideos(); dire($('msg-connexion'), 'Connecté.', true); }
   };
 
   $('ajouter').onclick = async () => {
@@ -142,6 +160,30 @@
         </td>
       </tr>`).join('') : '<tr><td colspan="5">Aucune pub pour le moment.</td></tr>';
   }
+  const echapper = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function afficherVideos(videos) {
+    $('liste-videos').innerHTML = videos.length ? videos.map(v =>
+      `<tr><td>${echapper(v.title)}</td><td>${echapper(v.category)}</td><td>${echapper(v.id)}</td><td><button onclick="supprimerVideo('${encodeURIComponent(v.id)}')">Supprimer</button></td></tr>`
+    ).join('') : '<tr><td colspan="4">Aucune vidéo ajoutée.</td></tr>';
+  }
+  async function chargerVideos() {
+    const r = await fetch('/api/admin/videos', { headers: entetes() });
+    if (r.ok) afficherVideos((await r.json()).videos);
+  }
+  $('ajouter-video').onclick = async () => {
+    const r = await fetch('/api/admin/videos', { method: 'POST', headers: entetes(),
+      body: JSON.stringify({ url: $('video-lien').value, title: $('video-titre').value, category: $('video-rubrique').value }) });
+    const d = await r.json();
+    if (d.videos) afficherVideos(d.videos);
+    if (!r.ok) return dire($('msg-video'), d.error || 'Erreur', false);
+    $('video-lien').value = ''; $('video-titre').value = ''; dire($('msg-video'), 'Vidéo ajoutée au catalogue.', true);
+  };
+  window.supprimerVideo = async id => {
+    if (!confirm('Retirer cette vidéo ?')) return;
+    const r = await fetch('/api/admin/videos/' + id, { method: 'DELETE', headers: entetes() });
+    const d = await r.json(); if (r.ok) afficherVideos(d.videos);
+  };
+
   async function chargerPubs() {
     const r = await fetch('/api/admin/ads', { headers: entetes() });
     if (r.ok) afficherPubs((await r.json()).ads);

@@ -1,6 +1,7 @@
 import express from "express";
 import { approvedChannels, discoverChannelVideos, clearVideoCache } from "./src/server/channelDiscovery";
 import { readAds, writeAds, activeAds, isValidAd, TickerAd } from "./src/server/adStore";
+import { readManualVideos, writeManualVideos, parseVideoId, VIDEO_CATEGORIES, ManualVideo } from "./src/server/videoStore";
 import { readChannels, writeChannels, isValidChannel, parseChannelId, ChannelSource } from "./src/server/channelStore";
 import fs from "fs";
 import path from "path";
@@ -134,7 +135,14 @@ wss.on("connection", async (clientWs) => {
 // --- API ROUTES ---
 app.get("/api/education/channels", (_req, res) => res.json({ channels: approvedChannels() }));
 app.get("/api/education/videos", async (_req, res) => {
-  try { res.setHeader("Cache-Control", "public, max-age=900"); res.json({ videos: await discoverChannelVideos() }); }
+  try {
+    // Vidéos ajoutées à la main d'abord, puis le catalogue des chaînes ; sans doublon.
+    const manual = readManualVideos().map(v => ({ id: v.id, channelId: "", title: v.title, publishedAt: v.addedAt, thumbnail: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`, category: v.category }));
+    const seen = new Set<string>();
+    const videos = [...manual, ...(await discoverChannelVideos())].filter(v => !seen.has(v.id) && seen.add(v.id));
+    res.setHeader("Cache-Control", "public, max-age=900");
+    res.json({ videos });
+  }
   catch { res.status(503).json({ videos: [], error: "Catalogue temporairement indisponible" }); }
 });
 
@@ -182,6 +190,24 @@ app.delete("/api/admin/channels/:id", requireAdmin, (req, res) => {
 
 // Bandeau du bas : pubs et projets de l'équipe, publics en lecture seule
 app.get("/api/ticker", (_req, res) => { res.setHeader("Cache-Control", "no-store"); res.json({ ads: activeAds() }); });
+app.get("/api/admin/videos", requireAdmin, (_req, res) => res.json({ videos: readManualVideos() }));
+app.post("/api/admin/videos", requireAdmin, (req, res) => {
+  const id = parseVideoId(String(req.body?.url || ""));
+  if (!id) return res.status(400).json({ error: "Lien YouTube invalide (youtube.com ou youtu.be)" });
+  const list = readManualVideos();
+  if (list.some(v => v.id === id)) return res.status(409).json({ error: "Cette vidéo est déjà ajoutée", videos: list });
+  const category = VIDEO_CATEGORIES.includes(req.body?.category) ? req.body.category : "apprentissage";
+  const title = String(req.body?.title || "").trim() || "Vidéo éducative";
+  const candidate: ManualVideo = { id, title: title.slice(0, 140), category, addedAt: new Date().toISOString() };
+  list.unshift(candidate);
+  writeManualVideos(list);
+  res.status(201).json({ videos: list });
+});
+app.delete("/api/admin/videos/:id", requireAdmin, (req, res) => {
+  const list = readManualVideos().filter(v => v.id !== req.params.id);
+  writeManualVideos(list);
+  res.json({ videos: list });
+});
 app.get("/api/admin/ads", requireAdmin, (_req, res) => res.json({ ads: readAds() }));
 app.post("/api/admin/ads", requireAdmin, (req, res) => {
   const candidate: TickerAd = {
