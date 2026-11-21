@@ -148,6 +148,7 @@ export default function App(){
   }
  };
  const content=route.screen==='home'?<HomeHub user={user} onNavigate={navigate} onAssistant={()=>setIsFantiChatOpen(true)}/>:route.screen==='world'?<WorldHub user={user} onNavigate={navigate}/>:route.screen==='country'?<CountryHub key={route.country} route={route} user={user} onNavigate={navigate}/>:hubCards[route.screen]&&!route.activity?<ActivityHub route={route} user={user} onNavigate={navigate}/>:<ActivityBoundary key={destinationHash(route)} onBack={back}><div className="activity-module"><div className="module-art-banner"><Art name={screenMeta[route.screen]?.art||'worlds'}/><strong>{screenMeta[route.screen]?.title}</strong><button onClick={back}>← Retour</button></div>{module()}</div></ActivityBoundary>;
+ if(route.screen==='home'&&!user.isLockedByTime)return <MockupFlow/>;
  return <>
   {user.isLockedByTime?<div className="rest-screen"><Art name="rest"/><section><h1>C’est l’heure de se reposer !</h1><p>À bientôt pour une nouvelle aventure avec Fanti.</p><button className="primary-cta" onClick={()=>setIsParentsOpen(true)}>Espace parents</button></section></div>:<ExperienceShell route={route} user={user} onNavigate={navigate} onBack={back} onParents={()=>setIsParentsOpen(true)} onAssistant={()=>setIsFantiChatOpen(true)} onPremium={()=>setIsPremiumOpen(true)} onLanguage={language=>setUser(p=>({...p,language}))}>{content}</ExperienceShell>}
   <FantiChatModal isOpen={isFantiChatOpen} onClose={()=>setIsFantiChatOpen(false)} ageGroup={user.ageGroup} currentWorld={user.currentWorld}/>
