@@ -1,7 +1,7 @@
 import express from "express";
 import { approvedChannels, discoverChannelVideos, clearVideoCache } from "./src/server/channelDiscovery";
 import { readAds, writeAds, activeAds, isValidAd, TickerAd } from "./src/server/adStore";
-import { readManualVideos, writeManualVideos, parseVideoId, VIDEO_CATEGORIES, ManualVideo } from "./src/server/videoStore";
+import { readManualVideos, writeManualVideos, parseVideoId, ManualVideo, AGE_GROUPS, THEMES, themeFromCategory, ageFromCategory } from "./src/server/videoStore";
 import { readChannels, writeChannels, isValidChannel, parseChannelId, ChannelSource } from "./src/server/channelStore";
 import fs from "fs";
 import path from "path";
@@ -137,9 +137,14 @@ app.get("/api/education/channels", (_req, res) => res.json({ channels: approvedC
 app.get("/api/education/videos", async (_req, res) => {
   try {
     // Vidéos ajoutées à la main d'abord, puis le catalogue des chaînes ; sans doublon.
-    const manual = readManualVideos().map(v => ({ id: v.id, channelId: "", title: v.title, publishedAt: v.addedAt, thumbnail: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`, category: v.category }));
+    const manual = readManualVideos().map(v => ({ id: v.id, title: v.title, publishedAt: v.addedAt, thumbnail: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`, theme: v.theme, ageGroup: v.ageGroup }));
+    const chaines = (await discoverChannelVideos()).map(v => ({ id: v.id, title: v.title, publishedAt: v.publishedAt, thumbnail: v.thumbnail, theme: themeFromCategory(v.category), ageGroup: ageFromCategory(v.category) }));
     const seen = new Set<string>();
-    const videos = [...manual, ...(await discoverChannelVideos())].filter(v => !seen.has(v.id) && seen.add(v.id));
+    let videos = [...manual, ...chaines].filter(v => !seen.has(v.id) && seen.add(v.id));
+    // Filtres facultatifs : ?age=5-7&theme=musique
+    const age = String(_req.query.age || ""), theme = String(_req.query.theme || "");
+    if (AGE_GROUPS.includes(age)) videos = videos.filter(v => v.ageGroup === age);
+    if (THEMES.includes(theme)) videos = videos.filter(v => v.theme === theme);
     res.setHeader("Cache-Control", "public, max-age=900");
     res.json({ videos });
   }
@@ -196,9 +201,10 @@ app.post("/api/admin/videos", requireAdmin, (req, res) => {
   if (!id) return res.status(400).json({ error: "Lien YouTube invalide (youtube.com ou youtu.be)" });
   const list = readManualVideos();
   if (list.some(v => v.id === id)) return res.status(409).json({ error: "Cette vidéo est déjà ajoutée", videos: list });
-  const category = VIDEO_CATEGORIES.includes(req.body?.category) ? req.body.category : "apprentissage";
+  const theme = THEMES.includes(req.body?.theme) ? req.body.theme : "apprendre";
+  const ageGroup = AGE_GROUPS.includes(req.body?.ageGroup) ? req.body.ageGroup : "2-4";
   const title = String(req.body?.title || "").trim() || "Vidéo éducative";
-  const candidate: ManualVideo = { id, title: title.slice(0, 140), category, addedAt: new Date().toISOString() };
+  const candidate: ManualVideo = { id, title: title.slice(0, 140), theme, ageGroup, addedAt: new Date().toISOString() };
   list.unshift(candidate);
   writeManualVideos(list);
   res.status(201).json({ videos: list });

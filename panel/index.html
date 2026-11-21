@@ -64,13 +64,15 @@
   <input id="video-lien" placeholder="https://www.youtube.com/watch?v=...">
   <label for="video-titre">Titre (facultatif)</label>
   <input id="video-titre" maxlength="140" placeholder="Ex. La chanson des animaux">
-  <label for="video-rubrique">Rubrique</label>
-  <select id="video-rubrique"><option value="comptines">Comptines</option><option value="dessins_animes">Dessins animés</option><option value="apprentissage">Apprentissage</option></select>
+  <label for="video-theme">Thème BébéTab</label>
+  <select id="video-theme"><option value="monde">Monde</option><option value="apprendre">Apprendre</option><option value="histoires">Histoires</option><option value="musique">Musique</option><option value="jouer">Jouer</option><option value="dessiner">Dessiner</option></select>
+  <label for="video-age">Tranche d'âge</label>
+  <select id="video-age"><option value="2-4">2-4 ans</option><option value="5-7">5-7 ans</option><option value="8-10">8-10 ans</option></select>
   <button id="ajouter-video">Ajouter la vidéo</button>
   <div id="msg-video" class="msg"></div>
   <h2>Vidéos ajoutées</h2>
   <table>
-    <thead><tr><th>Titre</th><th>Rubrique</th><th>Identifiant</th><th></th></tr></thead>
+    <thead><tr><th>Titre</th><th>Thème</th><th>Âge</th><th>Identifiant</th><th></th></tr></thead>
     <tbody id="liste-videos"></tbody>
   </table>
 </div>
@@ -163,8 +165,8 @@
   const echapper = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function afficherVideos(videos) {
     $('liste-videos').innerHTML = videos.length ? videos.map(v =>
-      `<tr><td>${echapper(v.title)}</td><td>${echapper(v.category)}</td><td>${echapper(v.id)}</td><td><button onclick="supprimerVideo('${encodeURIComponent(v.id)}')">Supprimer</button></td></tr>`
-    ).join('') : '<tr><td colspan="4">Aucune vidéo ajoutée.</td></tr>';
+      `<tr><td>${echapper(v.title)}</td><td>${echapper(v.theme)}</td><td>${echapper(v.ageGroup)}</td><td>${echapper(v.id)}</td><td><button onclick="supprimerVideo('${encodeURIComponent(v.id)}')">Supprimer</button></td></tr>`
+    ).join('') : '<tr><td colspan="5">Aucune vidéo ajoutée.</td></tr>';
   }
   async function chargerVideos() {
     const r = await fetch('/api/admin/videos', { headers: entetes() });
@@ -172,7 +174,7 @@
   }
   $('ajouter-video').onclick = async () => {
     const r = await fetch('/api/admin/videos', { method: 'POST', headers: entetes(),
-      body: JSON.stringify({ url: $('video-lien').value, title: $('video-titre').value, category: $('video-rubrique').value }) });
+      body: JSON.stringify({ url: $('video-lien').value, title: $('video-titre').value, theme: $('video-theme').value, ageGroup: $('video-age').value }) });
     const d = await r.json();
     if (d.videos) afficherVideos(d.videos);
     if (!r.ok) return dire($('msg-video'), d.error || 'Erreur', false);

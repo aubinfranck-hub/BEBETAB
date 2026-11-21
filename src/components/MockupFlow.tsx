@@ -3,7 +3,9 @@ import { BebeTabTicker } from "./BebeTabTicker";
 
 // Écrans de BébéTab tels que dessinés dans les maquettes : image plein écran + zones cliquables.
 type Zone = { l: number; t: number; w: number; h: number; go?: string; toast?: string; nom?: string; video?: boolean };
-type Video = { id: string; title: string; thumbnail: string };
+type Video = { id: string; title: string; thumbnail: string; theme: string; ageGroup: string };
+const AGES = ["2-4", "5-7", "8-10"];
+const THEMES_VIDEO = [["monde", "Monde"], ["apprendre", "Apprendre"], ["histoires", "Histoires"], ["musique", "Musique"], ["jouer", "Jouer"], ["dessiner", "Dessiner"]];
 type Ecran = { img: string; zones: Zone[] };
 
 const ECRANS: Record<string, Ecran> = {
@@ -61,6 +63,10 @@ const ECRANS: Record<string, Ecran> = {
 const VideoPlayer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [videos, setVideos] = useState<Video[] | null>(null);
   const [choisie, setChoisie] = useState<string>("");
+  const [age, setAge] = useState<string>("");
+  const [theme, setTheme] = useState<string>("");
+  const filtrees = (videos || []).filter(v => (!age || v.ageGroup === age) && (!theme || v.theme === theme));
+  const chip = (actif: boolean) => "px-3 py-1 rounded-full text-sm font-black " + (actif ? "bg-yellow-300 text-blue-900" : "bg-white/80 text-blue-700");
   useEffect(() => {
     fetch("/api/education/videos")
       .then(r => r.json())
@@ -78,10 +84,18 @@ const VideoPlayer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <iframe className="absolute inset-0 w-full h-full rounded-2xl" src={"https://www.youtube-nocookie.com/embed/" + choisie + "?autoplay=1&rel=0"} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen title="Vidéo" />
         </div>
       )}
+      <div className="flex flex-wrap gap-2 justify-center mb-3">
+        <button className={chip(!age)} onClick={() => setAge("")}>Tous les âges</button>
+        {AGES.map(a => <button key={a} className={chip(age === a)} onClick={() => setAge(a)}>{a} ans</button>)}
+      </div>
+      <div className="flex flex-wrap gap-2 justify-center mb-4">
+        <button className={chip(!theme)} onClick={() => setTheme("")}>Tous les thèmes</button>
+        {THEMES_VIDEO.map(([id, nom]) => <button key={id} className={chip(theme === id)} onClick={() => setTheme(id)}>{nom}</button>)}
+      </div>
       {videos === null && <div className="text-white text-center">Chargement…</div>}
-      {videos && videos.length === 0 && <div className="text-white text-center">Aucune vidéo disponible pour le moment.</div>}
+      {videos && filtrees.length === 0 && <div className="text-white text-center">Aucune vidéo pour ce filtre.</div>}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-5xl mx-auto w-full">
-        {(videos || []).slice(0, 24).map(v => (
+        {filtrees.slice(0, 24).map(v => (
           <button key={v.id} onClick={() => setChoisie(v.id)} className="text-left bg-white rounded-2xl overflow-hidden shadow">
             <img src={v.thumbnail} alt="" className="w-full aspect-video object-cover" />
             <div className="p-2 text-sm font-bold text-blue-900 line-clamp-2">{v.title}</div>
