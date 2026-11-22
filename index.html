@@ -10,10 +10,25 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icon.svg" />
     <title>BEBETAB WORLD — Le monde dans tes mains</title>
+    <style>
+      /* Téléphone tenu en portrait : invitation à tourner l'appareil. Tablette et TV ne sont pas concernées. */
+      #tourner { display: none; position: fixed; inset: 0; z-index: 9999; background: #18b6e8; color: #fff; align-items: center; justify-content: center; flex-direction: column; font: 800 22px system-ui, sans-serif; text-align: center; padding: 24px; }
+      #tourner span { font-size: 64px; display: block; margin-bottom: 12px; }
+      @media (orientation: portrait) and (max-width: 900px) { #tourner { display: flex; } }
+    </style>
   </head>
   <body>
+    <div id="tourner"><div><span>📱↻</span>Tourne ton téléphone en paysage pour jouer</div></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Au premier toucher, on demande le paysage (fonctionne en plein écran sur Android).
+      document.addEventListener("pointerdown", function verrou() {
+        document.removeEventListener("pointerdown", verrou);
+        var o = screen.orientation;
+        if (o && o.lock) { o.lock("landscape").catch(function () {}); }
+      });
+    </script>
     <script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {})); }</script>
   </body>
 </html>
